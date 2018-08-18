@@ -1,0 +1,14 @@
+编译
+gcc c.c utils.c -lpthread -o c 
+gcc s.c utils.c -lpthread -o s
+
+服务端
+./s
+
+客户端
+
+ ./c /workspace/newiup.7z /workspace/libarchive.a /workspace/perseus5-develop.zip 
+ 
+ 
+ 
+可以重传

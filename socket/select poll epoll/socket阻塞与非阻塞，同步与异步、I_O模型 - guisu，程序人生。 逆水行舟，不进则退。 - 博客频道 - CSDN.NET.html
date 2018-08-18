@@ -1,0 +1,1470 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+     
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    
+<head>   
+   
+
+    <script type="text/javascript" src="http://c.csdnimg.cn/pubfooter/js/tracking.js" charset="utf-8"></script>  
+
+    <script type="text/javascript">
+        var protocol = window.location.protocol;
+        document.write('<script type="text/javascript" src="' + protocol + '//csdnimg.cn/pubfooter/js/repoAddr2.js?v=' + Math.random() + '"></' + 'script>');
+    </script>
+
+  
+ <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+
+    <title>socket阻塞与非阻塞，同步与异步、I/O模型 - guisu，程序人生。  逆水行舟，不进则退。
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="git log&#160;&#160;查看 提交历史在提交了若干更新之后，又或者克隆了某个项目，想回顾下提交历史，可以使用 git log 命令查看。接下来的例子会用我专门用于演示的 simplegit 项目，运行下面的命令获取该项目源代码：git clone git://github.com/schacon/simplegit-progit.git然后在此项目中运行 git log，应该会看到下面的" />
+    <script src="http://static.blog.csdn.net/scripts/jquery.js" type="text/javascript"></script>
+      <script type="text/javascript" src="http://static.blog.csdn.net/scripts/jquery-version.js"></script>
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/ad.js?v=1.1"></script>
+        <!--new top-->
+               <link rel="stylesheet" href="http://c.csdnimg.cn/public/common/toolbar/css/index.css">        <!--new top-->
+    
+      <!-- ad begin -->
+         <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/tracking.js"></script>
+    <!-- ad end-->
+
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/default/css/style.css?v=1.1" />
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/hguisu/rss/list" />
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/simple.css" />
+ 
+
+
+</head>
+<body>
+    <!-- 广告位开始 -->
+        <ins data-revive-zoneid="149" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+    
+   
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="http://c.csdnimg.cn/public/common/toolbar/js/html.js" type="text/javascript"></script>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/hguisu">guisu，程序人生。  逆水行舟，不进则退。</a></h2>
+            <h3>能干的人解决问题。智慧的人绕开问题(A clever person solves a problem. A wise person avoids it)</h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>
+            
+                <li id="btnContents"><a href="http://blog.csdn.net/hguisu?viewmode=contents"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_mulu'])">
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/hguisu?viewmode=list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_zhaiyao'])">
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/hguisu/rss/list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>                
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "hguisu";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/hguisu";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";  
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod='popu_3' > 
+
+<a href="http://edu.csdn.net/huiyiCourse/detail/111
+">
+<font color=red>【免费公开课】C语言指针与汇编内存地址
+</font></a>
+&nbsp;&nbsp;&nbsp;
+<a href="http://blog.csdn.net/blogdevteam/article/details/51198465">
+<font color=blue>有奖试读—漫话程序员面试求职、升职加薪、创业与生活</font></a>
+&nbsp;&nbsp;&nbsp;
+
+
+</font></a>
+</div>                        </div>
+                        
+
+
+
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="72" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->
+
+  
+<link href="http://static.blog.csdn.net/css/comment1.css" type="text/css" rel="stylesheet" />
+<link href="http://static.blog.csdn.net/css/style1.css" type="text/css" rel="stylesheet" />
+<script language='JavaScript' type='text/javascript' src='http://download.csdn.net/js/jquery.cookie.js'></script>
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/search-service/main.js"></script>
+<link rel="stylesheet" href="http://static.blog.csdn.net/public/res-min/markdown_views.css?v=1.0" />
+<link rel="stylesheet" href="http://static.blog.csdn.net/css/category.css?v=1.0" />
+<script type="text/javascript" src="http://static.blog.csdn.net/public/res/bower-libs/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+
+ <script type="text/javascript" src="http://static.blog.csdn.net/scripts/web-storage-cache.min.js"></script>
+
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/web-storage-cache.min.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/replace.min.js"></script>
+
+  <script type="text/ecmascript">
+      window.quickReplyflag = true;
+           
+            var isBole = false;
+            
+          
+    </script>
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Original"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="/hguisu/article/details/7453390">
+        socket阻塞与非阻塞，同步与异步、I/O模型            
+        </a></span>
+    </h1>
+</div>
+
+   
+
+        <div class="article_manage clearfix">
+        <div class="article_l">
+            <span class="link_categories">
+            标签：
+              <a href='http://www.csdn.net/tag/socket' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">socket</a><a href='http://www.csdn.net/tag/sockets' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">sockets</a><a href='http://www.csdn.net/tag/windows' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">windows</a><a href='http://www.csdn.net/tag/api' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">api</a><a href='http://www.csdn.net/tag/%e6%9c%8d%e5%8a%a1%e5%99%a8' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">服务器</a>
+            </span>
+        </div>
+        <div class="article_r">
+            <span class="link_postdate">2012-04-12 16:35</span>
+            <span class="link_view" title="阅读次数">107326人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="#comments" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_pinglun'])">评论</a>(53)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle('socket阻塞与非阻塞，同步与异步、I/O模型','7453390');return false;" title="收藏">收藏</a></span>
+             <span class="link_report"> <a href="#report" onclick="javascript:report(7453390,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+    <div class="embody"  style="display:none" id="embody">
+        <span class="embody_t">本文章已收录于：</span>
+        <div class="embody_c" id="lib" value="{&quot;err&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:[]}"></div>
+    </div>
+    <style type="text/css">        
+            .embody{
+                padding:10px 10px 10px;
+                margin:0 -20px;
+                border-bottom:solid 1px #ededed;                
+            }
+            .embody_b{
+                margin:0 ;
+                padding:10px 0;
+            }
+            .embody .embody_t,.embody .embody_c{
+                display: inline-block;
+                margin-right:10px;
+            }
+            .embody_t{
+                font-size: 12px;
+                color:#999;
+            }
+            .embody_c{
+                font-size: 12px;
+            }
+            .embody_c img,.embody_c em{
+                display: inline-block;
+                vertical-align: middle;               
+            }
+             .embody_c img{               
+                width:30px;
+                height:30px;
+            }
+            .embody_c em{
+                margin: 0 20px 0 10px;
+                color:#333;
+                font-style: normal;
+            }
+    </style>
+    <script  type="text/javascript">
+        $(function () {
+            var lib = eval("("+$("#lib").attr("value")+")");
+            var html = "";
+            if (lib.err == 0) {
+                $.each(lib.data, function (i) {
+                    var obj = lib.data[i];
+                    //html += '<img src="' + obj.logo + '"/>' + obj.name + "&nbsp;&nbsp;";
+                    html += ' <a href="' + obj.url + '" target="_blank">';
+                    html += ' <img src="' + obj.logo + '">';
+                    html += ' <em><b>' + obj.name + '</b></em>';
+                    html += ' </a>';
+                });
+                if (html != "") {
+                    setTimeout(function () {
+                        $("#lib").html(html);
+                        /*
+                        var testhtml = "";
+                        testhtml += '<a href="#">';
+                        testhtml += '<img src="http://img.knowledge.csdn.net/upload/base/1455589744328_328.jpg">';
+                        testhtml += '<em>Android知识库</em>';
+                        testhtml += '</a>';
+                        $(".embody_c").html(testhtml);
+                        */
+                        $("#embody").show();
+                    }, 100);
+                }
+            }          
+            
+        });
+    </script>
+      <div class="category clearfix">
+        <div class="category_l">
+           <img src="http://static.blog.csdn.net/images/category_icon.jpg">
+            <span>分类：</span>
+        </div>
+        <div class="category_r">
+                    <label  onclick="GetCategoryArticles('1080443','hguisu','top','7453390');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">c/c++<em>（22）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/hguisu/article/category/1080443"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_1080443">                            
+                            </ul>
+                        </div>
+                    </label>                    
+                    <label  onclick="GetCategoryArticles('1122753','hguisu','top','7453390');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">socket网络编程<em>（7）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/hguisu/article/category/1122753"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_1122753">                            
+                            </ul>
+                        </div>
+                    </label>                    
+        </div>
+    </div>
+    <script   type="text/javascript" src="http://static.blog.csdn.net/scripts/category.js"></script>  
+        <div   class="bog_copyright">         
+            <p  class="copyright_p" >版权声明：本文为博主原创文章，未经博主允许不得转载。</p>
+        </div>
+
+  
+
+  
+  
+     
+
+<div id="article_content" class="article_content">
+
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px; background-color:rgb(255,255,255)"><a target="_blank" target="_blank" href="http://blog.csdn.net/hguisu/article/details/7453390" style="text-decoration:none; font-family:'Microsoft YaHei'; font-size:20px; line-height:30px; text-align:left"><span style="color:#3333ff">socket阻塞与非阻塞，同步与异步</span></a><br>
+</span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="background-color:rgb(255,255,255)">作者：<span style="color:#cc9933"><a target="_blank" target="_blank" href="http://blog.csdn.net/hguisu?viewmode=list">huangguisu</a></span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left; line-height:18px">
+<span style="background-color:rgb(255,255,255)"><span style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt"></span></span></p>
+<h2 style="margin:0px; padding:0px; color:rgb(51,51,51); font-family:Arial; line-height:26px">
+<p class="headline-1 bk-sidecatalog-title" style="margin-top:0px; margin-bottom:10px; padding-top:0px; padding-bottom:6px; border-bottom-color:rgb(222,223,225); border-bottom-width:1px; border-bottom-style:solid; clear:both">
+<span style="color:#336699"><span style="line-height:36px; font-size:22px">1. 概念理解</span></span></p>
+</h2>
+<p></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; text-align:left; line-height:18px">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:10.5pt; margin:0px; padding:0px; line-height:21px">&nbsp; &nbsp; &nbsp;在进行网络编程时，我们常常见到<span style="font-family:Arial,Helvetica,sans-serif,宋体; font-size:12px; line-height:16px; text-indent:24px">同步(Sync)/异步(Async)，阻塞(Block)/非阻塞(Unblock)</span>四种调用方式：</span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; text-align:left; line-height:18px">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:10.5pt; margin:0px; padding:0px; line-height:21px"><span style="font-family:verdana,ms song,宋体,Arial,微软雅黑,Helvetica,sans-serif"><br>
+</span></span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; text-align:left; line-height:18px">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:10.5pt; margin:0px; padding:0px; line-height:21px"><span style="font-family:verdana,ms song,宋体,Arial,微软雅黑,Helvetica,sans-serif"><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap"><strong><span style="color:#ff0000">同步/异步主要针对C端:&nbsp;</span></strong></span><br style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px">
+</span></span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:10.5pt; margin:0px; padding:0px; line-height:21px"><strong><span style="color:#3333ff">同步：</span></strong></span><span style="font-family:Verdana; font-size:10.5pt; margin:0px; padding:0px; line-height:21px"><br style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px"><span style="font-size:10.5pt">所谓同步，就是在c端发出一个功能调用时，在没有得到结果之前，该调用就不返回。</span><span style="font-size:12px"><span style="font-family:宋体; color:#666666; text-indent:32px; line-height:24px"><strong>也就是必须一件一件事做</strong></span><span style="font-family:宋体,Arial; color:#666666; line-height:18px; text-indent:32px"><span lang="EN-US" style="line-height:24px"><span style="font-family:'Times New Roman'">,</span></span><span style="font-family:宋体; line-height:24px">等前一件做完了才能做下一件事。</span></span></span></span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; text-align:left; line-height:18px">
+<span style="background-color:rgb(255,255,255)"><span style="margin:0px; padding:0px; line-height:21px"><span style="font-size:12px"><span style="font-family:宋体,Arial; color:#666666; line-height:18px; text-indent:32px"><span style="font-family:宋体; line-height:24px"></span></span></span></span></span></p>
+<p align="left" style="color:rgb(102,102,102)">例如普通<span style="font-family:Times New Roman">B/S</span>模式（同步）：提交请求<span style="font-family:'Times New Roman'">-&gt;</span>等待服务器处理<span style="font-family:'Times New Roman'">-&gt;</span>处理完毕返回<span style="font-family:'Times New Roman'">&nbsp;</span>这个期间客户端浏览器不能干任何事</p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-size:12px; line-height:18px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt"><strong><span style="color:#3333ff">异步：</span></strong></span><span style="font-family:Verdana; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt"><br style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt">异步的概念和同步相对。当c端一个异步过程调用发出后，调用者不能立刻得到结果。实际处理这个调用的部件在完成后，通过状态、通知和回调来通知调用者。</span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; line-height:18px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px"><span style="font-size:10.5pt">&nbsp; &nbsp; &nbsp;</span><span style="font-family:宋体; font-size:12px; color:#666666; line-height:24px; text-indent:32px">例如
+ ajax请求（</span><span style="font-size:12px"><span style="font-family:宋体; color:#666666; text-indent:32px; line-height:24px">异步）</span><span lang="EN-US" style="font-family:宋体,Arial; color:#666666; text-indent:32px; line-height:24px"><span style="font-family:Times New Roman">:&nbsp;</span></span><span style="font-family:宋体; color:#666666; text-indent:32px; line-height:24px">请求通过事件触发</span><span lang="EN-US" style="font-family:宋体,Arial; color:#666666; text-indent:32px; line-height:24px"><span style="font-family:Times New Roman">-&gt;</span></span><span style="font-family:宋体; color:#666666; text-indent:32px; line-height:24px">服务器处理（这是浏览器仍然可以作其他事情）</span><span lang="EN-US" style="font-family:宋体,Arial; color:#666666; text-indent:32px; line-height:24px"><span style="font-family:Times New Roman">-&gt;</span></span><span style="font-family:宋体; color:#666666; text-indent:32px; line-height:24px">处理完毕</span></span></span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; line-height:18px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px"><span style="font-size:12px"><span style="font-family:宋体; color:#666666; text-indent:32px; line-height:24px"><br>
+</span></span></span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; line-height:18px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px"><span style="font-size:12px"><span style="font-family:宋体; text-indent:32px; line-height:24px"><strong><span style="color:#ff0000"><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">阻塞</span><span style="margin:0px; padding:0px; max-width:100%; font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">/</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">非阻塞主要针对</span><span style="margin:0px; padding:0px; max-width:100%; font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">S</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">端</span><span style="margin:0px; padding:0px; max-width:100%; font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">:
+</span></span></strong><br>
+</span></span></span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; line-height:18px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt"><span style="color:#3333ff"><strong>阻塞</strong></span></span><span style="font-family:Verdana; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt"><br style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt">阻塞调用是指调用结果返回之前，当前线程会被挂起（线程进入非可执行状态，在这个状态下，cpu不会给线程分配时间片，即线程暂停运行）。函数只有在得到结果之后才会返回。</span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; line-height:18px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt"><br>
+</span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; line-height:18px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt">&nbsp; &nbsp; &nbsp;有人也许会把阻塞调用和同步调用等同起来，实际上他是不同的。对于同</span><span style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt">步调用来说，很多时候当前线程还是激活的，只是从逻辑上当前函数没有返回而已。</span><span style="font-size:10.5pt; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px">&nbsp;例如，我们在s</span><span style="font-size:12px; line-height:18px; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px"><span style="font-family:Verdana; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt">ocket</span></span><span style="font-size:10.5pt; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px">中调用r</span><span style="font-family:Verdana; font-size:10.5pt; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px">ecv</span><span style="font-size:10.5pt; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px">函数，如果缓冲区中没有数</span><span style="font-size:10.5pt; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px">据，这个函数就会一直等待，直到有数据才返回。而此时，当前线程还会继续处理各种各样的消息。</span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; line-height:18px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="margin:0px; padding:0px; line-height:21px"><span style="font-family:tahoma,宋体; line-height:22px"><span style="color:rgb(255,0,0); font-size:16px; font-family:Simsun; line-height:24px">&nbsp; &nbsp;</span><span style="font-size:14px; font-family:tahoma,宋体; line-height:22px"><strong><span style="color:#ff0000">快递的例子：</span></strong><span style="color:#3333ff">比如到你某个时候到A楼一层（假如是内核缓冲区）取<span style="font-family:tahoma,宋体; font-size:14px; line-height:22px">快递，但是你不知道快递什么时候过来，</span></span></span></span></span></span><span style="font-family:tahoma,宋体; font-size:14px; line-height:22px"><span style="color:#3333ff">你又不能干别的事，只能死等着。但你可以睡觉（进程处于休眠状态），<span style="font-family:tahoma,宋体; font-size:14px; line-height:22px">因为你知道快递把货送来时一定会给你打个电话（假定一定能叫醒你）。</span></span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; line-height:18px; text-align:left">
+<span style="color:rgb(51,51,51); font-family:tahoma,宋体; font-size:14px; line-height:22px"><br>
+</span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt"><span style="color:#3333ff"><strong>非阻塞</strong></span></span><span style="font-family:Verdana; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt"><br style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt">非阻塞和阻塞的概念相对应，指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。</span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-size:12px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="margin:0px; padding:0px; line-height:21px; font-size:10.5pt"><span style="font-family:verdana,ms song,宋体,Arial,微软雅黑,Helvetica,sans-serif">&nbsp; &nbsp; &nbsp;<span style="color:#3333ff">还是等快递的例子：如果用忙轮询的方法，每隔5分钟到<span style="font-family:tahoma,宋体; font-size:14px; line-height:22px">A楼一层(</span><span style="font-family:tahoma,宋体; font-size:14px; line-height:22px"></span></span><span style="font-family:tahoma,宋体; font-size:14px; line-height:22px"><span style="color:#3333ff">内核缓冲区）去看快递来了没有。如果没来，立即返回。而快递来了，就放在<span style="font-family:tahoma,宋体; font-size:14px; line-height:22px">A楼一层，等你去取。</span></span></span></span></span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-size:12px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="margin:0px; padding:0px; line-height:21px; font-size:10.5pt"><span style="font-family:verdana,ms song,宋体,Arial,微软雅黑,Helvetica,sans-serif"><br style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px">
+</span></span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px; font-size:10.5pt">对象的阻塞模式和阻塞函数调用</span><span style="font-family:Verdana; margin:0px; padding:0px; line-height:21px; font-size:10.5pt"><br style="margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px">
+</span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px; font-size:10.5pt">对象是否处于阻塞模式和函数是不是阻塞调用有很强的相关性，但是并不是一一对应的。阻塞对象上可以有非阻塞的调用方式，我们可以通过一定的</span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:18px"><span style="font-family:Verdana; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt">API</span></span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px; font-size:10.5pt">去轮询状</span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; line-height:18px">&nbsp;</span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px; font-size:10.5pt">态，在适当的时候调用阻塞函数，就可以避免阻塞。而对于非阻塞对象，调用特殊的函数也可以进入阻塞调用。函数</span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:18px"><span style="font-family:Verdana; margin-top:0px; margin-right:0px; margin-bottom:0px; margin-left:0px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; line-height:21px; font-size:10.5pt">select</span></span><span style="font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; margin:0px; padding:0px; line-height:21px; font-size:10.5pt">就是这样的一个例子。</span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; line-height:18px; text-align:left">
+<br>
+</p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px"><span style="background-color:rgb(255,255,255)">1. 同步，就是我客户端</span><span style="background-color:rgb(255,255,102)">（c端调用者）</span><span style="background-color:rgb(255,255,255)">调用一个功能，该功能没有结束前，我</span><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,102)">（c端调用者）</span><span style="background-color:rgb(255,255,255)">死等结果。</span></span><br style="font-family:Arial; font-size:14px; line-height:21px">
+<span style="background-color:rgb(255,255,255); font-family:Arial; font-size:14px; line-height:21px">2. 异步，就是<span style="font-family:Arial; line-height:20px; text-align:left">我<span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,102)">（c端调用者）</span>调用一个功能，</span>不需要知道该功能结果，该功能有结果后通知我<span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,102)">（c端调用者）即</span>回调通知。</span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">同步</span><span style="font-family:Menlo; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; word-wrap:break-word!important">/</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">异步主要针对</span><span style="font-family:Menlo; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; word-wrap:break-word!important">C</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">端</span><span style="font-family:Menlo; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; word-wrap:break-word!important">,
+ 但是</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">跟</span><span style="font-family:Menlo; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; word-wrap:break-word!important">S</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">端不是完全没有关系，</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">同步</span><span style="font-family:Menlo; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; word-wrap:break-word!important">/</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">异步机制必须</span><span style="font-family:Menlo; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; word-wrap:break-word!important">S</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">端配合才能实现</span><span style="color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap"><span style="font-family:Menlo">.
+</span></span></span><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">同步</span><span style="line-height:20px; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">/</span><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">异步是由c端自己控制</span><span style="line-height:20px; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">,
+</span><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">但是</span><span style="line-height:20px; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">S</span><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">端是否阻塞</span><span style="line-height:20px; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">/</span><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">非阻塞</span><span style="line-height:20px; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">,
+ C</span><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">端完全不需要关心</span><span style="line-height:20px; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">.</span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><br style="font-family:Arial; font-size:14px; line-height:21px">
+<span style="background-color:rgb(255,255,255); font-family:Arial; font-size:14px; line-height:21px">3. 阻塞， &nbsp; &nbsp; &nbsp;就是调用我<span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,102)">（s端被调用者，<span style="font-family:Arial; font-size:14px; line-height:21px">函数</span></span>），我<span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,102)"></span><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,102)">（s端被调用者，函数</span><span style="font-family:Arial; font-size:14px; line-height:21px">）</span><span style="font-family:Arial; line-height:20px; text-align:left"></span>没有接收完数据或者没有得到结果之前，我不会返回。</span><br style="font-family:Arial; font-size:14px; line-height:21px">
+<span style="background-color:rgb(255,255,255); font-family:Arial; font-size:14px; line-height:21px">4. 非阻塞， &nbsp;就是调用我<span style="font-family:Arial; line-height:20px; text-align:left"><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,102)">（s端被调用者，函数</span><span style="font-family:Arial; font-size:14px; line-height:21px">）</span></span>，我<span style="font-family:Arial; line-height:20px; text-align:left"><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,102)">（s端被调用者，函数</span><span style="font-family:Arial; font-size:14px; line-height:21px">）</span></span>立即返回，<span style="font-family:Arial; line-height:20px; text-align:left">通过select通知调用者</span></span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="background-color:rgb(255,255,255); font-family:Arial; font-size:14px; line-height:21px"><span style="font-family:Arial; line-height:20px; text-align:left"><span style="margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important"><br>
+</span></span></span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,255)"></span></span></p>
+<p>同步IO和异步IO的区别就在于：<span style="color:#ff0000">数据访问的时候进程是否阻塞！</span></p>
+<p><span style="color:#ff0000"></span><span style="color:#000000">阻塞IO和非阻塞IO的区别就在于：</span><span style="color:#ff0000">应用程序的调用是否立即返回！</span></p>
+<div style="font-family:Arial; line-height:21px"><span style="background-color:rgb(255,255,255)"><br>
+</span></div>
+<div style="font-family:Arial; line-height:21px"><span style="background-color:rgb(255,255,255)"><span style="font-family:Helvetica,Arial,sans-serif; font-size:12px; color:#00ff; line-height:19px; text-align:left">同步和异步都只针对于本机SOCKET而言的。</span><br>
+</span></div>
+<div style="font-family:Arial; line-height:21px"><span style="font-family:Helvetica,Arial,sans-serif; font-size:12px; color:#00ff; line-height:19px; text-align:left; background-color:rgb(255,255,255)"></span>
+<p style="margin-top:5px; margin-right:auto; margin-left:auto; margin-bottom:5px; font-family:Arial; font-size:14px; line-height:25px">
+<span style="background-color:rgb(255,255,255)">同步和异步,阻塞和非阻塞,有些混用,其实它们完全不是一回事,而且它们修饰的对象也不相同。<br>
+阻塞和非阻塞是指当server端的进程访问的数据如果尚未就绪,进程是否需要等待,</span><span style="background-color:rgb(255,204,0)">简单说这相当于函数内部的实现区别</span><span style="background-color:rgb(255,255,255)">,也就是未就绪时是直接返回还是等待就绪;</span></p>
+<p style="margin-top:5px; margin-right:auto; margin-left:auto; margin-bottom:5px; font-family:Arial; font-size:14px; line-height:25px">
+<span style="background-color:rgb(255,255,255)">而同步和异步是</span><span style="background-color:rgb(255,204,0)">指client端访问数据的机制</span><span style="background-color:rgb(255,255,255)">,同步一般指主动请求并等待I/O操作完毕的方式,当数据就绪后在读写的时候必须阻塞(区别就绪与读写二个阶段,同步的读写必须阻塞),异步则指主动请求数据后便可以继续处理其它任务,随后等待I/O,操作完毕的通知,这可以使进程在数据读写时也不阻塞。(等待&quot;通知&quot;)</span></p>
+<p style="margin-top:5px; margin-right:auto; margin-left:auto; margin-bottom:5px; font-family:Arial; font-size:14px; line-height:25px">
+<span style="background-color:rgb(255,255,255)"><br>
+</span></p>
+<p style="margin-top:5px; margin-right:auto; margin-left:auto; margin-bottom:5px; font-family:Arial; font-size:14px; line-height:25px">
+<span style="background-color:rgb(255,255,255)"><span style="color:#ff0000">node.js里面的描述：</span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-left:auto; margin-bottom:5px; font-family:Arial; font-size:14px; line-height:25px">
+</p>
+<pre name="code" class="html">        线程在执行中如果遇到磁盘读写或网络通信（统称为I/O 操作），通常要耗费较长的时间，这时操作系统会剥夺这个线程的CPU 控制权，使其暂停执行，同时将资源让给其他的工作线程，这种线程调度方式称为 阻塞。当I/O 操作完毕时，操作系统将这个线程的阻塞状态解除，恢复其对CPU的控制权，令其继续执行。这种I/O 模式就是通常的同步式I/O（Synchronous I/O）或阻塞式I/O （Blocking I/O）。
+         相应地，异步式I/O （Asynchronous I/O）或非阻塞式I/O （Non-blocking I/O）则针对所有I/O 操作不采用阻塞的策略。当线程遇到I/O 操作时，不会以阻塞的方式等待I/O 操作的完成或数据的返回，而只是将I/O 请求发送给操作系统，继续执行下一条语句。当操作系统完成I/O 操作时，以事件的形式通知执行I/O 操作的线程，线程会在特定时候处理这个事件。为了处理异步I/O，线程必须有事件循环，不断地检查有没有未处理的事件，依次予以处理。阻塞模式下，一个线程只能处理一项任务，要想提高吞吐量必须通过多线程。而非阻塞模式下，一个线程永远在执行计算操作，&lt;span style=&quot;color:#ff0000;&quot;&gt;这个线程所使用的CPU 核心利用率永远是100%&lt;/span&gt;，I/O 以事件的方式通知。&lt;span style=&quot;color:#ff0000;&quot;&gt;在阻塞模式下，多线程往往能提高系统吞吐量，因为一个线程阻塞时还有其他线程在工作，多线程可以让CPU 资源不被阻塞中的线程浪费。&lt;/span&gt;而在非阻塞模式下，线程不会被I/O 阻塞，永远在利用CPU。多线程带来的好处仅仅是在多核CPU 的情况下利用更多的核，而Node.js的单线程也能带来同样的好处。这就是为什么Node.js 使用了单线程、非阻塞的事件编程模式。</pre>
+<p></p>
+</div>
+<h2 style="margin:0px; padding:0px; color:rgb(51,51,51); font-family:Arial; line-height:26px">
+<p class="headline-1 bk-sidecatalog-title" style="margin-top:0px; margin-bottom:10px; padding-top:0px; padding-bottom:6px; border-bottom-color:rgb(222,223,225); border-bottom-width:1px; border-bottom-style:solid; clear:both">
+<span style="color:#336699"><span style="line-height:36px; font-size:22px">2. Linux下的五种I/O模型</span></span></p>
+</h2>
+<div style="font-family:Arial; line-height:21px"><span style="font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left; background-color:rgb(255,255,255)"></span>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)">1)阻塞I/O（blocking I/O）<br>
+2)非阻塞I/O <span style="background-color:rgb(255,255,255)">（nonblocking I/O）</span><br>
+3) I/O复用(select 和poll) <span style="background-color:rgb(255,255,255)">（I/O multiplexing）</span><br>
+4)信号驱动I/O <span style="background-color:rgb(255,255,255)">（signal driven I/O (SIGIO)）</span><br>
+5)异步I/O <span style="background-color:rgb(255,255,255)">（asynchronous I/O (the POSIX aio_functions)）</span><br>
+</span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"></span></p>
+<p>前四种都是同步，只有最后一种才是异步IO。</p>
+<br>
+<h4><span style="background-color:rgb(255,255,255)"><span style="font-family:微软雅黑,Verdana,sans-serif,宋体; color:#3333ff; line-height:24px"><strong><span style="font-size:14px">阻塞I/O模型：</span></strong></span></span></h4>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="font-size:14px; background-color:rgb(255,204,0)">简介：进程会</span><span style="font-size:14px; color:#ff0000; background-color:rgb(255,204,0)">一直阻塞</span><span style="font-size:14px; background-color:rgb(255,204,0)">，直到数据拷贝完成</span><br>
+</p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="font-family:tahoma,宋体; font-size:14px; color:#333333; line-height:22px; background-color:rgb(255,255,255)">&nbsp;&nbsp;&nbsp;&nbsp; 应用程序调用一个IO函数，导致应用程序阻塞，等待数据准备好。 如果数据没有准备好，一直等待….数据准备好了，从内核拷贝到用户空间,IO函数返回成功指示。</span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="font-family:tahoma,宋体; font-size:14px; color:#333333; line-height:22px; background-color:rgb(255,255,255)">&nbsp; &nbsp; &nbsp;&nbsp;<span style="color:rgb(51,51,51); font-size:14px; line-height:26px; font-family:Arial">我们</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">&nbsp;第一次接触到的网络编程都是从</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">&nbsp;listen()</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">、</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">send()</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">、</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">recv()</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">等接口开始的。使用这些接口可以很方便的构建服务器</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">&nbsp;/</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">客户机的模型。</span></span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><strong><span style="color:#ff6600">阻塞I/O模型图：</span></strong><span style="font-family:Simsun; text-align:left; font-size:16px">在调用recv()/recvfrom（）函数时，发生在内核中等待数据和复制数据的过程。</span></span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><img src="http://my.csdn.net/uploads/201204/12/1334216532_9745.jpg" alt=""><br>
+</span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="font-family:Simsun; font-size:16px; background-color:rgb(255,255,255)">&nbsp; &nbsp;<span style="color:#ff0000">当调用recv()函数时，系统首先查是否有准备好的数据。如果数据没有准备好，那么系统就处于等待状态。当数据准备好后，将数据从</span><strong>系统缓冲区</strong><span style="color:#ff0000">复制到用户空间，然后该函数返回。在套接应用程序中，当调用recv()函数时，未必用户空间就已经存在数据，那么此时recv()函数就会处于等待状态。</span></span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="font-family:Simsun; font-size:16px; background-color:rgb(255,255,255)"></span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp; &nbsp; &nbsp;当使用socket()函数和WSASocket()函数创建套接字时，默认的套接字都是阻塞的。这意味着当调用Windows Sockets API不能立即完成时，线程处于等待状态，直到操作完成。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp; &nbsp; 并不是所有Windows Sockets API以阻塞套接字为参数调用都会发生阻塞。例如，以阻塞模式的套接字为参数调用bind()、listen()函数时，函数会立即返回。将可能阻塞套接字的Windows Sockets API调用分为以下四种:</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp; &nbsp; 1．输入操作：&nbsp;recv()、recvfrom()、WSARecv()和WSARecvfrom()函数。以阻塞套接字为参数调用该函数接收数据。如果此时套接字缓冲区内没有数据可读，则调用线程在数据到来前一直睡眠。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp; &nbsp; 2．输出操作：&nbsp;send()、sendto()、WSASend()和WSASendto()函数。以阻塞套接字为参数调用该函数发送数据。如果套接字缓冲区没有可用空间，线程会一直睡眠，直到有空间。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp; &nbsp; 3．接受连接：accept()和WSAAcept()函数。以阻塞套接字为参数调用该函数，等待接受对方的连接请求。如果此时没有连接请求，线程就会进入睡眠状态。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp; &nbsp;4．外出连接：connect()和WSAConnect()函数。对于TCP连接，客户端以阻塞套接字为参数，调用该函数向服务器发起连接。该函数在收到服务器的应答前，不会返回。这意味着TCP连接总会等待至少到服务器的一次往返时间。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">　　使用阻塞模式的套接字，开发网络程序比较简单，容易实现。当希望能够立即发送和接收数据，且处理的套接字数量比较少的情况下，使用阻塞模式来开发网络程序比较合适。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp; &nbsp; <span style="color:#ff6600">阻塞模式套接字的不足表现为，在大量建立好的套接字线程之间进行通信时比较困难。当使用“生产者-消费者”模型开发网络程序时，为每个套接字都分别分配一个读线程、一个处理数据线程和一个用于同步的事件，那么这样无疑加大系统的开销。其最大的缺点是当希望同时处理大量套接字时，将无从下手，其扩展性很差.</span></span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)"><span style="color:#ff6600"><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">&nbsp; &nbsp; &nbsp; 阻塞模式给网络编程带来了一个很大的问题，如在调用</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">&nbsp;send()</span><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">的同时，线程将被阻塞，在此期间，线程将无法执行任何运算或响应任何的网络请求。这给多客户机、多业务逻辑的网络编程带来了挑战。这时，我们可能会选择多线程的方式来解决这个问题。</span></span></span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)"><span style="color:#ff6600"><span style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)"></span></span></span></p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+&nbsp; &nbsp; &nbsp; &nbsp;应对多客户机的网络应用，最简单的解决方式是在服务器端使用多线程（或多进程）。多线程（或多进程）的目的是让每个连接都拥有独立的线程（或进程），这样任何一个连接的阻塞都不会影响其他的连接。</p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+&nbsp; &nbsp; &nbsp; &nbsp;具体使用多进程还是多线程，并没有一个特定的模式。传统意义上，进程的开销要远远大于线程，所以，如果需要同时为较多的客户机提供服务，则不推荐使用多进程；如果单个服务执行体需要消耗较多的&nbsp;<span class="dc52mg8ruzd1" id="dc52mg8ruzd1_6" style="list-style:none; float:none; font-weight:bold; display:inline!important; padding:0px!important; margin:0px!important; border-style:none none solid!important; border-bottom-width:1px!important; text-decoration:underline!important; color:rgb(0,0,255)!important; height:14px">CPU</span>&nbsp;资源，譬如需要进行大规模或长时间的数据运算或文件访问，则进程较为安全。通常，使用
+ pthread_create () 创建新线程，<span class="dc52mg8ruzd1" id="dc52mg8ruzd1_3" style="list-style:none; float:none; font-weight:bold; display:inline!important; padding:0px!important; margin:0px!important; border-style:none none solid!important; border-bottom-width:1px!important; text-decoration:underline!important; color:rgb(0,0,255)!important; height:14px">fork</span>()
+ 创建新进程。</p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+&nbsp; &nbsp; &nbsp; 多线程/进程服务器同时为多个客户机提供应答服务。模型如下：</p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+&nbsp; &nbsp; &nbsp; &nbsp;<img src="http://img.blog.csdn.net/20140818224818116?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvaGd1aXN1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+<span style="color:rgb(51,51,51); font-family:Arial; font-size:14px; line-height:26px">&nbsp; &nbsp; 主线程持续等待客户端的连接请求，如果有连接，则创建新线程，并在新线程中提供为前例同样的问答服务。</span><br>
+</p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+<span style="color:rgb(51,51,51); font-family:Arial; font-size:14px; line-height:26px"></span></p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+&nbsp; &nbsp; &nbsp; 上述多线程的服务器模型&#20284;乎完美的解决了为多个客户机提供问答服务的要求，但其实并不尽然。如果要同时响应成百上千路的连接请求，则无论多线程还是多进程都会严重占据系统资源，降低系统对外界响应效率，而线程与进程本身也更容易进入假死状态。</p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+&nbsp; &nbsp; &nbsp; &nbsp;由此可能会考虑使用“<strong>线程池</strong>”或“<strong>连接池</strong>”。“线程池”旨在减少创建和销毁线程的频率，其维持一定合理数量的线程，并让空闲的线程重新承担新的执行任务。“连接池”维持连接的缓存池，尽量重用已有的连接、减少创建和关闭连接的频率。这两种技术都可以很好的降低系统开销，都被广泛应用很多大型系统，如apache，mysql数据库等。</p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+&nbsp; &nbsp; &nbsp; 但是，“线程池”和“连接池”技术也只是在一定程度上缓解了频繁调用 IO 接口带来的资源占用。而且，所谓“池”始终有其上限，当请求大大超过上限时，“池”构成的系统对外界的响应并不比没有池的时候效果好多少。所以使用“池”必须考虑其面临的响应规模，并根据响应规模调整“池”的大小。</p>
+<p style="font-family:Arial; font-size:14px; line-height:26px; color:rgb(51,51,51)">
+&nbsp; &nbsp; &nbsp; 对应上例中的所面临的可能同时出现的上千甚至上万次的客户端请求，“线程池”或“连接池”或许可以缓解部分压力，但是不能解决所有问题。</p>
+<h4><span style="font-size:14px"><span style="background-color:rgb(255,255,255)"><span style="font-family:微软雅黑,Verdana,sans-serif,宋体; color:#3333ff; line-height:24px"><strong>非阻塞IO模型</strong></span></span>&nbsp;：</span></h4>
+</div>
+<p><span style="font-size:14px"></span></p>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="background-color:rgb(255,204,0)">简介：非阻塞IO通过进程反复调用IO函数（</span><span style="color:#ff0000; background-color:rgb(255,204,0)">多次系统调用，并马上返回</span><span style="background-color:rgb(255,204,0)">）；</span><span style="color:#ff0000; background-color:rgb(255,204,0)">在数据拷贝的过程中，进程是阻塞的</span><span style="background-color:rgb(255,204,0)">；</span></div>
+<p></p>
+<p><span style="font-size:14px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+</span></p>
+<p><span style="font-size:14px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 我们把一个SOCKET接口设置为非阻塞就是告诉内核，当所请求的I/O操作无法完成时，<span style="color:#ff0000"><strong>不要将进程睡眠</strong></span>，而是返回一个错误。这样我们的I/O操作函数将不断的测试数据是否已经准备好，如果没有准备好，继续测试，直到数据准备好为止。在这个不断测试的过程中，会大量的占用CPU的时间。</span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-family:Simsun; text-align:left; font-size:16px">&nbsp; &nbsp; 把<span style="font-size:14px"></span><span style="font-size:14px">SOCKET</span>设置为非阻塞模式，即通知系统内核：在调用Windows Sockets API时，不要让线程睡眠，而应该让函数立即返回。在返回时，该函数返回一个错误代码。图所示，一个非阻塞模式套接字多次调用recv()函数的过程。前三次调用recv()函数时，内核数据还没有准备好。因此，该函数立即返回WSAEWOULDBLOCK错误代码。第四次调用recv()函数时，数据已经准备好，被复制到应用程序的缓冲区中，recv()函数返回成功指示，应用程序开始处理数据。</span><br>
+</span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><img src="http://my.csdn.net/uploads/201204/12/1334216607_3004.jpg" alt=""><br>
+<br>
+</span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; font-size:14px; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-family:Simsun; text-align:left; font-size:16px">&nbsp; &nbsp; &nbsp;当使用socket()函数和WSASocket()函数创建套接字时，默认都是阻塞的。在创建套接字之后，通过调用ioctlsocket()函数，将该套接字设置为非阻塞模式。Linux下的函数是:fcntl().</span><br style="font-family:Simsun; text-align:left; font-size:16px">
+<span style="font-family:Simsun; text-align:left; font-size:16px">&nbsp;&nbsp;&nbsp; 套接字设置为非阻塞模式后，在调用Windows Sockets API函数时，调用函数会立即返回。大多数情况下，这些函数调用都会调用“失败”，并返回WSAEWOULDBLOCK错误代码。说明请求的操作在调用期间内没有时间完成。通常，应用程序需要重复调用该函数，直到获得成功返回代码。</span><br style="font-family:Simsun; text-align:left; font-size:16px">
+</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp;&nbsp;&nbsp; 需要说明的是并非所有的Windows Sockets API在非阻塞模式下调用，都会返回WSAEWOULDBLOCK错误。例如，以非阻塞模式的套接字为参数调用bind()函数时，就不会返回该错误代码。当然，在调用WSAStartup()函数时更不会返回该错误代码，因为该函数是应用程序第一调用的函数，当然不会返回这样的错误代码。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp;&nbsp;&nbsp; 要将套接字设置为非阻塞模式，除了使用ioctlsocket()函数之外，还可以使用WSAAsyncselect()和WSAEventselect()函数。当调用该函数时，套接字会自动地设置为非阻塞方式。<br>
+</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">　　由于使用非阻塞套接字在调用函数时，会经常返回WSAEWOULDBLOCK错误。所以在任何时候，都应仔细检查返回代码并作好对“失败”的准备。应用程序连续不断地调用这个函数，直到它返回成功指示为止。上面的程序清单中，在While循环体内不断地调用recv()函数，以读入1024个字节的数据。这种做法很浪费系统资源。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp;&nbsp;&nbsp; 要完成这样的操作，有人使用MSG_PEEK标志调用recv()函数查看缓冲区中是否有数据可读。同样，这种方法也不好。因为该做法对系统造成的开销是很大的，并且应用程序至少要调用recv()函数两次，才能实际地读入数据。较好的做法是，使用套接字的“I/O模型”来判断非阻塞套接字是否可读可写。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp;&nbsp;&nbsp; 非阻塞模式套接字与阻塞模式套接字相比，不容易使用。使用非阻塞模式套接字，需要编写更多的代码，以便在每个Windows Sockets API函数调用中，对收到的WSAEWOULDBLOCK错误进行处理。因此，非阻塞套接字便显得有些难于使用。</span></p>
+<p style="margin-top:10px; margin-bottom:10px; font-family:Simsun; text-align:left; font-size:16px">
+<span style="background-color:rgb(255,255,255)">&nbsp;&nbsp;&nbsp; 但是，非阻塞套接字在控制建立的多个连接，在数据的收发量不均，时间不定时，明显具有优势。这种套接字在使用上存在一定难度，但只要排除了这些困难，它在功能上还是非常强大的。通常情况下，可考虑使用套接字的“I/O模型”，它有助于应用程序通过异步方式，同时对一个或多个套接字的通信加以管理。</span></p>
+<span style="background-color:rgb(255,255,255)"><br>
+</span>
+<h3><span style="background-color:rgb(255,255,255)"><strong><span style="color:#3333ff"><span style="font-size:14px">IO复用模型：</span></span></strong></span></h3>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:14px">&nbsp;<span style="background-color:rgb(255,204,0)"> 简介：主要是select和epoll；对一个IO端口，两次调用，两次返回，比阻塞IO并没有什么优越性；关键是能实现同时对多个IO端口进行监听；</span></span><br>
+</p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:14px; color:#3333ff">&nbsp; &nbsp;</span><span style="font-size:14px">&nbsp; &nbsp;I/O复用模型会用到select、poll、epoll函数，这几个函数也会使进程阻塞，但是和阻塞I/O所不同的的，这两个函数可以同时阻塞多个I/O操作。而且可以同时对多个读操作，多个写操作的I/O函数进行检测，直到有数据可读或可写时，才真正调用I/O操作函数</span><span style="font-size:14px; color:#3333ff">。</span></span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:14px"><img src="http://my.csdn.net/uploads/201204/12/1334216620_6310.jpg" alt=""></span><br>
+</span></p>
+<h3><span style="background-color:rgb(255,255,255)"><span style="color:#3333ff"><strong><span style="font-size:14px">信号驱动IO</span></strong></span></span></h3>
+<p></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:14px; color:#3333ff">&nbsp; &nbsp;&nbsp;<span style="background-color:rgb(255,204,0)">简介：<span style="font-size:14px; color:#3333ff">两次调用，两次返回；</span></span><br>
+</span></span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:14px; color:#3333ff">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-size:14px">首先我们允许套接口进行信号驱动I/O,并安装一个信号处理函数，进程继续运行并不阻塞。当数据准备好时，进程会收到一个SIGIO信号，可以在信号处理函数中调用I/O操作函数处理数据。</span></span></p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:14px"><img src="http://my.csdn.net/uploads/201204/12/1334216632_6025.jpg" alt=""></span><br>
+</span></p>
+<h3><span style="background-color:rgb(255,255,255)"><strong><span style="color:#3333ff"><span style="font-size:14px">异步IO模型</span></span></strong></span></h3>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:14px"><span style="background-color:rgb(255,204,0)">&nbsp; 简介：数据拷贝的时候进程无需阻塞。</span></span><br>
+</p>
+<p style="padding-top:0px; padding-bottom:0px; margin-top:0px; margin-bottom:15px; font-family:微软雅黑,Verdana,sans-serif,宋体; line-height:24px; text-align:left">
+<span style="background-color:rgb(255,255,255)"><span style="font-size:14px; color:#3333ff"><strong>&nbsp; &nbsp; &nbsp;</strong></span><span style="font-size:14px">当一个异步过程调用发出后，调用者不能立刻得到结果。实际处理这个调用的部件在完成后，通过状态、通知和回调来通知调用者的输入输出操作</span></span></p>
+<span style="background-color:rgb(255,255,255)"><span style="font-family:Arial"><span style="line-height:21px"><img src="http://my.csdn.net/uploads/201204/12/1334216641_7821.jpg" alt=""></span></span><br>
+</span>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,255)">同步IO引起进程阻塞，直至IO操作完成。<br>
+异步IO不会引起进程阻塞。<br>
+IO复用是先通过select调用阻塞。<br>
+</span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,255)"><br>
+</span></span></p>
+<h3><span style="line-height:20px"><span style="font-family:Arial; line-height:21px; background-color:rgb(255,255,255)"><span style="color:#3333ff"><strong><span style="font-size:14px">5个I/O模型的比较：</span></strong></span></span></span></h3>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,255)"><img src="http://my.csdn.net/uploads/201204/12/1334216724_2405.jpg" alt=""><br>
+</span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,255)"><br>
+</span></span></p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px; background-color:rgb(255,255,255)"></span></span></p>
+<h2 style="margin:0px; padding:0px; color:rgb(51,51,51); font-family:Arial; line-height:26px">
+<p class="headline-1 bk-sidecatalog-title" style="margin-top:0px; margin-bottom:10px; padding-top:0px; padding-bottom:6px; border-bottom-color:rgb(222,223,225); border-bottom-width:1px; border-bottom-style:solid; clear:both">
+<span style="color:#336699"><span style="line-height:36px; font-size:22px">3. select、poll、epoll简介<br>
+</span></span></p>
+</h2>
+<span style="background-color:rgb(255,255,255)"></span>
+<p>epoll跟select都能提供多路I/O复用的解决方案。在现在的Linux内核里有都能够支持，其中epoll是Linux所特有，而select则应该是POSIX所规定，一般操作系统均有实现</p>
+<p style="margin-top:5px; margin-right:auto; margin-bottom:5px; margin-left:auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif; font-size:12px; text-align:left">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px"></span></span></p>
+<p style="text-align:left; line-height:25px; background-color:rgb(255,255,255); margin:12px auto; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51)">
+<strong><span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px">select：</span></span></strong></p>
+<p style="text-align:left; line-height:25px; background-color:rgb(255,255,255); margin:12px auto; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51)">
+<span style="line-height:20px"></span>select本质上是通过设置或者检查存放fd标志位的数据结构来进行下一步处理。这样所带来的缺点是：</p>
+<p style="line-height:1.8; margin:12px auto">1、 单个进程可监视的fd数量被限制，即能监听端口的大小有限。<br>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 一般来说这个数目和系统内存关系很大，具体数目可以cat /proc/sys/fs/file-max察看。32位机默认是1024个。64位机默认是2048.</p>
+<p>2、 对socket进行扫描时是线性扫描，即采用轮询的方法，效率较低：<br>
+</p>
+<p style="line-height:1.8; margin:12px auto">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 当套接字比较多的时候，每次select()都要通过遍历FD_SETSIZE个Socket来完成调度,不管哪个Socket是活跃的,都遍历一遍。这会浪费很多CPU时间。如果能给套接字注册某个回调函数，当他们活跃时，自动完成相关操作，那就避免了轮询，这正是epoll与kqueue做的。</p>
+<p style="line-height:1.8; margin:12px auto">3、需要维护一个用来存放大量fd的数据结构，这样会使得用户空间和内核空间在传递该结构时复制开销大</p>
+<p style="line-height:1.8; margin:12px auto"><strong><span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px">poll：</span></span></strong></p>
+<p style="line-height:1.8; margin:12px auto"><span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px"><span style="line-height:20px"></span></span></span>poll本质上和select没有区别，它将用户传入的数组拷贝到内核空间，然后查询每个fd对应的设备状态，如果设备就绪则在设备等待队列中加入一项并继续遍历，如果遍历完所有fd后没有发现就绪设备，则挂起当前进程，直到设备就绪或者主动超时，被唤醒后它又要再次遍历fd。这个过程经历了多次无谓的遍历。</p>
+<p style="line-height:1.8; margin:12px auto">它没有最大连接数的限制，原因是它是基于链表来存储的，但是同样有一个缺点：</p>
+<p style="line-height:1.8; margin:12px auto">1、大量的fd的数组被整体复制于用户态和内核地址空间之间，而不管这样的复制是不是有意义。&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2、poll还有一个特点是“水平触发”，如果报告了fd后，没有被处理，那么下次poll时会再次报告该fd。</p>
+<strong><span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px">epoll:</span></span></strong>
+<p style="line-height:1.8; margin:12px auto"><span style="line-height:20px"></span>epoll支持水平触发和边缘触发，最大的特点在于边缘触发，它只告诉进程哪些fd刚刚变为就需态，并且只会通知一次。还有一个特点是，epoll使用“事件”的就绪通知方式，通过epoll_ctl注册fd，一旦该fd就绪，内核就会采用类&#20284;callback的回调机制来激活该fd，epoll_wait便可以收到通知<br>
+</p>
+<p style="line-height:1.8; margin:12px auto"><span style="color:#000000; background-color:rgb(255,204,0)">epoll的优点：</span><br>
+</p>
+<p style="line-height:1.8; margin:12px auto"></p>
+<div><strong><span style="color:#3333FF"><span style="background-color:rgb(255,255,255)">1、没有最大并发连接的限制，</span></span></strong>能打开的FD的上限远大于1024（1G的内存上能监听约10万个端口）；<br>
+<span style="color:#3333FF"><strong>2、效率提升</strong></span>，不是轮询的方式，不会随着FD数目的增加效率下降。只有活跃可用的FD才会调用callback函数；<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color:rgb(255,204,0)"> 即Epoll最大的优点就在于它只管你“活跃”的连接，而跟连接总数无关，因此在实际的网络环境中，Epoll的效率就会远远高于select和poll。</span><br>
+</div>
+<div><strong><span style="color:#3333FF">3、&nbsp;内存拷贝</span></strong>，利用mmap()文件映射内存加速与内核空间的消息传递；即epoll使用mmap减少复制开销。<br>
+<br>
+<strong><span style="font-size:18px">select、poll、epoll 区别总结：</span></strong><br>
+</div>
+<p></p>
+<p style="text-align:left; line-height:25px; background-color:rgb(255,255,255); margin:12px auto; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51)">
+1、支持一个进程所能打开的最大连接数</p>
+<table border="1" cellpadding="0" cellspacing="0" style="border-bottom:rgb(192,192,192) 1px solid; text-align:left; border-left:rgb(192,192,192) 1px solid; line-height:25px; background-color:rgb(255,255,255); border-collapse:collapse; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51); border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid">
+<tbody>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">select</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">单个进程所能打开的最大连接数有FD_SETSIZE宏定义，其大小是32个整数的大小（在32位的机器上，大小就是32*32，同理64位机器上FD_SETSIZE为32*64），当然我们可以对进行修改，然后重新编译内核，但是性能可能会受到影响，这需要进一步的测试。</p>
+</td>
+</tr>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">poll</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">poll本质上和select没有区别，但是它没有最大连接数的限制，原因是它是基于链表来存储的</p>
+</td>
+</tr>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">epoll</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">虽然连接数有上限，但是很大，1G内存的机器上可以打开10万左右的连接，2G内存的机器可以打开20万左右的连接</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:left; line-height:25px; background-color:rgb(255,255,255); margin:12px auto; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51)">
+2、FD剧增后带来的IO效率问题</p>
+<table border="1" cellpadding="0" cellspacing="0" style="border-bottom:rgb(192,192,192) 1px solid; text-align:left; border-left:rgb(192,192,192) 1px solid; line-height:25px; background-color:rgb(255,255,255); border-collapse:collapse; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51); border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid">
+<tbody>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">select</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">因为每次调用时都会对连接进行线性遍历，所以随着FD的增加会造成遍历速度慢的“线性下降性能问题”。</p>
+</td>
+</tr>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">poll</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">同上</p>
+</td>
+</tr>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">epoll</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">因为epoll内核中实现是根据每个fd上的callback函数来实现的，只有活跃的socket才会主动调用callback，所以在活跃socket较少的情况下，使用epoll没有前面两者的线性下降的性能问题，但是所有socket都很活跃的情况下，可能会有性能问题。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:left; line-height:25px; background-color:rgb(255,255,255); margin:12px auto; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51)">
+3、 消息传递方式</p>
+<table border="1" cellpadding="0" cellspacing="0" style="border-bottom:rgb(192,192,192) 1px solid; text-align:left; border-left:rgb(192,192,192) 1px solid; line-height:25px; background-color:rgb(255,255,255); border-collapse:collapse; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51); border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid">
+<tbody>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">select</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">内核需要将消息传递到用户空间，都需要内核拷贝动作</p>
+</td>
+</tr>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">poll</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">同上</p>
+</td>
+</tr>
+<tr>
+<td width="111" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">epoll</p>
+</td>
+<td width="457" style="border-bottom:rgb(192,192,192) 1px solid; border-left:rgb(192,192,192) 1px solid; padding-bottom:3px; padding-left:3px; padding-right:3px; border-collapse:collapse; border-top:rgb(192,192,192) 1px solid; border-right:rgb(192,192,192) 1px solid; padding-top:3px">
+<p style="line-height:1.8; margin:12px auto">epoll通过内核和用户空间共享一块内存来实现的。</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p style="text-align:left; line-height:25px; background-color:rgb(255,255,255); margin:12px auto; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51)">
+<strong><span style="color:#ff0000">总结：</span></strong><br>
+</p>
+<p style="text-align:left; line-height:25px; background-color:rgb(255,255,255); margin:12px auto; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51)">
+综上，在选择select，poll，epoll时要根据具体的使用场合以及这三种方式的自身特点。</p>
+<p style="text-align:left; line-height:25px; background-color:rgb(255,255,255); margin:12px auto; font-family:Georgia,'Times new roman',Times,san-serif; color:rgb(51,51,51)">
+1、表面上看epoll的性能最好，但是在连接数少并且连接都十分活跃的情况下，select和poll的性能可能比epoll好，毕竟epoll的通知机制需要很多函数回调。</p>
+<p>2、<span style="color:#000000; background-color:rgb(255,204,0)">select低效是因为每次它都需要轮询。但低效也是相对的，视情况而定，也可通过良好的设计改善</span><br>
+</p>
+<div style="top:1144px">
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px"><span style="line-height:20px"><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">同步</span><span style="font-family:Menlo; margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; word-wrap:break-word!important">/</span><span style="font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; color:rgb(62,62,62); font-size:16px; line-height:25.59375px; white-space:pre-wrap">异步与阻塞<span style="margin:0px; padding:0px; max-width:100%; font-family:Menlo; word-wrap:break-word!important">/</span>非阻塞经常看到是成对出现：</span><br>
+</span></span></span></p>
+<p style="margin:5px auto; padding-top:0px; padding-bottom:0px; font-family:verdana,'ms song',宋体,Arial,微软雅黑,Helvetica,sans-serif">
+<span style="line-height:20px"><span style="font-family:Arial; font-size:14px; line-height:21px"><span style="line-height:20px"><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">同步阻塞</span><span style="margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">,
+</span><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">异步非阻塞</span><span style="margin:0px; padding:0px; max-width:100%; color:rgb(62,62,62); font-size:16px; white-space:pre-wrap; font-family:Menlo; word-wrap:break-word!important">,
+</span><span style="color:rgb(62,62,62); font-family:'Helvetica Neue',Helvetica,'Hiragino Sans GB','Microsoft YaHei',Arial,sans-serif; font-size:16px; line-height:25.59375px; white-space:pre-wrap">同步非阻塞</span></span></span></span></p>
+</div>
+   
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad" style="float: right;" data-mod="popu_172">
+<a href="#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"  style="background-position:0 -52px !important"></a>
+<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"style="background-position:0 -104px !important"></a>
+<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"style="background-position:0 -260px !important"></a>
+<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"style="background-position:0 -208px !important"></a>
+<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"style="background-position:0 -1612px !important" ></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+   <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_detail.css" />
+
+    
+<!--172.16.140.14-->
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+ 
+
+        <div id="digg" ArticleId="7453390">
+            <dl id="btnDigg" class="digg digg_disable">
+               
+                 <dt>顶</dt>
+                <dd>80</dd>
+            </dl>
+            <dl id="btnBury" class="digg digg_disable">
+              
+                  <dt>踩</dt>
+                <dd>3</dd>
+            </dl>
+        </div>
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span  onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian']);location.href='/hguisu/article/details/7449955';">上一篇</span><a href="/hguisu/article/details/7449955" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian'])">IP地址的三种表示格式及在Socket编程中的应用</a></li>
+                <li class="next_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian']);location.href='/hguisu/article/details/7454801';">下一篇</span><a href="/hguisu/article/details/7454801" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian'])">PHP中引用的详解(引用计数、写时拷贝)</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+        <div class="similar_article"  style="display:none">
+                <h4>我的同类文章</h4>
+                <div class="similar_c"style="margin:20px 0px 0px 0px">
+                    <div class="similar_c_t">
+                                <label class="similar_cur">
+                                    <span  style="cursor:pointer"  onclick="GetCategoryArticles('1080443','hguisu','foot','7453390');">c/c++<em>（22）</em></span>
+                                </label>
+                                <label class="">
+                                    <span  style="cursor:pointer"  onclick="GetCategoryArticles('1122753','hguisu','foot','7453390');">socket网络编程<em>（7）</em></span>
+                                </label>
+                    </div>
+                   
+                    <div class="similar_wrap tracking-ad" data-mod="popu_141"  style="max-height:195px;">
+                        <a href="http://blog.csdn.net" style="display:none">http://blog.csdn.net</a>
+                        <ul class="similar_list fl">                          
+                        </ul>
+
+                        <ul class="similar_list fr">                           
+                        </ul>
+                    </div>
+                </div>
+            </div>    
+    <script  type="text/javascript">
+        $(function () {
+            GetCategoryArticles('1080443', 'hguisu','foot','7453390');
+        });
+    </script>
+      
+</div>
+<div id="suggest"></div>
+         <script  language="javascript" type='text/javascript'>     
+             $(function(){
+                 $.get("/hguisu/svc/GetSuggestContent/7453390",function(data){
+                     $("#suggest").html(data);
+                 });     
+             });             
+         </script>  
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+ <link rel="stylesheet" href="http://static.blog.csdn.net/css/replace.css"/>
+<div id="relate" data-mod="popu_218"  class="tracking-ad">
+        <div class="relate_t">
+            <h3><span>参考知识库</span></h3>
+        </div>
+        <div class="relate_c">
+        </div>
+</div>
+ 
+
+<dl class="blog-ass-articl" id="res-relatived" > 
+    <div class="embody embody_b" id="libkeyparent"  style="display:none">
+            <span class="embody_t">更多资料请参考：</span>
+            <div class="embody_c" id="libkey"></div>
+    </div>
+
+
+     <dt><span>猜你在找</span></dt>    
+
+
+   
+
+
+    <div id="adCollege" style="width: 42%;float: left;"> 
+        <script src="http://csdnimg.cn/jobreco/job_reco.js" type="text/javascript"></script> 
+        <script type="text/javascript">
+            csdn.position.showEdu({
+                sourceType: "blog",
+                searchType: "detail",
+                searchKey: "7453390",
+                username: "",
+                recordcount: "5",
+                containerId: "adCollege" //容器DIV的id。 
+            });
+        </script> 
+    </div>  
+
+    
+     <div id="res"  data-mod="popu_36"  class="tracking-ad" style="width: 42%;float: left;margin-right: 30px;"></div>
+   
+</dl>
+
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () {
+            var searchtitletags = 'socket阻塞与非阻塞，同步与异步、I/O模型' + ',' + $("#tags").html();
+            searchService({
+                index: 'blog',
+                query: searchtitletags,
+                from: 5,
+                size: 5,
+                appendTo: '#res',
+                url: 'recommend',
+                his: 2,
+                client: "blog_cf_enhance",
+                tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+            });
+        }, 500);
+    });    
+
+ </script>  
+
+    <div id="ad_cen">        
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="71" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->    </div>  
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list">
+    </div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form">
+    </div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '7453390';
+    var commentscount = 53;
+    var islock = false
+</script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top"  style="bottom:60px;">
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="http://static.blog.csdn.net/images/blog-icon-reply.png" alt="快速回复">
+        </a>    
+
+    <a id="d-top-a" class="btn btn-top backtop"  style="display: none;" title="返回顶部" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_huidaodingbu'])" style="">         
+         <img src="http://static.blog.csdn.net/images/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+        
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);    
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="display:none"></div>
+  <script  language="javascript" type='text/javascript'>     
+      $(function(){
+              setTimeout(function(){
+                  $.get("/hguisu/svc/GetTagContent",function(data){
+                      $(".tag_list").html(data).show();
+                  });     
+              });
+          },500);                       
+ </script> 
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+    $(function(){
+        setTimeout(function(){
+            $(".comment_body:contains('回复')").each(function(index,item){
+                var u=$(this).text().split('：')[0].toString().replace("回复","")
+                var thisComment=$(this);
+                if(u)
+                {
+                    $.getJSON("https://passport.csdn.net/get/nick?callback=?", {users: u}, function(a) {
+                        if(a!=null&&a.data!=null&&a.data.length>0)
+                        {
+                            nick=a.data[0].n; 
+                            if(u!=nick)
+                            {
+                                thisComment.text(thisComment.text().replace(u,nick));  
+                            }
+                        }       
+                    });  
+                }
+            });         
+
+        },200);  
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },5000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },10000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },15000);
+        
+        setTimeout(function(){
+            $("a img[src='http://js.tongji.linezing.com/stats.gif']").parent().css({"position":"absolute","left":"50%"});
+        },300);
+    });
+
+    function loginbox(){
+        var $logpop=$("#pop_win");
+        $logpop.html('<iframe src="https://passport.csdn.net/account/loginbox?service=http://static.blog.csdn.net/callback.htm" frameborder="0" height="600" width="400" scrolling="no"></iframe>');
+
+        $('#popup_mask').css({
+            opacity: 0.5,
+            width: $( document ).width() + 'px',
+            height:  $( document ).height() + 'px'
+        });
+        $('#popup_mask').css("display","block");
+ 
+        $logpop.css( {
+            top: ($( window ).height() - $logpop.height())/ 2  + $( window 
+       ).scrollTop() + 'px',
+            left:($( window ).width() - $logpop.width())/ 2
+        } );
+ 
+        setTimeout( function () {
+            $logpop.show();
+            $logpop.css( {
+                opacity: 1
+            } );
+        }, 200 );
+ 
+        $('#popup_mask').unbind("click");
+        $('#popup_mask').bind("click", function(){
+            $('#popup_mask').hide();
+            var $clopop = $("#pop_win");
+            $("#common_ask_div_sc").css("display","none");
+            $clopop.css( {
+                opacity: 0
+            } );
+            setTimeout( function () {
+                $clopop.hide();
+            }, 350 );
+            return false;
+        });
+    }   
+
+</script>
+ <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/async_new.js"></script>      
+
+
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+                   
+           <div id="side">
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/hguisu" target="_blank">
+    <img src="http://avatar.csdn.net/F/2/A/1_hguisu.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/hguisu" class="user_name" target="_blank">hguisu</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter"  title="[发私信]" onclick="window.open('http://msg.csdn.net/letters/model?receiver=hguisu','_blank','height=350,width=700');_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_sixin'])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>3549441次</span></li>
+    <li>积分：<span>24780</span> </li>    
+    <li >等级： <span style="position:relative;display:inline-block;z-index:1" >
+            <img src="http://c.csdnimg.cn/jifen/images/xunzhang/jianzhang/blog7.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：24780 </div>
+        </span>  </li>
+    <li>排名：<span>第153名</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>212篇</span></li>
+    <li>转载：<span>2篇</span></li>
+    <li>译文：<span>0篇</span></li>
+    <li>评论：<span>1135条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">    
+                 <li>
+                    <a href="/hguisu/article/category/1253451" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">操作系统</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/796967" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Linux</a><span>(22)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/796963" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MySQL</a><span>(12)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/796962" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">PHP</a><span>(42)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/5905793" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">架构</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1104862" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">PHP内核</a><span>(11)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/796968" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">技术人生</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1054628" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">数据结构与算法</a><span>(30)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1072794" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">云计算hadoop</a><span>(25)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1075597" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">网络知识</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1080443" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">c/c++</a><span>(23)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1099674" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">memcache</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1111071" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">HipHop</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1112019" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">计算机原理</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1114530" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Java</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1122753" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">socket网络编程</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1133340" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">设计模式</a><span>(26)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1151353" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">AOP</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1152364" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">重构</a><span>(11)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1173389" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">重构与模式</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1230933" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">搜索引擎Search Engine</a><span>(15)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1209788" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">大数据处理</a><span>(12)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1302430" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">HTML5</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1309674" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Android</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1422000" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">webserver</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1429288" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">NOSQL</a><span>(7)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1825837" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">NOSQL Mongo</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/1868795" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">分布式</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/2065283" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">数据结构与算法  xi</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/2065287" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">协议</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/2294375" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">信息论的熵</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/2482451" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">关于php的libevent扩展的应用</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/2482459" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">libevent简单介绍</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/hguisu/article/category/5624615" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">SOA</a><span>(0)</span>
+                </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="/hguisu/article/month/2015/12">2015年12月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2015/10">2015年10月</a><span>(4)</span></li><li><a href="/hguisu/article/month/2015/05">2015年05月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2015/04">2015年04月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2015/01">2015年01月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2014/10">2014年10月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2014/09">2014年09月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2014/08">2014年08月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2014/05">2014年05月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2014/03">2014年03月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2014/02">2014年02月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2014/01">2014年01月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2013/12">2013年12月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2013/10">2013年10月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2013/09">2013年09月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2013/08">2013年08月</a><span>(1)</span></li><li><a href="/hguisu/article/month/2013/07">2013年07月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2013/06">2013年06月</a><span>(3)</span></li><li><a href="/hguisu/article/month/2013/05">2013年05月</a><span>(3)</span></li><li><a href="/hguisu/article/month/2013/03">2013年03月</a><span>(3)</span></li><li><a href="/hguisu/article/month/2013/02">2013年02月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2013/01">2013年01月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2012/12">2012年12月</a><span>(4)</span></li><li><a href="/hguisu/article/month/2012/11">2012年11月</a><span>(3)</span></li><li><a href="/hguisu/article/month/2012/10">2012年10月</a><span>(2)</span></li><li><a href="/hguisu/article/month/2012/09">2012年09月</a><span>(15)</span></li><li><a href="/hguisu/article/month/2012/08">2012年08月</a><span>(6)</span></li><li><a href="/hguisu/article/month/2012/07">2012年07月</a><span>(8)</span></li><li><a href="/hguisu/article/month/2012/06">2012年06月</a><span>(14)</span></li><li><a href="/hguisu/article/month/2012/05">2012年05月</a><span>(29)</span></li><li><a href="/hguisu/article/month/2012/04">2012年04月</a><span>(26)</span></li><li><a href="/hguisu/article/month/2012/03">2012年03月</a><span>(27)</span></li><li><a href="/hguisu/article/month/2012/02">2012年02月</a><span>(18)</span></li><li><a href="/hguisu/article/month/2011/12">2011年12月</a><span>(7)</span></li><li><a href="/hguisu/article/month/2011/01">2011年01月</a><span>(8)</span></li><li><a href="/hguisu/article/month/2010/07">2010年07月</a><span>(6)</span></li><li><a href="/hguisu/article/month/2007/12">2007年12月</a><span>(2)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="/hguisu/article/details/7776068" title="八大排序算法">八大排序算法</a><span>(302239)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/5731880" title="Mysql 多表联合查询效率分析及优化">Mysql 多表联合查询效率分析及优化</a><span>(146311)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/6155636" title="深入理解java异常处理机制">深入理解java异常处理机制</a><span>(116290)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7453390" title="socket阻塞与非阻塞，同步与异步、I/O模型">socket阻塞与非阻塞，同步与异步、I/O模型</a><span>(107289)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7244413" title="hbase安装配置（整合到hadoop）">hbase安装配置（整合到hadoop）</a><span>(92210)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7558249" title="设计模式 ( 十八 ) 策略模式Strategy（对象行为型）">设计模式 ( 十八 ) 策略模式Strategy（对象行为型）</a><span>(90490)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7445768" title="Linux的SOCKET编程详解">Linux的SOCKET编程详解</a><span>(88241)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7256833" title="Hadoop Hive sql语法详解">Hadoop Hive sql语法详解</a><span>(83643)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/8930668" title="Nginx工作原理和优化、漏洞。">Nginx工作原理和优化、漏洞。</a><span>(79887)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7418161" title="Java输入输出流">Java输入输出流</a><span>(75003)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/hguisu/article/details/7776068" title="八大排序算法">八大排序算法</a><span>(100)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/6155636" title="深入理解java异常处理机制">深入理解java异常处理机制</a><span>(94)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7453390" title="socket阻塞与非阻塞，同步与异步、I/O模型">socket阻塞与非阻塞，同步与异步、I/O模型</a><span>(53)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7558249" title="设计模式 ( 十八 ) 策略模式Strategy（对象行为型）">设计模式 ( 十八 ) 策略模式Strategy（对象行为型）</a><span>(41)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7408047" title="硬盘的读写原理">硬盘的读写原理</a><span>(41)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7505909" title="设计模式（一）工厂模式Factory（创建型）">设计模式（一）工厂模式Factory（创建型）</a><span>(34)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7880288" title="海量数据处理算法—Bit-Map">海量数据处理算法—Bit-Map</a><span>(26)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7557252" title="设计模式 ( 十七) 状态模式State（对象行为型）">设计模式 ( 十七) 状态模式State（对象行为型）</a><span>(23)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7448528" title="PHP SOCKET编程">PHP SOCKET编程</a><span>(23)</span>
+</li>
+<li>
+<a href="/hguisu/article/details/7609483" title="UML图中类之间的关系:依赖,泛化,关联,聚合,组合,实现">UML图中类之间的关系:依赖,泛化,关联,聚合,组合,实现</a><span>(23)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/qq_20198405/article/details/51273041" 
+target="_blank">*RxJava----操作符：组合Observable</a></li>
+<li><a href="http://blog.csdn.net/u012827296/article/details/51259006" 
+target="_blank">*Binder工作机制</a></li>
+<li><a href="http://blog.csdn.net/lmy86263/article/details/51219072" 
+
+target="_blank">* Java Web基础知识之Filter：过滤一切你不想看到的事情/a></li>
+<li><a 
+
+href="http://blog.csdn.net/xoy"target="_blank">*Untiy Native Render Plugin在VR中的绘制(二): 透明排序</a></li>
+<li><a href="http://blog.csdn.net/lin360580306/article/details/51240398" 
+target="_blank">*随机过程--Metropolis-Hastings算法</a></li>
+<li><a href="http://blog.csdn.net/lpw14/article/details/51260153" target="_blank">*Fresco图片库研读分析</a></li>
+
+</ul></ul>
+</div>
+
+
+<div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+   
+         <a href="/hguisu/article/details/5731629#comments">SQL优化大全</a>
+    <p style="margin:0px;"><a href="/gzt19881123" class="user_name">gzt19881123</a>:
+hello,有个地方有疑问请教：23).在新建临时表时，如果一次性插入数据量很大，那么可以使用 se...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7515416#comments">设计模式（二）单件模式Singleton（创建型）</a>
+    <p style="margin:0px;"><a href="/alwu007" class="user_name">alwu007</a>:
+单例模式有点简单
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7557252#comments">设计模式 ( 十七) 状态模式State（对象行为型）</a>
+    <p style="margin:0px;"><a href="/alwu007" class="user_name">alwu007</a>:
+还有点模糊，先踩个脚印，回头儿再看
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7505909#comments">设计模式（一）工厂模式Factory（创建型）</a>
+    <p style="margin:0px;"><a href="/alwu007" class="user_name">alwu007</a>:
+@M_S_C:我的理解是：如果宝马车和空调可以任意搭配的话就用两个工厂方法类去实现好了，抽象工厂模式...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7505909#comments">设计模式（一）工厂模式Factory（创建型）</a>
+    <p style="margin:0px;"><a href="/alwu007" class="user_name">alwu007</a>:
+讲得很好，学习了
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7776068#comments">八大排序算法</a>
+    <p style="margin:0px;"><a href="/shuai1210" class="user_name">shuai1210</a>:
+@qq_18115123:应该先判断索引  j&gt;=0
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7453390#comments">socket阻塞与非阻塞，同步与异步、I/O模型</a>
+    <p style="margin:0px;"><a href="/leiting_imecas" class="user_name">leiting_imecas</a>:
+GOOD！
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7496819#comments">设计模式概论</a>
+    <p style="margin:0px;"><a href="/alwu007" class="user_name">alwu007</a>:
+又涨姿势了
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7558249#comments">设计模式 ( 十八 ) 策略模式Strategy（对象行为型）</a>
+    <p style="margin:0px;"><a href="/alwu007" class="user_name">alwu007</a>:
+不错，学习了
+    </p>
+    </li>
+    <li>
+   
+         <a href="/hguisu/article/details/7571617#comments">设计模式原则详解</a>
+    <p style="margin:0px;"><a href="/alwu007" class="user_name">alwu007</a>:
+看完后边写的，已经忘记前边怎么说的了。
+    </p>
+    </li>
+</ul>
+</div>
+
+
+<div id="custom_column_36736957" class="panel">
+<ul class="panel_head"><span>友情链接</span></ul>
+<ul class="panel_body">
+
+<a href="http://www.tuling123.com" target="_blank">图灵机器人：聊天api的最佳选择</a>
+
+</ul>
+</div>    </div>
+    <div class="clear">
+    </div>
+ </div>   
+            <div class="clear">
+            </div>
+        </div>
+
+        
+
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/cnick/cnick.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/newblog.min.js"></script>
+
+
+<script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=265069"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/JavaScript1.js"></script>
+
+    <script type="text/javascript" src="http://passport.csdn.net/content/loginbox/login.js"></script>
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script>
+<script type="text/javascript" src="http://www.csdn.net/ui/scripts/Csdn/counter.js"></script>
+<script type="text/javascript" src="http://ad.csdn.net/scripts/ad-blog.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                    + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+
+        $(".bar").show();
+    });
+</script>
+
+
+
+
+    </div>
+      <!--new top-->
+    
+    <script id="csdn-toolbar-id" btnId="header_notice_num" wrapId="note1" count="5" subCount="5" type="text/javascript" src="http://c.csdnimg.cn/public/common/toolbar/js/toolbar.js"></script>     <!--new top-->
+   
+    <link href="http://c.csdnimg.cn/comm_ask/css/ask_float_block.css" type="text/css" rel="stylesheet" />
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/wmd.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/showdown.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/prettify.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/apps/ask_float_block.js'></script>
+   
+
+  <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    <script id="adJs52b5334"></script>
+                    <script>document.getElementById("adJs52b5334").src = "http://ads.csdn.net/js/opt/52b5334.js?t=" + Math.random();</script>
+   </div>
+
+</body>
+</html>   
+ 

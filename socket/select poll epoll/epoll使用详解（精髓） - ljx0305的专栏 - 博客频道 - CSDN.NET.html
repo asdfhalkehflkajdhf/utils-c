@@ -1,0 +1,1115 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+     
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    
+<head>   
+   
+
+    <script type="text/javascript" src="http://c.csdnimg.cn/pubfooter/js/tracking.js" charset="utf-8"></script>  
+
+    <script type="text/javascript">
+        var protocol = window.location.protocol;
+        document.write('<script type="text/javascript" src="' + protocol + '//csdnimg.cn/pubfooter/js/repoAddr2.js?v=' + Math.random() + '"></' + 'script>');
+    </script>
+
+  
+ <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+
+    <title>epoll使用详解（精髓） - ljx0305的专栏
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="需要绑定回调地址 &#160;[UMSocialSinaSSOHandleropenNewSinaSSOWithRedirectURL:@http://open.weibo.com/apps/489229890/privilege/oauth];" />
+    <script src="http://static.blog.csdn.net/scripts/jquery.js" type="text/javascript"></script>
+      <script type="text/javascript" src="http://static.blog.csdn.net/scripts/jquery-version.js"></script>
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/ad.js?v=1.1"></script>
+        <!--new top-->
+               <link rel="stylesheet" href="http://c.csdnimg.cn/public/common/toolbar/css/index.css">        <!--new top-->
+    
+      <!-- ad begin -->
+         <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/tracking.js"></script>
+    <!-- ad end-->
+
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/default/css/style.css?v=1.1" />
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/ljx0305/rss/list" />
+    <link rel="shortcut icon" href="http://c.csdnimg.cn/public/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/default.css" />
+ 
+
+
+</head>
+<body>
+    <!-- 广告位开始 -->
+        <ins data-revive-zoneid="149" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+    <!-- 广告位结束 -->
+
+    
+   
+      <!--new top-->
+    <script id="toolbar-tpl-scriptId" fixed="true" prod="blog" skin="black" src="http://c.csdnimg.cn/public/common/toolbar/js/html.js" type="text/javascript"></script>
+     <!--new top-->
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h2>
+                <a href="http://blog.csdn.net/ljx0305">ljx0305的专栏</a></h2>
+            <h3></h3>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>
+            
+                <li id="btnContents"><a href="http://blog.csdn.net/ljx0305?viewmode=contents"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_mulu'])">
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/ljx0305?viewmode=list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_zhaiyao'])">
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/ljx0305/rss/list"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_RSS'])">
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>                
+
+            </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "ljx0305";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/ljx0305";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";  
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+                        <div class="ad_class">
+<div class="notice tracking-ad" data-mod='popu_3' > 
+
+<a href="http://edu.csdn.net/huiyiCourse/detail/111
+">
+<font color=red>【免费公开课】C语言指针与汇编内存地址
+</font></a>
+&nbsp;&nbsp;&nbsp;
+<a href="http://blog.csdn.net/blogdevteam/article/details/51198465">
+<font color=blue>有奖试读—漫话程序员面试求职、升职加薪、创业与生活</font></a>
+&nbsp;&nbsp;&nbsp;
+
+
+</font></a>
+</div>                        </div>
+                        
+
+
+
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="72" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->
+
+  
+<link href="http://static.blog.csdn.net/css/comment1.css" type="text/css" rel="stylesheet" />
+<link href="http://static.blog.csdn.net/css/style1.css" type="text/css" rel="stylesheet" />
+<script language='JavaScript' type='text/javascript' src='http://download.csdn.net/js/jquery.cookie.js'></script>
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/search-service/main.js"></script>
+<link rel="stylesheet" href="http://static.blog.csdn.net/public/res-min/markdown_views.css?v=1.0" />
+<link rel="stylesheet" href="http://static.blog.csdn.net/css/category.css?v=1.0" />
+<script type="text/javascript" src="http://static.blog.csdn.net/public/res/bower-libs/MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+
+ <script type="text/javascript" src="http://static.blog.csdn.net/scripts/web-storage-cache.min.js"></script>
+
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/web-storage-cache.min.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/replace.min.js"></script>
+
+  <script type="text/ecmascript">
+      window.quickReplyflag = true;
+           
+            var isBole = false;
+            
+          
+    </script>
+<div id="article_details" class="details">
+    <div class="article_title">   
+         <span class="ico ico_type_Repost"></span>
+
+
+    <h1>
+        <span class="link_title"><a href="/ljx0305/article/details/4065058">
+        epoll使用详解（精髓）            
+        </a></span>
+    </h1>
+</div>
+
+   
+
+        <div class="article_manage clearfix">
+        <div class="article_l">
+            <span class="link_categories">
+            标签：
+              <a href='http://www.csdn.net/tag/events' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">events</a><a href='http://www.csdn.net/tag/socket' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">socket</a><a href='http://www.csdn.net/tag/struct' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">struct</a><a href='http://www.csdn.net/tag/%e7%bd%91%e7%bb%9c' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">网络</a><a href='http://www.csdn.net/tag/%e6%9c%8d%e5%8a%a1%e5%99%a8' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">服务器</a><a href='http://www.csdn.net/tag/linux' target=_blank onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_tag']);">linux</a>
+            </span>
+        </div>
+        <div class="article_r">
+            <span class="link_postdate">2009-04-11 16:34</span>
+            <span class="link_view" title="阅读次数">125523人阅读</span>
+            <span class="link_comments" title="评论次数"> <a href="#comments" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_pinglun'])">评论</a>(20)</span>
+            <span class="link_collect tracking-ad" data-mod="popu_171"> <a href="javascript:void(0);" onclick="javascript:collectArticle('epoll使用详解（精髓）','4065058');return false;" title="收藏">收藏</a></span>
+             <span class="link_report"> <a href="#report" onclick="javascript:report(4065058,2);return false;" title="举报">举报</a></span>
+
+        </div>
+    </div>
+    <div class="embody"  style="display:none" id="embody">
+        <span class="embody_t">本文章已收录于：</span>
+        <div class="embody_c" id="lib" value="{&quot;err&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:[]}"></div>
+    </div>
+    <style type="text/css">        
+            .embody{
+                padding:10px 10px 10px;
+                margin:0 -20px;
+                border-bottom:solid 1px #ededed;                
+            }
+            .embody_b{
+                margin:0 ;
+                padding:10px 0;
+            }
+            .embody .embody_t,.embody .embody_c{
+                display: inline-block;
+                margin-right:10px;
+            }
+            .embody_t{
+                font-size: 12px;
+                color:#999;
+            }
+            .embody_c{
+                font-size: 12px;
+            }
+            .embody_c img,.embody_c em{
+                display: inline-block;
+                vertical-align: middle;               
+            }
+             .embody_c img{               
+                width:30px;
+                height:30px;
+            }
+            .embody_c em{
+                margin: 0 20px 0 10px;
+                color:#333;
+                font-style: normal;
+            }
+    </style>
+    <script  type="text/javascript">
+        $(function () {
+            var lib = eval("("+$("#lib").attr("value")+")");
+            var html = "";
+            if (lib.err == 0) {
+                $.each(lib.data, function (i) {
+                    var obj = lib.data[i];
+                    //html += '<img src="' + obj.logo + '"/>' + obj.name + "&nbsp;&nbsp;";
+                    html += ' <a href="' + obj.url + '" target="_blank">';
+                    html += ' <img src="' + obj.logo + '">';
+                    html += ' <em><b>' + obj.name + '</b></em>';
+                    html += ' </a>';
+                });
+                if (html != "") {
+                    setTimeout(function () {
+                        $("#lib").html(html);
+                        /*
+                        var testhtml = "";
+                        testhtml += '<a href="#">';
+                        testhtml += '<img src="http://img.knowledge.csdn.net/upload/base/1455589744328_328.jpg">';
+                        testhtml += '<em>Android知识库</em>';
+                        testhtml += '</a>';
+                        $(".embody_c").html(testhtml);
+                        */
+                        $("#embody").show();
+                    }, 100);
+                }
+            }          
+            
+        });
+    </script>
+      <div class="category clearfix">
+        <div class="category_l">
+           <img src="http://static.blog.csdn.net/images/category_icon.jpg">
+            <span>分类：</span>
+        </div>
+        <div class="category_r">
+                    <label  onclick="GetCategoryArticles('394700','ljx0305','top','4065058');">
+                        <span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_fenlei']);">Linux程序及使用<em>（105）</em></span>
+                      <img class="arrow-down" src="http://static.blog.csdn.net/images/arrow_triangle _down.jpg" style="display:inline;">
+                      <img class="arrow-up" src="http://static.blog.csdn.net/images/arrow_triangle_up.jpg" style="display:none;">
+                        <div class="subItem">
+                            <div class="subItem_t"><a  href="http://blog.csdn.net/ljx0305/article/category/394700"  target="_blank">作者同类文章</a><i class="J_close">X</i></div>
+                            <ul class="subItem_l" id="top_394700">                            
+                            </ul>
+                        </div>
+                    </label>                    
+        </div>
+    </div>
+    <script   type="text/javascript" src="http://static.blog.csdn.net/scripts/category.js"></script>  
+
+  
+
+  
+  
+     
+
+<div id="article_content" class="article_content">
+<div id="art" style="margin: 15px;">epoll - I/O event notification facility<br /><br />在linux的网络编程中，很长的时间都在使用select来做事件触发。在linux新的内核中，有了一种替换它的机制，就是epoll。<br />相比于select，epoll最大的好处在于它不会随着监听fd数目的增长而降低效率。因为在内核中的select实现中，它是采用轮询来处理的，轮询的fd数目越多，自然耗时越多。并且，在linux/posix_types.h头文件有这样的声明：<br />#define __FD_SETSIZE&nbsp;&nbsp;&nbsp; 1024<br />表示select最多同时监听1024个fd，当然，可以通过修改头文件再重编译内核来扩大这个数目，但这似乎并不治本。<br /><br />epoll的接口非常简单，一共就三个函数：<br />1. int epoll_create(int size);<br />创建一个epoll的句柄，size用来告诉内核这个监听的数目一共有多大。这个参数不同于select()中的第一个参数，给出最大监听的fd+1的值。需要注意的是，当创建好epoll句柄后，它就是会占用一个fd值，在linux下如果查看/proc/进程id/fd/，是能够看到这个fd的，所以在使用完epoll后，必须调用close()关闭，否则可能导致fd被耗尽。<br /><br /><br />2. int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);<br />epoll的事件注册函数，它不同与select()是在监听事件时告诉内核要监听什么类型的事件，而是在这里先注册要监听的事件类型。第一个参数是epoll_create()的返回值，第二个参数表示动作，用三个宏来表示：<br />EPOLL_CTL_ADD：注册新的fd到epfd中；<br />EPOLL_CTL_MOD：修改已经注册的fd的监听事件；<br />EPOLL_CTL_DEL：从epfd中删除一个fd；<br />第三个参数是需要监听的fd，第四个参数是告诉内核需要监听什么事，struct epoll_event结构如下：<br /><br />typedef union epoll_data {<br />&nbsp;&nbsp; &nbsp;void *ptr;<br />&nbsp;&nbsp; &nbsp;int fd;<br />&nbsp;&nbsp; &nbsp;__uint32_t u32;<br />&nbsp;&nbsp; &nbsp;__uint64_t u64;<br />} epoll_data_t;<br /><br />struct epoll_event {<br />&nbsp;&nbsp; &nbsp;__uint32_t events; /* Epoll events */<br />&nbsp;&nbsp; &nbsp;epoll_data_t data; /* User data variable */<br />};<br /><br />events可以是以下几个宏的集合：<br />EPOLLIN ：表示对应的文件描述符可以读（包括对端SOCKET正常关闭）；<br />EPOLLOUT：表示对应的文件描述符可以写；<br />EPOLLPRI：表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；<br />EPOLLERR：表示对应的文件描述符发生错误；<br />EPOLLHUP：表示对应的文件描述符被挂断；<br />EPOLLET： 将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。<br />EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里<br /><br /><br />3. int epoll_wait(int epfd, struct epoll_event * events, int maxevents, int timeout);<br />等待事件的产生，类似于select()调用。参数events用来从内核得到事件的集合，maxevents告之内核这个events有多大，这个 maxevents的值不能大于创建epoll_create()时的size，参数timeout是超时时间（毫秒，0会立即返回，-1将不确定，也有说法说是永久阻塞）。该函数返回需要处理的事件数目，如返回0表示已超时。<br /><br /><br />4、关于ET、LT两种工作模式：<br />可以得出这样的结论:<br />ET模式仅当状态发生变化的时候才获得通知,这里所谓的状态的变化并不包括缓冲区中还有未处理的数据,也就是说,如果要采用ET模式,需要一直read/write直到出错为止,很多人反映为什么采用ET模式只接收了一部分数据就再也得不到通知了,大多因为这样;而LT模式是只要有数据没有处理就会一直通知下去的.<br /><br /><br />那么究竟如何来使用epoll呢？其实非常简单。<br />通过在包含一个头文件#include &lt;sys/epoll.h&gt; 以及几个简单的API将可以大大的提高你的网络服务器的支持人数。<br /><br />首先通过create_epoll(int maxfds)来创建一个epoll的句柄，其中maxfds为你epoll所支持的最大句柄数。这个函数会返回一个新的epoll句柄，之后的所有操作将通过这个句柄来进行操作。在用完之后，记得用close()来关闭这个创建出来的epoll句柄。<br /><br />之后在你的网络主循环里面，每一帧的调用epoll_wait(int epfd, epoll_event events, int max events, int timeout)来查询所有的网络接口，看哪一个可以读，哪一个可以写了。基本的语法为：<br />nfds = epoll_wait(kdpfd, events, maxevents, -1);<br />其中kdpfd为用epoll_create创建之后的句柄，events是一个epoll_event*的指针，当epoll_wait这个函数操作成功之后，epoll_events里面将储存所有的读写事件。max_events是当前需要监听的所有socket句柄数。最后一个timeout是 epoll_wait的超时，为0的时候表示马上返回，为-1的时候表示一直等下去，直到有事件范围，为任意正整数的时候表示等这么长的时间，如果一直没有事件，则范围。一般如果网络主循环是单独的线程的话，可以用-1来等，这样可以保证一些效率，如果是和主逻辑在同一个线程的话，则可以用0来保证主循环的效率。<br /><br />epoll_wait范围之后应该是一个循环，遍利所有的事件。<br /><br />几乎所有的epoll程序都使用下面的框架：<br /><br />&nbsp;&nbsp; &nbsp;for( ; ; )<br />&nbsp;&nbsp; &nbsp;{<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;nfds = epoll_wait(epfd,events,20,500);<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for(i=0;i&lt;nfds;++i)<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;{<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if(events[i].data.fd==listenfd) //有新的连接<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;{<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;connfd = accept(listenfd,(sockaddr *)&amp;clientaddr, &amp;clilen); //accept这个连接<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ev.data.fd=connfd;<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ev.events=EPOLLIN|EPOLLET;<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;epoll_ctl(epfd,EPOLL_CTL_ADD,connfd,&amp;ev); //将新的fd添加到epoll的监听队列中<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;else if( events[i].events&amp;EPOLLIN ) //接收到数据，读socket<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;{<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;n = read(sockfd, line, MAXLINE)) &lt; 0&nbsp;&nbsp; &nbsp;//读<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ev.data.ptr = md; &nbsp;&nbsp; &nbsp;//md为自定义类型，添加数据<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ev.events=EPOLLOUT|EPOLLET;<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&amp;ev);//修改标识符，等待下一个循环时发送数据，异步处理的精髓<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;else if(events[i].events&amp;EPOLLOUT) //有数据待发送，写socket<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;{<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;struct myepoll_data* md = (myepoll_data*)events[i].data.ptr;&nbsp;&nbsp; &nbsp;//取数据<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sockfd = md-&gt;fd;<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;send( sockfd, md-&gt;ptr, strlen((char*)md-&gt;ptr), 0 );&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//发送数据<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ev.data.fd=sockfd;<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;ev.events=EPOLLIN|EPOLLET;<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&amp;ev); //修改标识符，等待下一个循环时接收数据<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;else<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;{<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//其他的处理<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br />&nbsp;&nbsp; &nbsp;}<br /><br /><br /><br />下面给出一个完整的服务器端例子：<br /><br /><br />
+<table style="width: 95%; border-collapse: collapse;" border="1" cellspacing="0" cellpadding="0" bgcolor="#f1f1f1" bordercolor="#999999">
+<tbody>
+<tr>
+<td>
+<p style="line-height: 150%; margin: 5px;"><code><span style="color: #000000;"><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span><span style="color: #ff0000;">iostream</span><span style="color: #0000cc;">&gt;</span><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span>sys<span style="color: #0000cc;">/</span><span style="color: #ff0000;">socket</span><span style="color: #0000cc;">.</span>h<span style="color: #0000cc;">&gt;</span><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span>sys<span style="color: #0000cc;">/</span>epoll<span style="color: #0000cc;">.</span>h<span style="color: #0000cc;">&gt;</span><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span>netinet<span style="color: #0000cc;">/</span>in<span style="color: #0000cc;">.</span>h<span style="color: #0000cc;">&gt;</span><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span>arpa<span style="color: #0000cc;">/</span>inet<span style="color: #0000cc;">.</span>h<span style="color: #0000cc;">&gt;</span><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span>fcntl<span style="color: #0000cc;">.</span>h<span style="color: #0000cc;">&gt;</span><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span>unistd<span style="color: #0000cc;">.</span>h<span style="color: #0000cc;">&gt;</span><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span>stdio<span style="color: #0000cc;">.</span>h<span style="color: #0000cc;">&gt;</span><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">include</span> <span style="color: #0000cc;">&lt;</span><span style="color: #ff0000;">errno</span><span style="color: #0000cc;">.</span>h<span style="color: #0000cc;">&gt;</span><br /><br /><span style="color: #0000ff;">using</span> <span style="color: #0000ff;">namespace</span> <span style="color: #ff0000;">std</span><span style="color: #0000cc;">;</span><br /><br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">define</span> MAXLINE 5<br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">define</span> OPEN_MAX 100<br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">define</span> LISTENQ 20<br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">define</span> SERV_PORT 5000<br /><span style="color: #0000cc;">#</span><span style="color: #ff0000;">define</span> INFTIM 1000<br /><br /><span style="color: #0000ff;">void</span> setnonblocking<span style="color: #0000cc;">(</span><span style="color: #0000ff;">int</span> sock<span style="color: #0000cc;">)</span><br /><span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">int</span> opts<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;opts<span style="color: #0000cc;">=</span>fcntl<span style="color: #0000cc;">(</span>sock<span style="color: #0000cc;">,</span>F_GETFL<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span><span style="color: #0000cc;">(</span>opts<span style="color: #0000cc;">&lt;</span>0<span style="color: #0000cc;">)</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">perror</span><span style="color: #0000cc;">(</span><span style="color: #ff00ff;">"fcntl(sock,GETFL)"</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">exit</span><span style="color: #0000cc;">(</span>1<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;opts <span style="color: #0000cc;">=</span> opts<span style="color: #0000cc;">|</span>O_NONBLOCK<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span><span style="color: #0000cc;">(</span>fcntl<span style="color: #0000cc;">(</span>sock<span style="color: #0000cc;">,</span>F_SETFL<span style="color: #0000cc;">,</span>opts<span style="color: #0000cc;">)</span><span style="color: #0000cc;">&lt;</span>0<span style="color: #0000cc;">)</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">perror</span><span style="color: #0000cc;">(</span><span style="color: #ff00ff;">"fcntl(sock,SETFL,opts)"</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">exit</span><span style="color: #0000cc;">(</span>1<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br /><span style="color: #0000cc;">}</span><br /><br /><span style="color: #0000ff;">int</span> main<span style="color: #0000cc;">(</span><span style="color: #0000ff;">int</span> argc<span style="color: #0000cc;">,</span> <span style="color: #0000ff;">char</span><span style="color: #0000cc;">*</span> argv<span style="color: #0000cc;">[</span><span style="color: #0000cc;">]</span><span style="color: #0000cc;">)</span><br /><span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">int</span> i<span style="color: #0000cc;">,</span> maxi<span style="color: #0000cc;">,</span> listenfd<span style="color: #0000cc;">,</span> connfd<span style="color: #0000cc;">,</span> sockfd<span style="color: #0000cc;">,</span>epfd<span style="color: #0000cc;">,</span>nfds<span style="color: #0000cc;">,</span> portnumber<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;ssize_t n<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">char</span> <span style="color: #ff0000;">line</span><span style="color: #0000cc;">[</span>MAXLINE<span style="color: #0000cc;">]</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">socklen_t</span> clilen<span style="color: #0000cc;">;</span><br /><br /><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span> <span style="color: #0000cc;">(</span> 2 <span style="color: #0000cc;">=</span><span style="color: #0000cc;">=</span> argc <span style="color: #0000cc;">)</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span><span style="color: #0000cc;">(</span> <span style="color: #0000cc;">(</span>portnumber <span style="color: #0000cc;">=</span> <span style="color: #ff0000;">atoi</span><span style="color: #0000cc;">(</span>argv<span style="color: #0000cc;">[</span>1<span style="color: #0000cc;">]</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">)</span> <span style="color: #0000cc;">&lt;</span> 0 <span style="color: #0000cc;">)</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">fprintf</span><span style="color: #0000cc;">(</span><span style="color: #ff0000;">stderr</span><span style="color: #0000cc;">,</span><span style="color: #ff00ff;">"Usage:%s portnumber/a/n"</span><span style="color: #0000cc;">,</span>argv<span style="color: #0000cc;">[</span>0<span style="color: #0000cc;">]</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">return</span> 1<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">else</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">fprintf</span><span style="color: #0000cc;">(</span><span style="color: #ff0000;">stderr</span><span style="color: #0000cc;">,</span><span style="color: #ff00ff;">"Usage:%s portnumber/a/n"</span><span style="color: #0000cc;">,</span>argv<span style="color: #0000cc;">[</span>0<span style="color: #0000cc;">]</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">return</span> 1<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br /><br /><br /><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//声明epoll_event结构体的变量,ev用于注册事件,数组用于回传要处理的事件<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">struct</span> epoll_event ev<span style="color: #0000cc;">,</span>events<span style="color: #0000cc;">[</span>20<span style="color: #0000cc;">]</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//生成用于处理accept的epoll专用的文件描述符<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;epfd<span style="color: #0000cc;">=</span>epoll_create<span style="color: #0000cc;">(</span>256<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">struct</span> <span style="color: #ff0000;">sockaddr_in</span> clientaddr<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">struct</span> <span style="color: #ff0000;">sockaddr_in</span> serveraddr<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;listenfd <span style="color: #0000cc;">=</span> <span style="color: #ff0000;">socket</span><span style="color: #0000cc;">(</span><span style="color: #ff0000;">AF_INET</span><span style="color: #0000cc;">,</span> <span style="color: #ff0000;">SOCK_STREAM</span><span style="color: #0000cc;">,</span> 0<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//把socket设置为非阻塞方式<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//setnonblocking(listenfd);<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//设置与要处理的事件相关的文件描述符<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;ev<span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd<span style="color: #0000cc;">=</span>listenfd<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//设置要处理的事件类型<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;ev<span style="color: #0000cc;">.</span>events<span style="color: #0000cc;">=</span>EPOLLIN<span style="color: #0000cc;">|</span>EPOLLET<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//ev.events=EPOLLIN;<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//注册epoll事件<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;epoll_ctl<span style="color: #0000cc;">(</span>epfd<span style="color: #0000cc;">,</span>EPOLL_CTL_ADD<span style="color: #0000cc;">,</span>listenfd<span style="color: #0000cc;">,</span><span style="color: #0000cc;">&amp;</span>ev<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;bzero<span style="color: #0000cc;">(</span><span style="color: #0000cc;">&amp;</span>serveraddr<span style="color: #0000cc;">,</span> <span style="color: #0000ff;">sizeof</span><span style="color: #0000cc;">(</span>serveraddr<span style="color: #0000cc;">)</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;serveraddr<span style="color: #0000cc;">.</span>sin_family <span style="color: #0000cc;">=</span> <span style="color: #ff0000;">AF_INET</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">char</span> <span style="color: #0000cc;">*</span>local_addr<span style="color: #0000cc;">=</span><span style="color: #ff00ff;">"127.0.0.1"</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;inet_aton<span style="color: #0000cc;">(</span>local_addr<span style="color: #0000cc;">,</span><span style="color: #0000cc;">&amp;</span><span style="color: #0000cc;">(</span>serveraddr<span style="color: #0000cc;">.</span>sin_addr<span style="color: #0000cc;">)</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><span style="color: #ff9900;">//htons(portnumber);<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;serveraddr<span style="color: #0000cc;">.</span>sin_port<span style="color: #0000cc;">=</span><span style="color: #ff0000;">htons</span><span style="color: #0000cc;">(</span>portnumber<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">bind</span><span style="color: #0000cc;">(</span>listenfd<span style="color: #0000cc;">,</span><span style="color: #0000cc;">(</span><span style="color: #ff0000;">sockaddr</span> <span style="color: #0000cc;">*</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">&amp;</span>serveraddr<span style="color: #0000cc;">,</span> <span style="color: #0000ff;">sizeof</span><span style="color: #0000cc;">(</span>serveraddr<span style="color: #0000cc;">)</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">listen</span><span style="color: #0000cc;">(</span>listenfd<span style="color: #0000cc;">,</span> LISTENQ<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;maxi <span style="color: #0000cc;">=</span> 0<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">for</span> <span style="color: #0000cc;">(</span> <span style="color: #0000cc;">;</span> <span style="color: #0000cc;">;</span> <span style="color: #0000cc;">)</span> <span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//等待epoll事件的发生<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nfds<span style="color: #0000cc;">=</span>epoll_wait<span style="color: #0000cc;">(</span>epfd<span style="color: #0000cc;">,</span>events<span style="color: #0000cc;">,</span>20<span style="color: #0000cc;">,</span>500<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//处理所发生的所有事件<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">for</span><span style="color: #0000cc;">(</span>i<span style="color: #0000cc;">=</span>0<span style="color: #0000cc;">;</span>i<span style="color: #0000cc;">&lt;</span>nfds<span style="color: #0000cc;">;</span><span style="color: #0000cc;">+</span><span style="color: #0000cc;">+</span>i<span style="color: #0000cc;">)</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span><span style="color: #0000cc;">(</span>events<span style="color: #0000cc;">[</span>i<span style="color: #0000cc;">]</span><span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd<span style="color: #0000cc;">=</span><span style="color: #0000cc;">=</span>listenfd<span style="color: #0000cc;">)</span><span style="color: #ff9900;">//如果新监测到一个SOCKET用户连接到了绑定的SOCKET端口，建立新的连接。<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;connfd <span style="color: #0000cc;">=</span> <span style="color: #ff0000;">accept</span><span style="color: #0000cc;">(</span>listenfd<span style="color: #0000cc;">,</span><span style="color: #0000cc;">(</span><span style="color: #ff0000;">sockaddr</span> <span style="color: #0000cc;">*</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">&amp;</span>clientaddr<span style="color: #0000cc;">,</span> <span style="color: #0000cc;">&amp;</span>clilen<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span><span style="color: #0000cc;">(</span>connfd<span style="color: #0000cc;">&lt;</span>0<span style="color: #0000cc;">)</span><span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">perror</span><span style="color: #0000cc;">(</span><span style="color: #ff00ff;">"connfd&lt;0"</span><span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">exit</span><span style="color: #0000cc;">(</span>1<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//setnonblocking(connfd);<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">char</span> <span style="color: #0000cc;">*</span>str <span style="color: #0000cc;">=</span> inet_ntoa<span style="color: #0000cc;">(</span>clientaddr<span style="color: #0000cc;">.</span>sin_addr<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">cout</span> <span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span> <span style="color: #ff00ff;">"accapt a connection from "</span> <span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span> str <span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span> <span style="color: #ff0000;">endl</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//设置用于读操作的文件描述符<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev<span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd<span style="color: #0000cc;">=</span>connfd<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//设置用于注测的读操作事件<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev<span style="color: #0000cc;">.</span>events<span style="color: #0000cc;">=</span>EPOLLIN<span style="color: #0000cc;">|</span>EPOLLET<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//ev.events=EPOLLIN;<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//注册ev<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;epoll_ctl<span style="color: #0000cc;">(</span>epfd<span style="color: #0000cc;">,</span>EPOLL_CTL_ADD<span style="color: #0000cc;">,</span>connfd<span style="color: #0000cc;">,</span><span style="color: #0000cc;">&amp;</span>ev<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span><span style="color: #0000cc;">(</span>events<span style="color: #0000cc;">[</span>i<span style="color: #0000cc;">]</span><span style="color: #0000cc;">.</span>events<span style="color: #0000cc;">&amp;</span>EPOLLIN<span style="color: #0000cc;">)</span><span style="color: #ff9900;">//如果是已经连接的用户，并且收到数据，那么进行读入。<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">cout</span> <span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span> <span style="color: #ff00ff;">"EPOLLIN"</span> <span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span> <span style="color: #ff0000;">endl</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span> <span style="color: #0000cc;">(</span> <span style="color: #0000cc;">(</span>sockfd <span style="color: #0000cc;">=</span> events<span style="color: #0000cc;">[</span>i<span style="color: #0000cc;">]</span><span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd<span style="color: #0000cc;">)</span> <span style="color: #0000cc;">&lt;</span> 0<span style="color: #0000cc;">)</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">continue</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span> <span style="color: #0000cc;">(</span> <span style="color: #0000cc;">(</span>n <span style="color: #0000cc;">=</span> <span style="color: #ff0000;">read</span><span style="color: #0000cc;">(</span>sockfd<span style="color: #0000cc;">,</span> <span style="color: #ff0000;">line</span><span style="color: #0000cc;">,</span> MAXLINE<span style="color: #0000cc;">)</span><span style="color: #0000cc;">)</span> <span style="color: #0000cc;">&lt;</span> 0<span style="color: #0000cc;">)</span> <span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">if</span> <span style="color: #0000cc;">(</span><span style="color: #ff0000;">errno</span> <span style="color: #0000cc;">=</span><span style="color: #0000cc;">=</span> ECONNRESET<span style="color: #0000cc;">)</span> <span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">close</span><span style="color: #0000cc;">(</span>sockfd<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events<span style="color: #0000cc;">[</span>i<span style="color: #0000cc;">]</span><span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd <span style="color: #0000cc;">=</span> <span style="color: #0000cc;">-</span>1<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span> <span style="color: #0000ff;">else</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">std</span><span style="color: #0000cc;">:</span><span style="color: #0000cc;">:</span><span style="color: #ff0000;">cout</span><span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span><span style="color: #ff00ff;">"readline error"</span><span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span><span style="color: #ff0000;">std</span><span style="color: #0000cc;">:</span><span style="color: #0000cc;">:</span><span style="color: #ff0000;">endl</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span> <span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span> <span style="color: #0000cc;">(</span>n <span style="color: #0000cc;">=</span><span style="color: #0000cc;">=</span> 0<span style="color: #0000cc;">)</span> <span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">close</span><span style="color: #0000cc;">(</span>sockfd<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;events<span style="color: #0000cc;">[</span>i<span style="color: #0000cc;">]</span><span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd <span style="color: #0000cc;">=</span> <span style="color: #0000cc;">-</span>1<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">line</span><span style="color: #0000cc;">[</span>n<span style="color: #0000cc;">]</span> <span style="color: #0000cc;">=</span> <span style="color: #ff00ff;">'/0'</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">cout</span> <span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span> <span style="color: #ff00ff;">"read "</span> <span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span> <span style="color: #ff0000;">line</span> <span style="color: #0000cc;">&lt;</span><span style="color: #0000cc;">&lt;</span> <span style="color: #ff0000;">endl</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//设置用于写操作的文件描述符<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev<span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd<span style="color: #0000cc;">=</span>sockfd<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//设置用于注测的写操作事件<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev<span style="color: #0000cc;">.</span>events<span style="color: #0000cc;">=</span>EPOLLOUT<span style="color: #0000cc;">|</span>EPOLLET<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//修改sockfd上要处理的事件为EPOLLOUT<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//epoll_ctl(epfd,EPOLL_CTL_MOD,sockfd,&amp;ev);<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span><span style="color: #0000cc;">(</span>events<span style="color: #0000cc;">[</span>i<span style="color: #0000cc;">]</span><span style="color: #0000cc;">.</span>events<span style="color: #0000cc;">&amp;</span>EPOLLOUT<span style="color: #0000cc;">)</span> <span style="color: #ff9900;">// 如果有数据发送<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">{</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sockfd <span style="color: #0000cc;">=</span> events<span style="color: #0000cc;">[</span>i<span style="color: #0000cc;">]</span><span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff0000;">write</span><span style="color: #0000cc;">(</span>sockfd<span style="color: #0000cc;">,</span> <span style="color: #ff0000;">line</span><span style="color: #0000cc;">,</span> n<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//设置用于读操作的文件描述符<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev<span style="color: #0000cc;">.</span>data<span style="color: #0000cc;">.</span>fd<span style="color: #0000cc;">=</span>sockfd<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//设置用于注测的读操作事件<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ev<span style="color: #0000cc;">.</span>events<span style="color: #0000cc;">=</span>EPOLLIN<span style="color: #0000cc;">|</span>EPOLLET<span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff9900;">//修改sockfd上要处理的事件为EPOLIN<br /></span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;epoll_ctl<span style="color: #0000cc;">(</span>epfd<span style="color: #0000cc;">,</span>EPOLL_CTL_MOD<span style="color: #0000cc;">,</span>sockfd<span style="color: #0000cc;">,</span><span style="color: #0000cc;">&amp;</span>ev<span style="color: #0000cc;">)</span><span style="color: #0000cc;">;</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000cc;">}</span><br />&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #0000ff;">return</span> 0<span style="color: #0000cc;">;</span><br /><span style="color: #0000cc;">}</span></span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+<br />客户端直接连接到这个服务器就好了。。<br /></div>
+<div style="margin: 15px;">引用：<a href="http://blog.chinaunix.net/u/16292/showart_1844376.html">http://blog.chinaunix.net/u/16292/showart_1844376.html</a></div>   
+</div>
+
+
+
+
+<!-- Baidu Button BEGIN -->
+
+
+
+
+<div class="bdsharebuttonbox tracking-ad" style="float: right;" data-mod="popu_172">
+<a href="#" class="bds_more" data-cmd="more" style="background-position:0 0 !important; background-image: url(http://bdimg.share.baidu.com/static/api/img/share/icons_0_16.png?v=d754dcc0.png) !important"></a>
+<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"  style="background-position:0 -52px !important"></a>
+<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"style="background-position:0 -104px !important"></a>
+<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"style="background-position:0 -260px !important"></a>
+<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"style="background-position:0 -208px !important"></a>
+<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"style="background-position:0 -1612px !important" ></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+<!-- Baidu Button END -->
+
+   <link rel="stylesheet" href="http://static.blog.csdn.net/css/blog_detail.css" />
+
+    
+<!--172.16.140.14-->
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+ 
+
+        <div id="digg" ArticleId="4065058">
+            <dl id="btnDigg" class="digg digg_disable">
+               
+                 <dt>顶</dt>
+                <dd>4</dd>
+            </dl>
+            <dl id="btnBury" class="digg digg_disable">
+              
+                  <dt>踩</dt>
+                <dd>0</dd>
+            </dl>
+        </div>
+
+   <ul class="article_next_prev">
+                <li class="prev_article"><span  onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian']);location.href='/ljx0305/article/details/4060090';">上一篇</span><a href="/ljx0305/article/details/4060090" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_shangyipian'])">C++中重载强制类型转换</a></li>
+                <li class="next_article"><span onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian']);location.href='/ljx0305/article/details/4065082';">下一篇</span><a href="/ljx0305/article/details/4065082" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_xiayipian'])">什么是Core Dump?</a></li>
+    </ul>
+
+    <div style="clear:both; height:10px;"></div>
+
+
+        <div class="similar_article"  style="display:none">
+                <h4>我的同类文章</h4>
+                <div class="similar_c"style="margin:20px 0px 0px 0px">
+                    <div class="similar_c_t">
+                                <label class="similar_cur">
+                                    <span  style="cursor:pointer"  onclick="GetCategoryArticles('394700','ljx0305','foot','4065058');">Linux程序及使用<em>（105）</em></span>
+                                </label>
+                    </div>
+                   
+                    <div class="similar_wrap tracking-ad" data-mod="popu_141"  style="max-height:195px;">
+                        <a href="http://blog.csdn.net" style="display:none">http://blog.csdn.net</a>
+                        <ul class="similar_list fl">                          
+                        </ul>
+
+                        <ul class="similar_list fr">                           
+                        </ul>
+                    </div>
+                </div>
+            </div>    
+    <script  type="text/javascript">
+        $(function () {
+            GetCategoryArticles('394700', 'ljx0305','foot','4065058');
+        });
+    </script>
+      
+</div>
+<div id="suggest"></div>
+         <script  language="javascript" type='text/javascript'>     
+             $(function(){
+                 $.get("/ljx0305/svc/GetSuggestContent/4065058",function(data){
+                     $("#suggest").html(data);
+                 });     
+             });             
+         </script>  
+
+
+<style>
+.blog-ass-articl dd {
+color: #369;
+width: 99%; /*修改行*/
+float: left;
+overflow: hidden;
+font: normal normal 12px/23px "SimSun";
+height: 23px;
+margin: 0;
+padding: 0 0 0 10px;
+margin-right: 30px;
+background: url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;
+}
+</style>
+
+ <link rel="stylesheet" href="http://static.blog.csdn.net/css/replace.css"/>
+<div id="relate" data-mod="popu_218"  class="tracking-ad">
+        <div class="relate_t">
+            <h3><span>参考知识库</span></h3>
+        </div>
+        <div class="relate_c">
+        </div>
+</div>
+ 
+
+<dl class="blog-ass-articl" id="res-relatived" > 
+    <div class="embody embody_b" id="libkeyparent"  style="display:none">
+            <span class="embody_t">更多资料请参考：</span>
+            <div class="embody_c" id="libkey"></div>
+    </div>
+
+
+     <dt><span>猜你在找</span></dt>    
+
+
+   
+
+
+    <div id="adCollege" style="width: 42%;float: left;"> 
+        <script src="http://csdnimg.cn/jobreco/job_reco.js" type="text/javascript"></script> 
+        <script type="text/javascript">
+            csdn.position.showEdu({
+                sourceType: "blog",
+                searchType: "detail",
+                searchKey: "4065058",
+                username: "",
+                recordcount: "5",
+                containerId: "adCollege" //容器DIV的id。 
+            });
+        </script> 
+    </div>  
+
+    
+     <div id="res"  data-mod="popu_36"  class="tracking-ad" style="width: 42%;float: left;margin-right: 30px;"></div>
+   
+</dl>
+
+
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () {
+            var searchtitletags = 'epoll使用详解（精髓）' + ',' + $("#tags").html();
+            searchService({
+                index: 'blog',
+                query: searchtitletags,
+                from: 5,
+                size: 5,
+                appendTo: '#res',
+                url: 'recommend',
+                his: 2,
+                client: "blog_cf_enhance",
+                tmpl: '<dd style="background:url(http://static.blog.csdn.net/skin/default/images/blog-dot-red3.gif) no-repeat 0 10px;"><a href="#{ url }" title="#{ title }" strategy="#{ strategy }">#{ title }</a></dd>'
+            });
+        }, 500);
+    });    
+
+ </script>  
+
+    <div id="ad_cen">        
+<!-- 广告位开始 -->
+<ins data-revive-zoneid="71" data-revive-id="8c38e720de1c90a6f6ff52f3f89c4d57"></ins>
+<!-- 广告位结束 -->    </div>  
+
+<div class="comment_class">
+    <div id="comment_title" class="panel_head">
+        <span class="see_comment">查看评论</span><a name="comments"></a></div>
+    <div id="comment_list">
+    </div>
+    <div id="comment_bar">
+    </div>
+    <div id="comment_form">
+    </div>
+    <div class="announce">
+        * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+</div>
+
+<script type="text/javascript">
+    var fileName = '4065058';
+    var commentscount = 20;
+    var islock = false
+</script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+<div id="report_dialog">
+</div>
+
+<div id="d-top"  style="bottom:60px;">
+        <a id="quick-reply" class="btn btn-top q-reply" title="快速回复" style="display:none;">
+            <img src="http://static.blog.csdn.net/images/blog-icon-reply.png" alt="快速回复">
+        </a>    
+
+    <a id="d-top-a" class="btn btn-top backtop"  style="display: none;" title="返回顶部" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_huidaodingbu'])" style="">         
+         <img src="http://static.blog.csdn.net/images/top.png" alt="TOP">
+    </a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        $("#ad_frm_0").height("90px");
+        
+        setTimeout(function(){
+            $("#ad_frm_2").height("200px");
+        },1000);    
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="tag_list" style="display:none"></div>
+  <script  language="javascript" type='text/javascript'>     
+      $(function(){
+              setTimeout(function(){
+                  $.get("/ljx0305/svc/GetTagContent",function(data){
+                      $(".tag_list").html(data).show();
+                  });     
+              });
+          },500);                       
+ </script> 
+
+
+<div id="pop_win" style="display:none ;position: absolute; z-index: 10000; border: 1px solid rgb(220, 220, 220); top: 222.5px; left: 630px; opacity: 1; background: none 0px 0px repeat scroll rgb(255, 255, 255);">
+    
+</div>
+<div id="popup_mask"></div>
+<style>
+    #popup_mask
+    {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        z-index: 9999;
+        left: 0px;
+        top: 0px;
+        opacity: 0.3;
+        filter: alpha(opacity=30);
+        display: none;
+    }
+
+</style>
+
+
+
+
+<script type="text/javascript">
+    $(function(){
+        setTimeout(function(){
+            $(".comment_body:contains('回复')").each(function(index,item){
+                var u=$(this).text().split('：')[0].toString().replace("回复","")
+                var thisComment=$(this);
+                if(u)
+                {
+                    $.getJSON("https://passport.csdn.net/get/nick?callback=?", {users: u}, function(a) {
+                        if(a!=null&&a.data!=null&&a.data.length>0)
+                        {
+                            nick=a.data[0].n; 
+                            if(u!=nick)
+                            {
+                                thisComment.text(thisComment.text().replace(u,nick));  
+                            }
+                        }       
+                    });  
+                }
+            });         
+
+        },200);  
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },5000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },10000);
+
+        setTimeout(function(){
+            $(".math").each(function(index,value){$(this).find("span").last().css("color","#fff"); })
+        },15000);
+        
+        setTimeout(function(){
+            $("a img[src='http://js.tongji.linezing.com/stats.gif']").parent().css({"position":"absolute","left":"50%"});
+        },300);
+    });
+
+    function loginbox(){
+        var $logpop=$("#pop_win");
+        $logpop.html('<iframe src="https://passport.csdn.net/account/loginbox?service=http://static.blog.csdn.net/callback.htm" frameborder="0" height="600" width="400" scrolling="no"></iframe>');
+
+        $('#popup_mask').css({
+            opacity: 0.5,
+            width: $( document ).width() + 'px',
+            height:  $( document ).height() + 'px'
+        });
+        $('#popup_mask').css("display","block");
+ 
+        $logpop.css( {
+            top: ($( window ).height() - $logpop.height())/ 2  + $( window 
+       ).scrollTop() + 'px',
+            left:($( window ).width() - $logpop.width())/ 2
+        } );
+ 
+        setTimeout( function () {
+            $logpop.show();
+            $logpop.css( {
+                opacity: 1
+            } );
+        }, 200 );
+ 
+        $('#popup_mask').unbind("click");
+        $('#popup_mask').bind("click", function(){
+            $('#popup_mask').hide();
+            var $clopop = $("#pop_win");
+            $("#common_ask_div_sc").css("display","none");
+            $clopop.css( {
+                opacity: 0
+            } );
+            setTimeout( function () {
+                $clopop.hide();
+            }, 350 );
+            return false;
+        });
+    }   
+
+</script>
+ <script language="javascript" type="text/javascript" src="http://ads.csdn.net/js/async_new.js"></script>      
+
+
+                        <div class="clear">
+                        </div>
+                    </div>                   
+                
+            </div>
+                   
+           <div id="side">
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/ljx0305" target="_blank">
+    <img src="http://avatar.csdn.net/B/D/6/1_ljx0305.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/ljx0305" class="user_name" target="_blank">ljx0305</a></span>
+</div>
+<div class="interact">
+
+    <a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+
+ <a href="javascript:void(0);" class="letter"  title="[发私信]" onclick="window.open('http://msg.csdn.net/letters/model?receiver=ljx0305','_blank','height=350,width=700');_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_sixin'])"></a>  
+</div>
+<div id="blog_medal">
+                <div id="bms_box">
+                                            <a  target="_blank">
+                                                    <img src="http://c.csdnimg.cn/jifen/images/xunzhang/xunzhang/chizhiyiheng.png" onmouseover="m_over_m(this,4)" onmouseout="m_out_m()" alt="1" >
+                                            </a>
+               </div>
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>662461次</span></li>
+    <li>积分：<span>7222</span> </li>    
+    <li >等级： <span style="position:relative;display:inline-block;z-index:1" >
+            <img src="http://c.csdnimg.cn/jifen/images/xunzhang/jianzhang/blog6.png" alt="" style="vertical-align: middle;" id="leveImg">
+            <div id="smallTittle" style=" position: absolute;  left: -24px;  top: 25px;  text-align: center;  width: 101px;  height: 32px;  background-color: #fff;  line-height: 32px;  border: 2px #DDDDDD solid;  box-shadow: 0px 2px 2px rgba (0,0,0,0.1);  display: none;   z-index: 999;">
+            <div style="left: 42%;  top: -8px;  position: absolute;  width: 0;  height: 0;  border-left: 10px solid transparent;  border-right: 10px solid transparent;  border-bottom: 8px solid #EAEAEA;"></div>
+            积分：7222 </div>
+        </span>  </li>
+    <li>排名：<span>第1773名</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>80篇</span></li>
+    <li>转载：<span>412篇</span></li>
+    <li>译文：<span>1篇</span></li>
+    <li>评论：<span>85条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字" /></span>
+        <input id="btnSubmit" type="button" value="搜索" title="search in blog" />
+        <input type="hidden" name="q" id="inputQ" />
+        <input type="hidden" name="t" value="blog" />
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnSubmit").click(function () {           
+            search();
+        });
+
+        $("#frmSearch").submit(function () {
+            search();
+            return false;
+        });
+
+        function search()
+        {
+            var url = "http://so.csdn.net/so/search/s.do?q=" + encodeURIComponent($("#inputSearch").val()) + "&u=" + username + "&t=blog";
+            window.location.href = url;
+        }   
+    });
+</script><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">    
+                 <li>
+                    <a href="/ljx0305/article/category/817558" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">ACE</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/394717" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">C</a><span>(81)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/380566" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">C++</a><span>(170)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/511030" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">COM组件</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/403907" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">DLL</a><span>(8)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/450107" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">excel使用</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/364133" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Linux</a><span>(43)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/440323" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">linux下软件安装</a><span>(31)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/394700" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Linux程序及使用</a><span>(106)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/403913" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MFC</a><span>(37)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/570123" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">MySql</a><span>(6)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/428729" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Oracle体系结构</a><span>(20)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/638539" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Sqlite DB</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/560606" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">TCP协议</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/382726" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">UDP协议</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/401790" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">VC</a><span>(79)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/401859" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">XML</a><span>(4)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/431756" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">其它</a><span>(14)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/619974" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">其它杂谈</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/403670" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">数据结构</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/729496" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">数码相机</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/725662" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">汇编</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/702836" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">汉字的编码与字模点阵</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/606292" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">源代码地址</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/567360" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">算法</a><span>(2)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/437635" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">算法</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/436239" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">编译，链接，调试</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/684130" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">网站链接</a><span>(0)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/403915" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">网络编程</a><span>(18)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/601833" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">计算几何</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/402025" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">问题总结</a><span>(5)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/937304" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">Qt</a><span>(3)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/1354411" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">嵌入式</a><span>(1)</span>
+                </li>
+                 <li>
+                    <a href="/ljx0305/article/category/1397055" onclick="_gaq.push(['_trackEvent','function', 'onclick', 'blog_articles_wenzhangfenlei']); ">GoAhead</a><span>(1)</span>
+                </li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="/ljx0305/article/month/2014/04">2014年04月</a><span>(3)</span></li><li><a href="/ljx0305/article/month/2014/02">2014年02月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2013/12">2013年12月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2013/07">2013年07月</a><span>(5)</span></li><li><a href="/ljx0305/article/month/2013/06">2013年06月</a><span>(3)</span></li><li><a href="/ljx0305/article/month/2013/05">2013年05月</a><span>(2)</span></li><li><a href="/ljx0305/article/month/2013/04">2013年04月</a><span>(3)</span></li><li><a href="/ljx0305/article/month/2013/03">2013年03月</a><span>(2)</span></li><li><a href="/ljx0305/article/month/2013/02">2013年02月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2013/01">2013年01月</a><span>(13)</span></li><li><a href="/ljx0305/article/month/2012/12">2012年12月</a><span>(7)</span></li><li><a href="/ljx0305/article/month/2012/11">2012年11月</a><span>(10)</span></li><li><a href="/ljx0305/article/month/2012/10">2012年10月</a><span>(7)</span></li><li><a href="/ljx0305/article/month/2012/09">2012年09月</a><span>(6)</span></li><li><a href="/ljx0305/article/month/2012/08">2012年08月</a><span>(7)</span></li><li><a href="/ljx0305/article/month/2012/07">2012年07月</a><span>(2)</span></li><li><a href="/ljx0305/article/month/2012/06">2012年06月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2012/03">2012年03月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2012/01">2012年01月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2011/12">2011年12月</a><span>(2)</span></li><li><a href="/ljx0305/article/month/2011/11">2011年11月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2011/09">2011年09月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2011/08">2011年08月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2011/05">2011年05月</a><span>(3)</span></li><li><a href="/ljx0305/article/month/2011/04">2011年04月</a><span>(3)</span></li><li><a href="/ljx0305/article/month/2011/03">2011年03月</a><span>(3)</span></li><li><a href="/ljx0305/article/month/2011/02">2011年02月</a><span>(3)</span></li><li><a href="/ljx0305/article/month/2011/01">2011年01月</a><span>(2)</span></li><li><a href="/ljx0305/article/month/2010/11">2010年11月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2010/09">2010年09月</a><span>(4)</span></li><li><a href="/ljx0305/article/month/2010/08">2010年08月</a><span>(6)</span></li><li><a href="/ljx0305/article/month/2010/07">2010年07月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2010/06">2010年06月</a><span>(7)</span></li><li><a href="/ljx0305/article/month/2010/05">2010年05月</a><span>(4)</span></li><li><a href="/ljx0305/article/month/2010/04">2010年04月</a><span>(11)</span></li><li><a href="/ljx0305/article/month/2010/03">2010年03月</a><span>(6)</span></li><li><a href="/ljx0305/article/month/2010/02">2010年02月</a><span>(4)</span></li><li><a href="/ljx0305/article/month/2010/01">2010年01月</a><span>(11)</span></li><li><a href="/ljx0305/article/month/2009/12">2009年12月</a><span>(5)</span></li><li><a href="/ljx0305/article/month/2009/11">2009年11月</a><span>(16)</span></li><li><a href="/ljx0305/article/month/2009/10">2009年10月</a><span>(9)</span></li><li><a href="/ljx0305/article/month/2009/09">2009年09月</a><span>(10)</span></li><li><a href="/ljx0305/article/month/2009/08">2009年08月</a><span>(13)</span></li><li><a href="/ljx0305/article/month/2009/07">2009年07月</a><span>(21)</span></li><li><a href="/ljx0305/article/month/2009/06">2009年06月</a><span>(22)</span></li><li><a href="/ljx0305/article/month/2009/05">2009年05月</a><span>(2)</span></li><li><a href="/ljx0305/article/month/2009/04">2009年04月</a><span>(16)</span></li><li><a href="/ljx0305/article/month/2009/03">2009年03月</a><span>(5)</span></li><li><a href="/ljx0305/article/month/2009/02">2009年02月</a><span>(16)</span></li><li><a href="/ljx0305/article/month/2008/12">2008年12月</a><span>(5)</span></li><li><a href="/ljx0305/article/month/2008/11">2008年11月</a><span>(7)</span></li><li><a href="/ljx0305/article/month/2008/10">2008年10月</a><span>(5)</span></li><li><a href="/ljx0305/article/month/2008/09">2008年09月</a><span>(7)</span></li><li><a href="/ljx0305/article/month/2008/08">2008年08月</a><span>(29)</span></li><li><a href="/ljx0305/article/month/2008/07">2008年07月</a><span>(52)</span></li><li><a href="/ljx0305/article/month/2008/06">2008年06月</a><span>(17)</span></li><li><a href="/ljx0305/article/month/2008/05">2008年05月</a><span>(36)</span></li><li><a href="/ljx0305/article/month/2008/04">2008年04月</a><span>(16)</span></li><li><a href="/ljx0305/article/month/2008/03">2008年03月</a><span>(15)</span></li><li><a href="/ljx0305/article/month/2008/02">2008年02月</a><span>(8)</span></li><li><a href="/ljx0305/article/month/2008/01">2008年01月</a><span>(2)</span></li><li><a href="/ljx0305/article/month/2007/11">2007年11月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2007/10">2007年10月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2007/08">2007年08月</a><span>(2)</span></li><li><a href="/ljx0305/article/month/2007/07">2007年07月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2007/04">2007年04月</a><span>(1)</span></li><li><a href="/ljx0305/article/month/2007/03">2007年03月</a><span>(4)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head">
+    <span>       
+阅读排行    </span>
+</ul>
+
+<ul class="panel_body itemlist">
+<li>
+<a href="/ljx0305/article/details/4065058" title="epoll使用详解（精髓）">epoll使用详解（精髓）</a><span>(125470)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2786213" title="RedHat Linux安装Oracle10g(图文详解 教程)">RedHat Linux安装Oracle10g(图文详解 教程)</a><span>(10424)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2904221" title="sigsetjmp,siglongjmp的使用">sigsetjmp,siglongjmp的使用</a><span>(8595)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2351117" title="滑动窗口协议">滑动窗口协议</a><span>(8262)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2627837" title="清除系统垃圾的bat文件">清除系统垃圾的bat文件</a><span>(8184)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/1893507" title="如何快速算出一个日期是星期几">如何快速算出一个日期是星期几</a><span>(6451)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/5859196" title="深入解析数码相机CCD坏点及噪点检测！【图解教程】">深入解析数码相机CCD坏点及噪点检测！【图解教程】</a><span>(6421)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2759475" title="RedHat Linux 9.0 安装教程(全程图解)">RedHat Linux 9.0 安装教程(全程图解)</a><span>(6328)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2611499" title="smartdrv.exe的使用及简单说明和相关程序下载">smartdrv.exe的使用及简单说明和相关程序下载</a><span>(5890)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/9152523" title="linux下C程序获取绝对路径各种方法分析">linux下C程序获取绝对路径各种方法分析</a><span>(5282)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/ljx0305/article/details/4065058" title="epoll使用详解（精髓）">epoll使用详解（精髓）</a><span>(20)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2904078" title="Big&amp;amp;amp;amp;Little Endian　高&amp;amp;amp;amp;低字节序">Big&amp;amp;amp;amp;Little Endian　高&amp;amp;amp;amp;低字节序</a><span>(6)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2155207" title="深入探讨MFC消息循环和消息泵">深入探讨MFC消息循环和消息泵</a><span>(6)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2904048" title="信号基本原理">信号基本原理</a><span>(4)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/5112510" title="Sqlite DB使用例子">Sqlite DB使用例子</a><span>(3)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/3533981" title="线程池原理及创建（C++实现）">线程池原理及创建（C++实现）</a><span>(3)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/2171275" title="Windows CE 进程、线程和内存管理（二）">Windows CE 进程、线程和内存管理（二）</a><span>(2)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/4352481" title="MD5之C语言源代码 及 简单应用">MD5之C语言源代码 及 简单应用</a><span>(2)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/1545283" title="汉字拼音及拼音码获取 ">汉字拼音及拼音码获取 </a><span>(2)</span>
+</li>
+<li>
+<a href="/ljx0305/article/details/5050911" title="R6034 又来了.">R6034 又来了.</a><span>(2)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend">
+<ul>
+<li><a href="http://blog.csdn.net/qq_20198405/article/details/51273041" 
+target="_blank">*RxJava----操作符：组合Observable</a></li>
+<li><a href="http://blog.csdn.net/u012827296/article/details/51259006" 
+target="_blank">*Binder工作机制</a></li>
+<li><a href="http://blog.csdn.net/lmy86263/article/details/51219072" 
+
+target="_blank">* Java Web基础知识之Filter：过滤一切你不想看到的事情/a></li>
+<li><a 
+
+href="http://blog.csdn.net/xoy"target="_blank">*Untiy Native Render Plugin在VR中的绘制(二): 透明排序</a></li>
+<li><a href="http://blog.csdn.net/lin360580306/article/details/51240398" 
+target="_blank">*随机过程--Metropolis-Hastings算法</a></li>
+<li><a href="http://blog.csdn.net/lpw14/article/details/51260153" target="_blank">*Fresco图片库研读分析</a></li>
+
+</ul></ul>
+</div>
+
+
+<div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+   
+         <a href="/ljx0305/article/details/4065058#comments">epoll使用详解（精髓）</a>
+    <p style="margin:0px;"><a href="/a185446828" class="user_name">a185446828</a>:
+超级赞，谢谢，学习
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/9152523#comments">linux下C程序获取绝对路径各种方法分析</a>
+    <p style="margin:0px;"><a href="/u014260855" class="user_name">u014260855</a>:
+很有用，我可以转一下吗，备忘。谢谢。
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/9152523#comments">epoll使用详解（精髓）</a>
+    <p style="margin:0px;"><a href="/u014104588" class="user_name">u014104588</a>:
+博主的if else if,,是不是要改为if if  ，因为觉得博主的意思是从客户端读取数据后就要...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/9152523#comments">epoll使用详解（精髓）</a>
+    <p style="margin:0px;"><a href="/nvfumayx" class="user_name">nvfumayx</a>:
+@dreamzme:我认为查看事件的逻辑是 if {} else { if if } 这样，否则对于...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/9152523#comments">epoll使用详解（精髓）</a>
+    <p style="margin:0px;"><a href="/xiaobendanlei" class="user_name">xiaobendanlei</a>:
+@dreamzme:if if,是不行的，根据上下文就可以看出，if if 下listen之后直接r...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/9152523#comments">epoll使用详解（精髓）</a>
+    <p style="margin:0px;"><a href="/dreamzme" class="user_name">dreamzme</a>:
+应该是用if()... if()而不是if()..else if ()...否则如果是用ET模式，这...
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/4065082#comments">什么是Core Dump?</a>
+    <p style="margin:0px;"><a href="/taoshengyijiu20008" class="user_name">taoshengyijiu20008</a>:
+很好
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/9234155#comments">Linux 的多线程编程的高效开发经验</a>
+    <p style="margin:0px;"><a href="/taoshengyijiu20008" class="user_name">taoshengyijiu20008</a>:
+太好了
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/9234063#comments">关于SIGPIPE导致的程序退出</a>
+    <p style="margin:0px;"><a href="/tommwq" class="user_name">tommwq</a>:
+可以考虑在send时加上MSG_NOSIGNAL
+    </p>
+    </li>
+    <li>
+   
+         <a href="/ljx0305/article/details/9234063#comments">epoll使用详解（精髓）</a>
+    <p style="margin:0px;"><a href="/q19864q" class="user_name">q19864q</a>:
+恩，写的比较详细，但没有运行，不知道bug多不多
+    </p>
+    </li>
+</ul>
+</div>
+
+
+<div id="custom_column_976487" class="panel">
+<ul class="panel_head"><span>Blog</span></ul>
+<ul class="panel_body">
+<ul><li><a href="http://blog.chinaunix.net/u/15315/article_35459.html" target=_blank>ShellmyBlog 里边有p2p还有c/c++语言</a></li><li><a href="http://blog.csdn.net/callzjy/category/12927.aspx" target=_blank>C++基础 重载，覆盖，多态与函数隐藏</a></li><li><a href="http://www.cppblog.com/aqazero/category/1964.html" target=_blank>C++　运算符优先级　和 ISAPI</a></li><li><a href="http://blog.csdn.net/C.html" target=_blank>CSND博客 C++频道</a></li><li><a href="http://blog.csdn.net/zhoujunyi/archive/2007/04.aspx" target=_blank>zhoujunyi的专栏 讲关于linux</a></li><li><a href="http://www-128.ibm.com/developerworks/cn/linux/l-ipc/part2/index1.html" target=_blank>Linux环境进程间通信</a></li><li><a href="http://www.blogjava.net/wxb_nudt/" target=_blank>wxb_nudt的Blog　里边有XML DLL SOCKET</a></li><li><a href="http://hi.csdn.net/fisher_jiang" target=_blank>fisher_jiang的专栏</a> (<a href="fisher_jiang的专栏" target=_blank>RSS</a>)</li><li><a href="http://blog.csdn.net/absurd" target=_blank>absurd的专栏 李先静</a></li><li><a href="http://blog.chinaunix.net/u/23204/article_36873.html" target=_blank>Linux管理的Blog</a></li><li><a href="http://dev.csdn.net/develop/article/81/81780.shtm" target=_blank>C语言学习零碎整理</a></li><li><a href="http://bbs.loveunix.net/viewthread.php?tid=8404" target=_blank>volatile--编写多线程程序的好帮手</a></li><li><a href="http://blog.chinaunix.net/u/22935/article_52710.html" target=_blank>linux多线程编程</a></li><li><a href="http://blog.csdn.net/yuchenchen2003/archive/2008/07/29/2728552.aspx" target=_blank>jeanting 博客</a></li><li><a href="http://waringid.blog.51cto.com/65148/47973" target=_blank>Linux下oracle 9i图文安装</a></li><li><a href="http://freecode.cnblogs.com/" target=_blank>VSS使用手册</a></li><li><a href="http://www.ibm.com/developerworks/cn/linux/thread/posix_threadapi/part1/" target=_blank>Posix线程编程指南(1)</a></li><li><a href="http://blog.csdn.net/yuanfen127/archive/2007/12/18/1944525.aspx" target=_blank>RedHat Linux安装Oracle10g(图文详解 教程)_绝对原创</a></li><li><a href="http://soft.yesky.com/SoftChannel/72357786515668992/index.shtml" target=_blank>Excel动画教程</a></li><li><a href="http://www.vckbase.com/vckbase/default.aspx" target=_blank>VC知识库在线杂志</a></li><li><a href="http://www.vckbase.com/vckbase/columnist/yangfeng/" target=_blank>杨老师 个人专栏(COM组件设计与应用)</a></li><li><a href="http://blog.chinaunix.net/u/553/article_110809.html" target=_blank>shell相关</a></li><li><a href="http://blog.chinaunix.net/u1/38279/index.html" target=_blank>heixia108.cublog.cn  blog </a></li><li><a href="http://www.0ginr.com/bbs/thread-1133-1-1.html" target=_blank>牛刀小试 VC++ 教程专区</a></li><li><a href="http://www.dofile.com/" target=_blank>进程知识库</a></li><li><a href="http://www.gameres.com/" target=_blank>GameRes游戏开发资源网</a></li><li><a href="http://www.eventid.net/" target=_blank>查询系统错误事件的解决方案</a></li><li><a href="http://windowsitpro.com/" target=_blank>windows事件查看器帮助 </a></li><li><a href="http://www.honkerbase.com/index.htm" target=_blank>维C世界</a></li><li><a href="http://www.honkerbase.com/index.htm" target=_blank>中国红客基地</a></li></ul>
+</ul>
+</div>
+
+<div id="custom_column_976488" class="panel">
+<ul class="panel_head"><span>Linux</span></ul>
+<ul class="panel_body">
+<ul><li><a href="http://blog.csdn.net/yuqun/archive/2004/12/16/218142.aspx" target=_blank>linux 线程 进程经典文章</a></li><li><a href="http://ettc.sysu.edu.cn/wlkc/caozuoxitong/book/chapter4/lesson1/lesson1.3.html" target=_blank>进程的状态转换</a></li><li><a href="http://bbs.linuxsir.org/thread59869.html" target=_blank>编译OCI程序出现的问题</a></li><li><a href="http://bbs.linuxsir.org/index.php" target=_blank>LinuxSir网站</a></li><li><a href="http://www.embed.com.cn/downcenter/Software/Catalog38/1683.htm" target=_blank>嵌入式开发网 资料下载网</a></li><li><a href="http://xhbdahai.cublog.cn/" target=_blank>GNU-make v3.80中文版</a></li></ul>
+</ul>
+</div>
+
+<div id="custom_column_976489" class="panel">
+<ul class="panel_head"><span>P2P</span></ul>
+<ul class="panel_body">
+<ul><li><a href="http://www.ppcn.net/c2.aspx" target=_blank>P2P技术(P2P行业第一中文门户网)</a></li></ul>
+</ul>
+</div>
+
+<div id="custom_column_976490" class="panel">
+<ul class="panel_head"><span>VC</span></ul>
+<ul class="panel_body">
+<ul><li><a href="http://www.vckbase.com/vckbase/default.aspx" target=_blank>VC知识库在线杂志</a></li><li><a href="http://www.china-askpro.com/msg24/qa08.shtml" target=_blank>问专家</a></li><li><a href="http://hi.csdn.net/fisher_jiang" target=_blank>fisher_jiang的专栏 有c++</a></li><li><a href="http://www.vckbase.com/document/viewdoc/?id=1849" target=_blank>让UI开发轻松而快乐，用SonicUI引擎实现常见UI效果</a> (<a href="http://www.vckbase.com/document/viewdoc/?id=1849" target=_blank>RSS</a>)</li></ul>
+</ul>
+</div>    </div>
+    <div class="clear">
+    </div>
+ </div>   
+            <div class="clear">
+            </div>
+        </div>
+
+        
+
+<script type="text/javascript" src="http://c.csdnimg.cn/rabbit/cnick/cnick.js"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/newblog.min.js"></script>
+
+
+<script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=190042"></script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/JavaScript1.js"></script>
+
+    <script type="text/javascript" src="http://passport.csdn.net/content/loginbox/login.js"></script>
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script>
+<script type="text/javascript" src="http://www.csdn.net/ui/scripts/Csdn/counter.js"></script>
+<script type="text/javascript" src="http://ad.csdn.net/scripts/ad-blog.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<span class='tracking-ad' data-mod='popu_167'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a></span>"
+                    + "<span class='tracking-ad' data-mod='popu_170'><a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a></span>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+
+        $(".bar").show();
+    });
+</script>
+
+
+
+
+    </div>
+      <!--new top-->
+    
+    <script id="csdn-toolbar-id" btnId="header_notice_num" wrapId="note1" count="5" subCount="5" type="text/javascript" src="http://c.csdnimg.cn/public/common/toolbar/js/toolbar.js"></script>     <!--new top-->
+   
+    <link href="http://c.csdnimg.cn/comm_ask/css/ask_float_block.css" type="text/css" rel="stylesheet" />
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/wmd.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/showdown.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/libs/prettify.js'></script>
+    <script language='JavaScript' type='text/javascript' src='http://c.csdnimg.cn/comm_ask/js/apps/ask_float_block.js'></script>
+   
+
+  <div id="a52b5334d" style="width: 1px; height: 1px; display: none;">
+                    <script id="adJs52b5334"></script>
+                    <script>document.getElementById("adJs52b5334").src = "http://ads.csdn.net/js/opt/52b5334.js?t=" + Math.random();</script>
+   </div>
+
+</body>
+</html>   
+ 
