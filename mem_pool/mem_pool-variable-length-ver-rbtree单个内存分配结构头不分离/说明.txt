@@ -1,0 +1,37 @@
+可变长内存池分配，回收		可动态增长
+
+单个内存分配结构头　不分离
+
+
+
+测试数据部分，测试函数为main.c
+
+
+[root@EVERSEC mem_pool]# ./mem 300
+160 
+111
+[root@EVERSEC mem_pool]# ./mem 30
+6 
+1
+[root@EVERSEC mem_pool]# ./mem 3000
+2120 
+1417
+[root@EVERSEC mem_pool]# ./mem 30000
+364720 
+25894
+[root@EVERSEC mem_pool]# ./mem 10000
+62647 
+8255
+[root@EVERSEC mem_pool]# ./mem 1000
+531 
+463
+[root@EVERSEC mem_pool]# ./mem 2000
+1167 
+1482
+[root@EVERSEC mem_pool]# ./mem 3000
+1180 
+2696
+[root@EVERSEC mem_pool]# ./mem 4000
+2716 
+2058
+[root@EVERSEC mem_pool]# .0  
