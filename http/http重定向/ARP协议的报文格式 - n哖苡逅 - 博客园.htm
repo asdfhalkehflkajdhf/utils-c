@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>ARP协议的报文格式 - n哖苡逅 - 博客园</title>
+<link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=5bITb1XmtieJKhNy3HCsng1mgkC1fjWAtqCxIQA888c1"/>
+<link id="MainCss" type="text/css" rel="stylesheet" href="http://common.cnblogs.com/Skins/AnotherEon001/style.css?id=20131027"/>
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/laojie4321/rss"/>
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/laojie4321/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/laojie4321/wlwmanifest.xml"/>
+<script src="http://common.cnblogs.com/script/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'laojie4321';</script>
+<script src="/bundles/blog-common.js?v=saW2cDTFfpQLTilXhuUNAbX6Ox2xoOn8SYSERk5jMCo1" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<div id="wrapper">
+<div id="header">
+
+<div id="top">
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/laojie4321/">n哖苡逅</a></h1>
+<div id="subtitle"></div>
+</div>
+<div id="sub">
+<div class="BlogStats">随笔 - 77, 文章 - 0, 评论 - 2, 引用 - 0</div>
+</div>
+
+
+
+</div>
+<div id="main_container">
+<div id="main_content">
+<div id="content">
+	
+
+	<div class="post">
+		<h2>
+			<a id="cb_post_title_url" href="http://www.cnblogs.com/laojie4321/archive/2012/04/12/2444187.html">ARP协议的报文格式</a>
+		</h2>
+		<div class="postbody">
+		<div id="cnblogs_post_body"><p><img src="http://pic002.cnblogs.com/images/2012/392443/2012041215590890.jpg" alt="" /></p>
+<p><span style="color: #38761d;">结构ether_header定义了以太网帧首部；结构arphdr定义了其后的5个字段，其信息<br />用于在任何类型的介质上传送ARP请求和回答；ether_arp结构除了包含arphdr结构外，<br />还包含源主机和目的主机的地址。</span></p>
+<p><span style="color: #38761d;">定义常量</span></p>
+<p><span style="color: #38761d;">#define EPT_IP&nbsp;&nbsp; 0x0800&nbsp;&nbsp;&nbsp; /* type: IP */<br />#define EPT_ARP&nbsp;&nbsp; <strong><span style="color: #ff0000;">0x0806&nbsp;&nbsp;&nbsp; /* type: ARP */</span></strong><br />#define EPT_RARP 0x8035&nbsp;&nbsp;&nbsp; /* type: RARP */<br />#define ARP_HARDWARE 0x0001&nbsp;&nbsp;&nbsp; /* Dummy type for 802.3 frames */<br />#define ARP_REQUEST 0x0001&nbsp;&nbsp;&nbsp; /* ARP request */<br />#define ARP_REPLY 0x0002&nbsp;&nbsp;&nbsp; /* ARP reply */</span></p>
+<p><span style="color: #38761d;">定义以太网首部<br />typedef struct ehhdr&nbsp;<br />{<br />unsigned char eh_dst[6];&nbsp;&nbsp; /* destination ethernet addrress */<br />unsigned char eh_src[6];&nbsp;&nbsp; /* source ethernet addresss */<br />unsigned short eh_type;&nbsp;&nbsp; /* ethernet pachet type */<br />}EHHDR, *PEHHDR;</span></p>
+<p><span style="color: #38761d;">定义以太网arp字段<br />typedef struct arphdr<br />{<br />//arp首部<br />unsigned short arp_hrd;&nbsp;&nbsp;&nbsp; /* format of hardware address */<br />unsigned short arp_pro;&nbsp;&nbsp;&nbsp; /* format of protocol address */<br />unsigned char arp_hln;&nbsp;&nbsp;&nbsp; /* length of hardware address */<br />unsigned char arp_pln;&nbsp;&nbsp;&nbsp; /* length of protocol address */<br />unsigned short arp_op;&nbsp;&nbsp;&nbsp;&nbsp; /* ARP/RARP operation */</span></p>
+<p><span style="color: #38761d;">unsigned char arp_sha[6];&nbsp;&nbsp;&nbsp; /* sender hardware address */<br />unsigned long arp_spa;&nbsp;&nbsp;&nbsp; /* sender protocol address */<br />unsigned char arp_tha[6];&nbsp;&nbsp;&nbsp; /* target hardware address */<br />unsigned long arp_tpa;&nbsp;&nbsp;&nbsp; /* target protocol address */<br />}ARPHDR, *PARPHDR;</span></p>
+<p><span style="color: #38761d;">定义整个arp报文包，总长度42字节<br />typedef struct arpPacket<br />{<br />EHHDR ehhdr;<br />ARPHDR arphdr;<br />} ARPPACKET, *PARPPACKET;</span></p>
+<p><span style="color: #38761d;">ARP请求包的分析：如下所示为一个ARP请求包</span></p>
+<p><span style="color: #38761d;">0000&nbsp;&nbsp; ff&nbsp;&nbsp; ff&nbsp;&nbsp;&nbsp; ff&nbsp;&nbsp;&nbsp; ff&nbsp;&nbsp; ff&nbsp;&nbsp; ff 00 0c f1 d4 d9 60 08 06 00 01 ...........`....<br />0010&nbsp;&nbsp; 08 00 06 04 00 01 00 0c f1 d4 d9 60 c0 a8 01 0f ...........`....<br />0020&nbsp;&nbsp; 00 00 00 00 00 00 c0 a8 01 02&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ..........<br />根据定义，头6个字节是以太网目的地址 ff ff ff ff ff ff <strong><span style="color: #ff0000;">这是一个广播地址</span></strong>，全网下的所有终端都能接收到，紧跟着的6个字节是<strong><span style="color: #ff0000;">以太网源地址</span></strong>，即发送者的MAC地址（ 00 0c f1 d4 d9 60 是我的MAC地址）。</span></p>
+<p><span style="color: #38761d;">帧类型<strong><span style="color: #ff0000;">0806</span></strong>占两个字节，到这里以太网帧头就结束了。0806指的是后面的数据是属于arp包的。</span></p>
+<p><span style="color: #38761d;">接着分析ARP包头。头两个字节是<strong><span style="color: #ff0000;">硬件类型</span> <span style="color: #ff0000;">00 01</span></strong>，接着两个字节是<strong><span style="color: #ff0000;">协议类型</span></strong>，即ARP使用的是IP协议代号<strong><span style="color: #ff0000;">08 00</span></strong>。<strong><span style="color: #ff0000;">硬件地址长度和协议地址长度分别是6和4</span></strong>。这与ARP报文格式是对应的。后面的2个字节<strong><span style="color: #ff0000;">OP指示当前包是请求包还是应答包</span></strong>，对应的值分别是0x0001和0x0002。原始数据里是00 01所以这是一个请求包，然后6个字节又是发送者MAC地址00 0c f1 d4 d9 60 ，后面4个字节是发送者IP地址c0 a8 01 0f ，转换成点分十进制格式即192.168.1.15，这是我的IP，接下来的6个字节留空，00 00 00 00 00 00 在arp请求包里也可以是其他数据，因为稍后IP地址为c0 a8 01 02 （192.168.1.2）会把自己的MAC地址填充进这6个字节中。<br />填充完后，arp包里的发送者硬件地址|目标硬件地址和以太网首部的以太网目的地址|以太网源地址正好对调。最后把这个封装好的ARP包发送出去，这样一个来回就可以让两台终端互相知道对方的IP和MAC。</span></p>
+<p><span style="color: #38761d;">ARP欺骗的3种基本方式：</span></p>
+<p><span style="color: #38761d;">1. 主机C冒充网关欺骗主机B；</span></p>
+<p><span style="color: #38761d;">2. 主机c冒充主机B欺骗网关；</span></p>
+<p><span style="color: #38761d;">3. 主机C同时欺骗主机B和网关，实现数据中转，并监听到所有主机B的数据。</span></p>
+<p><span style="color: #38761d;">PT下仿真如下：</span></p>
+<p>&nbsp;</p>
+<p><img src="http://pic002.cnblogs.com/images/2012/392443/2012041216041593.jpg" alt="" /></p>
+<p>这是使用的是Ethernet V2 MAC帧，然后封装ARP帧。另一台机器会返回：</p>
+<p><img src="http://pic002.cnblogs.com/images/2012/392443/2012041216181168.jpg" alt="" /></p>
+<p>这样两台PC都知道ip和MAC地址了。</p>
+<p><span style="color: #38761d;">&nbsp;</span></p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+		</div>
+		<p class="postfoot">
+			posted on <span id="post-date">2012-04-12 16:19</span> <a href='http://www.cnblogs.com/laojie4321/'>n哖苡逅</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="http://www.cnblogs.com/laojie4321/admin/EditPosts.aspx?postid=2444187" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(2444187);return false;">收藏</a>
+		</p>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=113046,cb_entryId=2444187,cb_blogApp=currentBlogApp,cb_blogUserGuid='8032baae-e477-e111-aa3f-842b2b196315',cb_entryCreatedDate='2012/4/12 16:19:00';loadViewCount(cb_entryId);</script>
+	
+	<a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" id="lnk_RefreshComments" onclick="return RefreshCommentList();">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+<div id="comment_form_container"></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="site_nav_under"><a href="http://www.cnblogs.com/" target="_blank" title="程序员的网上家园">博客园首页</a><a href="http://q.cnblogs.com/" target="_blank" title="程序员问答社区">博问</a><a href="http://news.cnblogs.com/" target="_blank" title="IT新闻">新闻</a><a href="http://home.cnblogs.com/ing/" target="_blank">闪存</a><a href="http://job.cnblogs.com/" target="_blank">程序员招聘</a><a href="http://kb.cnblogs.com/" target="_blank">知识库</a></div>
+<div id="ad_under_post_holder"></div>
+<script type="text/javascript">
+var enableGoogleAd = true;
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+fixPostBodyFormat();
+loadAdUnderPost();
+</script>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+loadBlogSignature();
+LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+</script>
+<script type="text/javascript">
+    $.ajax({ url: 'http://counter.cnblogs.com/blog/post/' + cb_entryId, type: 'get', dataType: 'script', cache: true });
+</script>
+</div>
+
+</div>
+</div>
+<div id="leftmenu">
+
+
+<h3>导航</h3>
+<ul>
+<li>
+<a id="MyLinks1_HomeLink" href="http://www.cnblogs.com/">博客园</a></li>
+<li>
+<a id="MyLinks1_MyHomeLink" class="two_words" href="http://www.cnblogs.com/laojie4321/">首页</a></li>
+<li>
+<a id="MyLinks1_NewPostLink" rel="nofollow" href="http://www.cnblogs.com/laojie4321/admin/EditPosts.aspx?opt=1">新随笔</a></li>
+<li>
+<a id="MyLinks1_ContactLink" accesskey="9" class="two_words" rel="nofollow" href="http://space.cnblogs.com/msg/send/n%e5%93%96%e8%8b%a1%e9%80%85">联系</a></li>
+<li>
+<a id="MyLinks1_Syndication" class="two_words" href="http://www.cnblogs.com/laojie4321/rss">订阅</a>
+<a id="MyLinks1_XMLLink" href="http://www.cnblogs.com/laojie4321/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>
+</li>
+<li>
+<a id="MyLinks1_Admin" class="two_words" rel="nofollow" href="http://www.cnblogs.com/laojie4321/admin/EditPosts.aspx">管理</a></li>
+</ul>
+
+<div id="blog-calendar-block" style="display:none"><div id="blog-calendar"></div>
+</div>
+<meta name="vs_showGrid" content="False">
+
+<h3>公告</h3>
+<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+
+<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+
+</div>
+</div>
+<div class="clear"></div>
+<div id="footer">
+
+<p id="footer">
+	Powered by: 
+	<br />
+	
+	<a id="Footer1_Hyperlink3" NAME="Hyperlink1" href="http://www.cnblogs.com/" style="font-family:Verdana;font-size:12px;">博客园</a>
+	<br />
+	Copyright &copy; n哖苡逅
+</p>
+</div>
+</div>
+
+<script type="text/javascript" src="http://common.cnblogs.com/script/google-analytics.js"></script>
+</body>
+</html>

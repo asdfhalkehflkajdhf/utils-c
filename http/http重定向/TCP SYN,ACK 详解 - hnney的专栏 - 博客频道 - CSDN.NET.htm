@@ -1,0 +1,538 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+ 
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>TCP SYN,ACK 详解 - hnney的专栏
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="TCP协议:::三次握手：握手过程的第一个段的代码位设置为SYN，序列号为x，表示开始一次握手。接收方收到这个段后，向发送者回发一个段。代码位设置为SYN和ACK，序列号设置为y，确认序列号设置为x+1。发送者在受到这个段后，知道就可以进行TCP数据发送了，于是，它又向接收者发送一个ACK段，表示，双方的连接已经建立。Client --&gt; 置SYN标志 序列号 = J，确认号 = 0 ----" />
+    <script src="http://static.blog.csdn.net/scripts/jquery.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/ad.js?v=1.1"></script>
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/default/css/style.css?v=1.1" />
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/hnney/rss/list" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/default.css" />
+
+</head>
+<body>
+    <script src="http://csdnimg.cn/pubnav/js/pub_topnav_2011.js" type="text/javascript"></script>
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h1>
+                <a href="http://blog.csdn.net/hnney">hnney的专栏</a></h1>
+            <h2></h2>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>
+                <li id="btnContents"><a href="http://blog.csdn.net/hnney?viewmode=contents"><span>
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/hnney?viewmode=list"><span>
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/hnney/rss/list"><span>
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>
+</ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "hnney";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/hnney";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+<div class="notice tracking-ad" data-mod='popu_3' > 
+
+<a href="http://vote.blog.csdn.net/blogstar2013"target="_blank">
+<font color=blue>投票赢好礼，周周有惊喜！
+ </font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://hero.pongo.cn/Question/Details?ID=168&ExamID=163" target="_blank"><font color=red>文思海辉第一届在线编程大赛
+</font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/csdn_ask/article/details/16943685"target="_blank">
+<font color=blue>消灭0回答，赢下载分
+ </font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+<a href="http://blog.csdn.net/blogdevteam/article/details/17356319"target="_blank">
+<font color=red>“我的2013”年度征文活动火爆进行中！
+ </font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+<a href="http://blog.csdn.net/blogdevteam/article/details/16943989"target="_blank">
+<font color=blue>办公大师系列经典丛书 诚聘译者
+ </font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+</div>                    <link href="http://static.blog.csdn.net/css/comment1.css" type="text/css" rel="stylesheet" />
+<link href="http://static.blog.csdn.net/css/style1.css" type="text/css" rel="stylesheet" />
+<div id="article_details" class="details">
+    <div class="article_title">
+    <span class="ico ico_type_Original"></span>
+    <h3>
+        <span class="link_title"><a href="/hnney/article/details/5604677">
+        TCP SYN,ACK 详解
+        </a></span>
+    </h3>
+</div>
+
+    <div class="article_manage">
+    <span class="link_postdate">2010-05-18 16:50</span>
+    <span class="link_view" title="阅读次数">6699人阅读</span>
+    <span class="link_comments" title="评论次数"><a href="#comments">评论</a>(0)</span>
+    <span class="link_collect"><a href="javascript:void(0);" onclick="javascript:collectArticle('TCP SYN,ACK 详解','5604677');return false;" title="收藏">收藏</a></span>
+    <span class="link_report"><a href="#report"  onclick="javascript:report(5604677,2);return false;" title="举报">举报</a></span>
+    
+</div>
+<div class="tag2box"><a href='http://www.csdn.net/tag/tcp' target=_blank>tcp</a><a href='http://www.csdn.net/tag/server' target=_blank>server</a></div>
+
+    
+<div id="article_content" class="article_content">
+<p>TCP协议:::</p>
+<p>三次握手：<br />握手过程的第一个段的代码位设置为SYN，序列号为x，表示开始一次握手。接收方收到这个段后，向发送者回发一个段。代码位设置为SYN和ACK，序列号设置为y，确认序列号设置为x+1。发送者在受到这个段后，知道就可以进行TCP数据发送了，于是，它又向接收者发送一个ACK段，表示，双方的连接已经建立。<br />Client --&gt; 置SYN标志 序列号 = J，确认号 = 0 ----&gt; Server<br />Client &lt;-- 置SYN标志 置ACK标志 序列号 = K, 确认号 = J + 1 &lt;-- Server<br />Clinet --&gt; 置ACK标志 序列号 = J + 1，确认号 = K + 1 --&gt; Server<br />a 发起方 b接受方<br />a发送一个SYN包给b，b回一个[SYN,ACK]给b，a再回一个ACK包给b；</p>
+<p>数据交换：<br />a ----》b<br />a 发送数据完毕，（PSH,ACK） aseq = x，ack=y，datalen = z<br />b 接受到以后发送（ACK）&nbsp; bseq = aack， back = aseq + alen， datalen=blen<br />b 发送数据完毕&nbsp; （PSH,ACK）bseq = bseq + blen，back = back，datalen = blen<br />a&nbsp; 确认接受&nbsp;&nbsp;&nbsp;&nbsp; （ACK）&nbsp;&nbsp; aseq = back ，aack = bseq + blen<br />注：PSH标志指示接收端应尽快将数据提交给应用层。从我协议分析的经历来看，在数据传输阶段，几乎所有数据包的发送都置了PSH位；而ACK标志位在数据传输阶段也是一直是置位的</p>
+<p>在数据传输阶段，按照常理应用层数据的传输是这样的：(我们假定建立连接阶段Client端最后的确认包中序列号 = 55555, 确认号 = 22222)<br />Client --&gt; 置PSH标志，置ACK标志 序列号 = 55555, 确认号 = 22222，数据包长度 = 11 ---&gt; Server <br />Client &lt;-- 置ACK标志，序列号 = 22222, 确认号 = 55566 (=55555 + 11)，数据包长度 = 0 &lt;--- Server<br />Client &lt;-- 置PSH标志，置ACK标志 序列号 = 22223, 确认号 = 55566，数据包长度 = 22 &lt;--- Server <br />Client --&gt; 置ACK标志，序列号 = 55566, 确认号 = 22244(=22222+22)，数据包长度 = 0 ---&gt; Server<br />/////////////////////////////////////////////////////////////////////////////////////////</p>
+<p>&nbsp;</p>
+</div>
+
+
+
+<!-- Baidu Button BEGIN -->
+<div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" style="float: right;">
+<a class="bds_qzone"></a>
+<a class="bds_tsina"></a>
+<a class="bds_tqq"></a>
+<a class="bds_renren"></a>
+<a class="bds_t163"></a>
+<span class="bds_more">更多</span>
+<a class="shareCount"></a>
+</div>
+<!-- Baidu Button END -->
+
+
+<!--192.168.100.33-->
+<div class="article_next_prev">
+            <li class="prev_article"><span>上一篇：</span><a href="/hnney/article/details/5494464">原始套接字发包</a></li>
+            <li class="next_article"><span>下一篇：</span><a href="/hnney/article/details/5604698">dup与dup2</a></li>
+</div>
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+</div>
+    <div id="ad_cen">
+        <script type="text/javascript">            BAIDU_CLB_SLOT_ID = "117306";</script>
+        <script type="text/javascript" src="http://cbjs.baidu.com/js/o.js"></script>
+    </div>
+    <script type="text/javascript">
+        //new Ad(4, 'ad_cen');
+    </script>
+<div id="comment_title" class="panel_head">
+    查看评论<a name="comments"></a></div>
+<div id="comment_list">
+</div>
+<div id="comment_bar">
+</div>
+<div id="comment_form">
+</div>
+<div class="announce">
+    * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+<script type="text/javascript">
+    var fileName = '5604677';
+    var commentscount = 0;
+    var islock = false
+</script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+    <script type="text/javascript">
+    new Ad(5, 'ad_bot');
+    </script>
+<div id="report_dialog">
+</div>
+<div id="d-top" style="display: none;">
+    <a id="d-top-a" href="#" title="回到顶部">
+        <img src="http://static.blog.csdn.net/images/top.png" alt="TOP" /></a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        var d_top = $('#d-top');
+        document.onscroll = function ()
+        {
+            var scrTop = (document.body.scrollTop || document.documentElement.scrollTop);
+            if (scrTop > 500)
+            {
+                d_top.show();
+            } else
+            {
+                d_top.hide();
+            }
+        }
+        $('#d-top-a').click(function ()
+        {
+            scrollTo(0, 0);
+            this.blur();
+            return false;
+        });
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+<div class="tag_list">
+    <h5>
+        <a href="http://www.csdn.net/tag/" target="_blank">核心技术类目</a></h5>
+    <div class="classify">
+<a title="全部主题" href="http://www.csdn.net/tag" target="_blank" onclick="LogClickCount(this,336);">全部主题</a>
+<a title="Java" href="http://www.csdn.net/tag/Java" target="_blank" onclick="LogClickCount(this,336);">Java</a>
+<a title="VPN" href="http://www.csdn.net/tag/vpn" target="_blank" onclick="LogClickCount(this,336);">VPN</a>
+<a title="Android" href="http://www.csdn.net/tag/android" target="_blank" onclick="LogClickCount(this,336);">Android</a>
+<a title="iOS" href="http://www.csdn.net/tag/ios" target="_blank" onclick="LogClickCount(this,336);">iOS</a>
+<a title="ERP" href="http://www.csdn.net/tag/erp" target="_blank" onclick="LogClickCount(this,336);">ERP</a>
+<a title="IE10" href="http://www.csdn.net/tag/ie10" target="_blank" onclick="LogClickCount(this,336);">IE10</a>
+<a title="Eclipse" href="http://www.csdn.net/tag/eclipse" target="_blank" onclick="LogClickCount(this,336);">Eclipse</a>
+<a title="CRM" href="http://www.csdn.net/tag/crm" target="_blank" onclick="LogClickCount(this,336);">CRM</a>
+<a title="JavaScript" href="http://www.csdn.net/tag/javascript" target="_blank" onclick="LogClickCount(this,336);">JavaScript</a>
+<a title="Ubuntu" href="http://www.csdn.net/tag/ubuntu" target="_blank" onclick="LogClickCount(this,336);">Ubuntu</a>
+<a title="NFC" href="http://www.csdn.net/tag/nfc" target="_blank" onclick="LogClickCount(this,336);">NFC</a>
+<a title="WAP" href="http://www.csdn.net/tag/wap" target="_blank" onclick="LogClickCount(this,336);">WAP</a>
+<a title="jQuery" href="http://www.csdn.net/tag/jquery" target="_blank" onclick="LogClickCount(this,336);">jQuery</a>
+<a title="数据库" href="http://www.csdn.net/tag/数据库" target="_blank" onclick="LogClickCount(this,336);">数据库</a>
+<a title="BI" href="http://www.csdn.net/tag/bi" target="_blank" onclick="LogClickCount(this,336);">BI</a>
+<a title="HTML5" href="http://www.csdn.net/tag/html5" target="_blank" onclick="LogClickCount(this,336);">HTML5</a>
+<a title="Spring" href="http://www.csdn.net/tag/spring" target="_blank" onclick="LogClickCount(this,336);">Spring</a>
+<a title="Apache" href="http://www.csdn.net/tag/apache" target="_blank" onclick="LogClickCount(this,336);">Apache</a>
+<a title="Hadoop" href="http://www.csdn.net/tag/hadoop" target="_blank" onclick="LogClickCount(this,336);">Hadoop</a>
+<a title=".NET" href="http://www.csdn.net/tag/.net" target="_blank" onclick="LogClickCount(this,336);">.NET</a>
+<a title="API" href="http://www.csdn.net/tag/api" target="_blank" onclick="LogClickCount(this,336);">API</a>
+<a title="HTML" href="http://www.csdn.net/tag/html" target="_blank" onclick="LogClickCount(this,336);">HTML</a>
+<a title="SDK" href="http://www.csdn.net/tag/sdk" target="_blank" onclick="LogClickCount(this,336);">SDK</a>
+<a title="IIS" href="http://www.csdn.net/tag/iis" target="_blank" onclick="LogClickCount(this,336);">IIS</a>
+<a title="Fedora" href="http://www.csdn.net/tag/fedora" target="_blank" onclick="LogClickCount(this,336);">Fedora</a>
+<a title="XML" href="http://www.csdn.net/tag/xml" target="_blank" onclick="LogClickCount(this,336);">XML</a>
+<a title="LBS" href="http://www.csdn.net/tag/lbs" target="_blank" onclick="LogClickCount(this,336);">LBS</a>
+<a title="Unity" href="http://www.csdn.net/tag/unity" target="_blank" onclick="LogClickCount(this,336);">Unity</a>
+<a title="Splashtop" href="http://www.csdn.net/tag/splashtop" target="_blank" onclick="LogClickCount(this,336);">Splashtop</a>
+<a title="UML" href="http://www.csdn.net/tag/uml" target="_blank" onclick="LogClickCount(this,336);">UML</a>
+<a title="components" href="http://www.csdn.net/tag/components" target="_blank" onclick="LogClickCount(this,336);">components</a>
+<a title="Windows Mobile" href="http://www.csdn.net/tag/windowsmobile" target="_blank" onclick="LogClickCount(this,336);">Windows Mobile</a>
+<a title="Rails" href="http://www.csdn.net/tag/rails" target="_blank" onclick="LogClickCount(this,336);">Rails</a>
+<a title="QEMU" href="http://www.csdn.net/tag/qemu" target="_blank" onclick="LogClickCount(this,336);">QEMU</a>
+<a title="KDE" href="http://www.csdn.net/tag/kde" target="_blank" onclick="LogClickCount(this,336);">KDE</a>
+<a title="Cassandra" href="http://www.csdn.net/tag/cassandra" target="_blank" onclick="LogClickCount(this,336);">Cassandra</a>
+<a title="CloudStack" href="http://www.csdn.net/tag/cloudstack" target="_blank" onclick="LogClickCount(this,336);">CloudStack</a>
+<a title="FTC" href="http://www.csdn.net/tag/ftc" target="_blank" onclick="LogClickCount(this,336);">FTC</a>
+<a title="coremail" href="http://www.csdn.net/tag/coremail" target="_blank" onclick="LogClickCount(this,336);">coremail</a>
+<a title="OPhone " href="http://www.csdn.net/tag/ophone " target="_blank" onclick="LogClickCount(this,336);">OPhone </a>
+<a title="CouchBase" href="http://www.csdn.net/tag/couchbase" target="_blank" onclick="LogClickCount(this,336);">CouchBase</a>
+<a title="云计算" href="http://www.csdn.net/tag/云计算" target="_blank" onclick="LogClickCount(this,336);">云计算</a>
+<a title="iOS6" href="http://www.csdn.net/tag/iOS6" target="_blank" onclick="LogClickCount(this,336);">iOS6</a>
+<a title="Rackspace " href="http://www.csdn.net/tag/rackspace " target="_blank" onclick="LogClickCount(this,336);">Rackspace </a>
+<a title="Web App" href="http://www.csdn.net/tag/webapp" target="_blank" onclick="LogClickCount(this,336);">Web App</a>
+<a title="SpringSide" href="http://www.csdn.net/tag/springside" target="_blank" onclick="LogClickCount(this,336);">SpringSide</a>
+<a title="Maemo" href="http://www.csdn.net/tag/maemo" target="_blank" onclick="LogClickCount(this,336);">Maemo</a>
+<a title="Compuware" href="http://www.csdn.net/tag/compuware" target="_blank" onclick="LogClickCount(this,336);">Compuware</a>
+<a title="大数据" href="http://www.csdn.net/tag/大数据" target="_blank" onclick="LogClickCount(this,336);">大数据</a>
+<a title="aptech" href="http://www.csdn.net/tag/aptech" target="_blank" onclick="LogClickCount(this,336);">aptech</a>
+<a title="Perl" href="http://www.csdn.net/tag/perl" target="_blank" onclick="LogClickCount(this,336);">Perl</a>
+<a title="Tornado" href="http://www.csdn.net/tag/tornado" target="_blank" onclick="LogClickCount(this,336);">Tornado</a>
+<a title="Ruby" href="http://www.csdn.net/tag/ruby" target="_blank" onclick="LogClickCount(this,336);">Ruby</a>
+<a title="Hibernate" href="http://www.csdn.net/hibernate" target="_blank" onclick="LogClickCount(this,336);">Hibernate</a>
+<a title="ThinkPHP" href="http://www.csdn.net/tag/thinkphp" target="_blank" onclick="LogClickCount(this,336);">ThinkPHP</a>
+<a title="Spark" href="http://www.csdn.net/tag/spark" target="_blank" onclick="LogClickCount(this,336);">Spark</a>
+<a title="HBase" href="http://www.csdn.net/tag/hbase" target="_blank" onclick="LogClickCount(this,336);">HBase</a>
+<a title="Pure" href="http://www.csdn.net/tag/pure" target="_blank" onclick="LogClickCount(this,336);">Pure</a>
+<a title="Solr" href="http://www.csdn.net/tag/solr" target="_blank" onclick="LogClickCount(this,336);">Solr</a>
+<a title="Angular" href="http://www.csdn.net/tag/angular" target="_blank" onclick="LogClickCount(this,336);">Angular</a>
+<a title="Cloud Foundry" href="http://www.csdn.net/tag/cloudfoundry" target="_blank" onclick="LogClickCount(this,336);">Cloud Foundry</a>
+<a title="Redis" href="http://www.csdn.net/tag/redis" target="_blank" onclick="LogClickCount(this,336);">Redis</a>
+<a title="Scala" href="http://www.csdn.net/tag/scala" target="_blank" onclick="LogClickCount(this,336);">Scala</a>
+<a title="Django" href="http://www.csdn.net/tag/django" target="_blank" onclick="LogClickCount(this,336);">Django</a>
+<a title="Bootstrap" href="http://www.csdn.net/tag/bootstrap" target="_blank" onclick="LogClickCount(this,336);">Bootstrap</a>
+    </div>
+</div>
+
+                    <div class="clear">
+                    </div>
+                </div>
+            </div>
+            <div id="side">
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/hnney" target="_blank">
+    <img src="http://avatar.csdn.net/3/2/5/1_hnney.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/hnney" class="user_name" target="_blank">hnney</a></span>
+</div>
+<div class="interact">
+<a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+<a href="javascript:void(0);" class="letter" onclick="loginto(1)" title="[发私信]"></a>
+</div>
+<div id="blog_medal">
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>19023次</span></li>
+    <li>积分：<span>527分</span></li>
+    <li>排名：<span>千里之外</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>36篇</span></li>
+    <li>转载：<span>4篇</span></li>
+    <li>译文：<span>0篇</span></li>
+    <li>评论：<span>3条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字" /></span>
+        <input id="btnSubmit" type="submit" value="搜索" title="search in blog" />
+        <input type="hidden" name="q" id="inputQ" />
+        <input type="hidden" name="t" value="blog" />
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">
+<li>
+<a href="http://blog.csdn.net/hnney/article/category/704439">C/C++</a><span>(5)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/hnney/article/category/704441">linux</a><span>(5)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/hnney/article/category/704442">TCP/IP</a><span>(0)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/hnney/article/category/712931">面向对象设计</a><span>(2)</span>
+</li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="http://blog.csdn.net/hnney/article/month/2011/02">2011年02月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2011/01">2011年01月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2010/09">2010年09月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2010/07">2010年07月</a><span>(2)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2010/06">2010年06月</a><span>(3)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2010/05">2010年05月</a><span>(3)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2010/04">2010年04月</a><span>(2)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2010/02">2010年02月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2010/01">2010年01月</a><span>(9)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2009/12">2009年12月</a><span>(4)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2009/11">2009年11月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2009/09">2009年09月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2009/08">2009年08月</a><span>(4)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2009/06">2009年06月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2009/05">2009年05月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2009/04">2009年04月</a><span>(3)</span></li><li><a href="http://blog.csdn.net/hnney/article/month/2009/03">2009年03月</a><span>(2)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head"><span>阅读排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/hnney/article/details/5604677" title="TCP SYN,ACK 详解">TCP SYN,ACK 详解</a><span>(6696)</span>
+</li>
+<li>
+<a href="/hnney/article/details/4522524" title="C/C++读写文件（fwrite,fread）">C/C++读写文件（fwrite,fread）</a><span>(1319)</span>
+</li>
+<li>
+<a href="/hnney/article/details/4194408" title="图像的灰度化原理和实现">图像的灰度化原理和实现</a><span>(1225)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5752027" title="c++ UML类图">c++ UML类图</a><span>(1149)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5455294" title="C调用python ">C调用python </a><span>(941)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5494464" title="原始套接字发包">原始套接字发包</a><span>(614)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5892977" title="linux screen + vim + taglist +ctags 使用">linux screen + vim + taglist +ctags 使用</a><span>(492)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5604698" title="dup与dup2">dup与dup2</a><span>(403)</span>
+</li>
+<li>
+<a href="/hnney/article/details/4282615" title="ProcessInfo  代码">ProcessInfo  代码</a><span>(375)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5625480" title="C++ 类型转换详解">C++ 类型转换详解</a><span>(369)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/hnney/article/details/4194408" title="图像的灰度化原理和实现">图像的灰度化原理和实现</a><span>(3)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5494464" title="原始套接字发包">原始套接字发包</a><span>(0)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5455294" title="C调用python ">C调用python </a><span>(0)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5294529" title="xuyaogaijin">xuyaogaijin</a><span>(0)</span>
+</li>
+<li>
+<a href="/hnney/article/details/4001594" title="   VC  文件操作">   VC  文件操作</a><span>(0)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5267294" title="线程锁">线程锁</a><span>(0)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5220092" title="LINUX守护进程">LINUX守护进程</a><span>(0)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5220089" title="linux 守护进程">linux 守护进程</a><span>(0)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5220087" title="存储,调用">存储,调用</a><span>(0)</span>
+</li>
+<li>
+<a href="/hnney/article/details/5604677" title="TCP SYN,ACK 详解">TCP SYN,ACK 详解</a><span>(0)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend"></ul>
+</div>
+<script type="text/javascript">
+ new Ad(12, 'ad_commend');
+</script><div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+    <a href="/hnney/article/details/4194408#comments">图像的灰度化原理和实现</a>
+    <p style="margin:0px;"><a href="/jackyzzy" class="user_name">jackyzzy</a>:
+童鞋，我怎么看到的是：Y = 0.229R + 0.587G + 0.114B
+    </p>
+    </li>
+    <li>
+    <a href="/hnney/article/details/4194408#comments">图像的灰度化原理和实现</a>
+    <p style="margin:0px;"><a href="/hhnnhh007" class="user_name">hhnnhh007</a>:
+无聊
+    </p>
+    </li>
+    <li>
+    <a href="/hnney/article/details/4194408#comments">图像的灰度化原理和实现</a>
+    <p style="margin:0px;"><a href="/匿名用户" class="user_name">匿名用户</a>:
+同学是不是Y = 0.299R + 0.587G + 0.114B
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+</div>
+
+            <div class="clear">
+            </div>
+        </div>
+        
+
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/newblog.min.js"></script>
+<script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=537846"></script>
+<script type="text/javascript">
+    document.write('<script type="text/javascript" src="http://csdnimg.cn/pubfooter/js/publib_footer.js?' + Math.floor(new Date() / 120000).toString(36) + '="></' + 'script>');
+</script>
+    <script type="text/javascript" src="http://pass.csdn.net/content/loginbox/login.js"></script>
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script>
+<script type="text/javascript" src="http://www.csdn.net/ui/scripts/Csdn/counter.js"></script>
+<script type="text/javascript" src="http://ad.csdn.net/scripts/ad-blog.js"></script>
+<script type="text/javascript" src="http://zz.csdn.net/js/count.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a>"
+                    + "<a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+    });
+</script>
+
+    </div>
+</body>
+</html>

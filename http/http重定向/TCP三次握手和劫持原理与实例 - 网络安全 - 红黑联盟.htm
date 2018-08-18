@@ -1,0 +1,752 @@
+<!DOCTYPE html PUBliC "-//W3C//dtD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/dtD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<link rel="stylesheet" href="http://www.2cto.com/statics/css/article.css" type="text/css" />
+
+<link href="http://www.2cto.com/statics/css/dialog.css" rel="stylesheet" type="text/css" />
+<title>TCP三次握手和劫持原理与实例  - 网络安全 - 红黑联盟</title>
+<meta name="keywords" content="三次,握手,劫持" />
+<meta name="description" content="首先详细了解一下TCP三次握手的过程三次握手Three-way Handshake一个虚拟连接的建立是通过三次握手来实现的1. (B) --&gt; [SYN] --&gt; (A)假如服务器A和客户机B通讯. 当A要和B通信时，B首先向A发一个SYN (Syn..." />
+<script type="text/javascript" src="http://www.2cto.com/statics/js/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.2cto.com/statics/js/jquery.sgallery.js"></script>
+<script type="text/javascript" src="http://www.2cto.com/statics/js/search_common.js"></script>
+<script type="text/javascript" src="http://cbjs.baidu.com/js/m.js"></script>
+<script type="text/javascript" src="http://www.2cto.com/statics/js/json.js"></script>
+<script language="javascript" type="text/javascript" src="http://www.2cto.com/statics/js/dialog.js"></script>
+
+
+</head>
+
+<body>
+<div class="line_top_box">
+	<dl class="top_box_left">
+		<dd class="left_logo"><a href="http://www.2cto.com"></a></dd>
+		<dd class="left_menu_link">
+																<a class='Channel' href='/News/'>资讯</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/Article/'>安全</a>&nbsp;|&nbsp;
+													<a class='Channel' href='http://bbs.2cto.com'>论坛</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/Soft/'>下载</a>&nbsp;|&nbsp;
+													<a class='Channel' href='http://book.2cto.com'>读书</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/kf/'>程序开发</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/database/'>数据库</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/os/'>系统</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/net/'>网络</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/ebook/'>电子书</a>&nbsp;|&nbsp;
+													<a class='Channel' href='http://zz.2cto.com/'>站长学院</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/ym/'>源码</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/QQ/'>QQ</a>&nbsp;|&nbsp;
+													<a class='Channel' href='http://space.2cto.com'>专栏</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/px/'>考试</a>&nbsp;|&nbsp;
+													<a class='Channel' href='/shouce/'>手册</a>&nbsp;|&nbsp;
+														</dd>
+	</dl>
+</div>
+<div class="line_top_lmbox">
+	<dl class="lmpic"></dl>
+	<dl class="lmlinkbox"><dd>
+										<a class='Channel' href='http://www.2cto.com/Article/xitong/'>系统安全</a>|
+							<a class='Channel' href='http://www.2cto.com/Article/web/'>网站安全</a>|
+							<a class='Channel' href='http://www.2cto.com/Article/qiye/'>企业安全</a>|
+							<a class='Channel' href='http://www.2cto.com/Article/net/'>网络安全</a>|
+							<a class='Channel' href='http://www.2cto.com/Article/tool/'>工具软件</a>|
+							<a class='Channel' href='http://www.2cto.com/Article/shadu/'>杀毒防毒</a>|
+							<a class='Channel' href='http://www.2cto.com/Article/jiami/'>加密解密</a>|
+								</dd></dl>
+	<dl class="LoginBox"><dd><script type="text/javascript">document.write('<iframe src="http://www.2cto.com/index.php?m=member&c=index&a=mini&forward='+encodeURIComponent(location.href)+'&siteid=1" allowTransparency="true"  width="150" height="32" frameborder="0" scrolling="no"></iframe>')</script></dd></dl>
+</div>
+<div class="divline8"></div>
+<div class="tadv">
+
+<a target="_blank" href="http://vip.2cto.com/"><img src="http://www.2cto.com/adv/980-80.gif" width="980" height="90" /></a>
+<!-- 广告位：顶部banner -->
+<script type="text/javascript">BAIDU_CLB_fillSlot("298612");</script>
+
+</div>
+
+
+<div class="divline8"></div>
+<div class="it165_box">
+	<div class="box_left">
+		
+		<dl class="box_p">
+			<dd class="pRight"><a href="http://www.2cto.com">首页</a><span> > </span><a href="http://www.2cto.com/Article/">安全</a> > <a href="http://www.2cto.com/Article/net/">网络安全</a> >  正文</dd>
+			<script type="text/javascript">BAIDU_CLB_fillSlot("703722");</script>
+			</dl>
+		<dl class="box_t"><dd>TCP三次握手和劫持原理与实例 </dd></dl>
+																										<dl class="box_INFO">
+			<dd class="frinfo line_blue">2012-10-10 11:36:48  &nbsp;&nbsp;&nbsp;&nbsp;<a style="font-weight:bold;padding:5px 0px 5px 20px;background:url('http://www.2cto.com/statics/images/icon/user_comment.png') left center no-repeat" href="#comment_iframe">我来说两句&nbsp;</a>&nbsp;&nbsp;  &nbsp;&nbsp;  </dd>
+			<dd class="frsize line_blue">
+			<span id='favorite'>
+				<a href="javascript:;" onclick="add_favorite('TCP三次握手和劫持原理与实例 ');" class="t6">收藏</a>
+			</span>&nbsp;&nbsp;
+				<a target="_blank" href="http://www.2cto.com/index.php?m=member&c=content&a=publish&modid=1&siteid=1"><img border="0" src="http://www.2cto.com/statics/images/dl.jpg" />我要投稿</a>
+			</dd>
+			
+		</dl>
+		<dl class="box_body" id="fontzoom"><dd id="Article">
+		首先详细了解一下TCP三次握手的过程<br />
+&nbsp;<br />
+&nbsp;<br />
+三次握手Three-way Handshake<br />
+&nbsp;<br />
+一个虚拟连接的建立是通过三次握手来实现的<br />
+&nbsp;<br />
+1. (B) --&gt; [SYN] --&gt; (A)<br />
+&nbsp;<br />
+假如服务器A和客户机B通讯. 当A要和B通信时，B首先向A发一个SYN (Synchronize) 标记的包，告诉A请求建立连接.<br />
+&nbsp;<br />
+注意: 一个SYN包就是仅SYN标记设为1的TCP包(参见TCP包头Resources). 认识到这点很重要，只有当A受到B发来的SYN包，才可建立连接，除此之外别无他法。因此，如果你的防火墙丢弃所有的发往外网接口的SYN包，那么你将不 能让外部任何主机主动建立连接。<br />
+&nbsp;<br />
+2. (B) &lt;-- [SYN/ACK] &lt;--(A)<br />
+&nbsp;<br />
+接着，A收到后会发一个对SYN包的确认包(SYN/ACK)回去，表示对第一个SYN包的确认，并继续握手操作.<br />
+&nbsp;<br />
+注意: SYN/ACK包是仅SYN 和ACK 标记为1的包.<br />
+&nbsp;<br />
+3. (B) --&gt; [ACK] --&gt; (A)<br />
+&nbsp;<br />
+B收到SYN/ACK 包,B发一个确认包(ACK)，通知A连接已建立。至此，三次握手完成，一个TCP连接完成<br />
+&nbsp;<br />
+Note: ACK包就是仅ACK 标记设为1的TCP包. 需要注意的是当三此握手完成、连接建立以后，TCP连接的每个包都会设置ACK位<br />
+&nbsp;<br />
+这就是为何连接跟踪很重要的原因了. 没有连接跟踪,防火墙将无法判断收到的ACK包是否属于一个已经建立的连接.一般的包过滤(Ipchains)收到ACK包时,会让它通过(这绝对不是个 好主意). 而当状态型防火墙收到此种包时，它会先在连接表中查找是否属于哪个已建连接，否则丢弃该包<br />
+&nbsp;<br />
+四次握手Four-way Handshake<br />
+&nbsp;<br />
+四次握手用来关闭已建立的TCP连接<br />
+&nbsp;<br />
+1. (B) --&gt; ACK/FIN --&gt; (A)<br />
+&nbsp;<br />
+2. (B) &lt;-- ACK &lt;-- (A)<br />
+&nbsp;<br />
+3. (B) &lt;-- ACK/FIN &lt;-- (A)<br />
+&nbsp;<br />
+4. (B) --&gt; ACK --&gt; (A)<br />
+&nbsp;<br />
+注意: 由于TCP连接是双向连接, 因此关闭连接需要在两个方向上做。ACK/FIN 包(ACK 和FIN 标记设为1)通常被认为是FIN(终结)包.然而, 由于连接还没有关闭, FIN包总是打上ACK标记. 没有ACK标记而仅有FIN标记的包不是合法的包，并且通常被认为是恶意的<br />
+&nbsp;<br />
+连接复位Resetting a connection<br />
+&nbsp;<br />
+四次握手不是关闭TCP连接的唯一方法. 有时,如果主机需要尽快关闭连接(或连接超时,端口或主机不可达),RST (Reset)包将被发送. 注意在，由于RST包不是TCP连接中的必须部分, 可以只发送RST包(即不带ACK标记). 但在正常的TCP连接中RST包可以带ACK确认标记<br />
+&nbsp;<br />
+请注意RST包是可以不要收到方确认的<br />
+&nbsp;<br />
+无效的TCP标记Invalid TCP Flags<br />
+&nbsp;<br />
+到目前为止，你已经看到了SYN, ACK, FIN, 和RST 标记. 另外，还有PSH (Push) 和URG (Urgent)标记.<br />
+&nbsp;<br />
+最常见的非法组合是SYN/FIN 包. 注意:由于SYN包是用来初始化连接的, 它不可能和FIN和RST标记一起出现. 这也是一个恶意攻击.<br />
+&nbsp;<br />
+由于现在大多数防火墙已知SYN/FIN 包, 别的一些组合,例如SYN/FIN/PSH, SYN/FIN/RST, SYN/FIN/RST/PSH。很明显，当网络中出现这种包时，很你的网络肯定受到攻击了。<br />
+&nbsp;<br />
+别的已知的非法包有FIN (无ACK标记)和&quot;NULL&quot;包。如同早先讨论的，由于ACK/FIN包的出现是为了关闭一个TCP连接，那么正常的FIN包总是带有ACK 标记。&quot;NULL&quot;包就是没有任何TCP标记的包(URG,ACK,PSH,RST,SYN,FIN都为0)。<br />
+&nbsp;<br />
+到目前为止，正常的网络活动下，TCP协议栈不可能产生带有上面提到的任何一种标记组合的TCP包。当你发现这些不正常的包时，肯定有人对你的网络不怀好意。<br />
+&nbsp;<br />
+UDP (用户数据包协议User Datagram Protocol)<br />
+&nbsp;<br />
+TCP是面向连接的，而UDP是非连接的协议。UDP没有对接受进行确认的标记和确认机制。对丢包的处理是在应用层来完成的。(or accidental arrival).<br />
+&nbsp;<br />
+此处需要重点注意的事情是：在正常情况下，当UDP包到达一个关闭的端口时，会返回一个UDP复位包。由于UDP是非面向连接的, 因此没有任何确认信息来确认包是否正确到达目的地。因此如果你的防火墙丢弃UDP包，它会开放所有的UDP端口(?)。<br />
+&nbsp;<br />
+由于Internet上正常情况下一些包将被丢弃，甚至某些发往已关闭端口(非防火墙的)的UDP包将不会到达目的，它们将返回一个复位UDP包。<br />
+&nbsp;<br />
+因为这个原因，UDP端口扫描总是不精确、不可靠的。<br />
+&nbsp;<br />
+看起来大UDP包的碎片是常见的DOS (Denial of Service)攻击的常见形式(这里有个DOS攻击的例子，http://grc.com/dos/grcdos.htm ).<br />
+&nbsp;<br />
+ICMP (网间控制消息协议Internet Control Message Protocol)<br />
+&nbsp;<br />
+如同名字一样，ICMP用来在主机/路由器之间传递控制信息的协议。ICMP包可以包含诊断信息(ping, traceroute - 注意目前unix系统中的traceroute用UDP包而不是ICMP)，错误信息(网络/主机/端口 不可达network/host/port unreachable), 信息(时间戳timestamp, 地址掩码address mask request, etc.)，或控制信息(source quench, redirect, etc.) 。<br />
+&nbsp;<br />
+你可以在http://www.iana.org/assignments/icmp-parameters中找到ICMP包的类型。<br />
+&nbsp;<br />
+尽管ICMP通常是无害的，还是有些类型的ICMP信息需要丢弃。<br />
+&nbsp;<br />
+Redirect (5), Alternate Host Address (6), Router Advertisement (9) 能用来转发通讯。<br />
+&nbsp;<br />
+Echo (8), Timestamp (13) and Address Mask Request (17) 能用来分别判断主机是否起来，本地时间 和地址掩码。注意它们是和返回的信息类别有关的。它们自己本身是不能被利用的，但它们泄露出的信息对攻击者是有用的。<br />
+&nbsp;<br />
+ICMP消息有时也被用来作为DOS攻击的一部分(例如：洪水ping flood ping,死ping ?呵呵，有趣ping of death)?/p&gt;<br />
+&nbsp;<br />
+包碎片注意A Note About Packet Fragmentation<br />
+&nbsp;<br />
+如果一个包的大小超过了TCP的最大段长度MSS (Maximum Segment Size) 或MTU (Maximum Transmission Unit)，能够把此包发往目的的唯一方法是把此包分片。由于包分片是正常的，它可以被利用来做恶意的攻击。<br />
+&nbsp;<br />
+因为分片的包的第一个分片包含一个包头，若没有包分片的重组功能，包过滤器不可能检测附加的包分片。典型的攻击Typical attacks involve in overlapping the packet data in which packet header is 典型的攻击Typical attacks involve in overlapping the packet data in which packet header isnormal until is it overwritten with different destination IP (or port) thereby bypassing firewall rules。包分片能作为DOS 攻击的一部分，它可以crash older IP stacks 或涨死CPU连接能力。<br />
+&nbsp;<br />
+Netfilter/Iptables中的连接跟踪代码能自动做分片重组。它仍有弱点，可能受到饱和连接攻击，可以把CPU资源耗光。<br />
+&nbsp;<br />
+&nbsp;<br />
+&nbsp;<br />
+握手阶段：<br />
+序号 方向seq&nbsp;&nbsp;&nbsp;&nbsp; ack<br />
+1　　A-&gt;B 10000 0<br />
+2 B-&gt;A 20000 10000+1=10001<br />
+3 A-&gt;B 10001 20000+1=20001<br />
+&nbsp;<br />
+解释：<br />
+1：A向B发起连接请求，以一个随机数初始化A的seq,这里假设为10000，此时ACK＝0<br />
+2：B收到A的连接请求后，也以一个随机数初始化B的seq，这里假设为20000，意思是：你的请求我已收到，我这方的数据流就从这个数开始。B的ACK是A的seq加1，即10000＋1＝10001<br />
+3：A收到B的回复后，它的seq是它的上个请求的seq加1，即10000＋1＝10001，意思也是：你的回复我收到了，我这方的数据流就从这个数开始。A此时的ACK是B的seq加1，即20000+1=20001<br />
+&nbsp;<br />
+数据传输阶段：<br />
+序号　　方向　　seq&nbsp;&nbsp;&nbsp;&nbsp; ack&nbsp;&nbsp;&nbsp; size<br />
+23&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A-&gt;B&nbsp;&nbsp;&nbsp; 40000 70000 1514<br />
+24 B-&gt;A 70000 40000+1514-54=41460 54<br />
+25 A-&gt;B 41460 70000+54-54=70000 1514<br />
+26 B-&gt;A 70000 41460+1514-54=42920 54<br />
+解释：<br />
+23:B接收到A发来的seq=40000,ack=70000,size=1514的数据包<br />
+24:于是B向A也发一个数据包，告诉B，你的上个包我收到了。B的seq就以它收到的数据包的ACK填充，ACK是它收到的数据包的SEQ加上数据包的大小(不包括以太网协议头，IP头，TCP头)，以证实B发过来的数据全收到了。<br />
+25:A在收到B发过来的ack为41460的数据包时，一看到41460，正好是它的上个数据包的seq加上包的大小，就明白，上次发送的数据包已安全 到达。于是它再发一个数据包给B。这个正在发送的数据包的seq也以它收到的数据包的ACK填充，ACK就以它收到的数据包的seq(70000)加上包 的size(54)填充,即ack=70000+54-54(全是头长，没数据项)。<br />
+&nbsp;<br />
+其实在握手和结束时确认号应该是对方序列号加1,传输数据时则是对方序列号加上对方携带应用层数据的长度.如果从以太网包返回来计算所加的长度,就嫌走弯路了.<br />
+另外,如果对方没有数据过来,则自己的确认号不变,序列号为上次的序列号加上本次应用层数据发送长度.<br />
+&nbsp;<br />
+&nbsp;<br />
+&nbsp;<br />
+通常，大家所说的入侵，都是针对一台主机，在获得管理员权限后，就很是得意；其实，真正的入侵是占领整个内部网络。 针对内部网络的攻击方法比较多，但比较有效的方法非ARP欺骗、DNS欺骗莫属了。但是，不管使用什么技术，无非都是抓取目标的数据包，然后分析出敏感数 据。如果目标内部采用的是共享式网络（采用HUB集线器连网），那只需要把网卡设置为&ldquo;混杂模式&rdquo;，挂上嗅探器（Sniffer），就能简听到你想得到的 数据。如果是交换式网络（采用交换机连网），这样方法就行不通了，因为对于嗅探器，有三种网络环境是无法跨越的：&ldquo;网桥&rdquo;、&ldquo;交换机&rdquo;、&ldquo;路由器&rdquo;。可 惜，对于ARP欺骗，交换式网络还是无能为力，如果我们借助ARP欺骗，在实现更高一层的&ldquo;入侵手段&rdquo;，从而真正的控制内部网络。这也就是本文要叙述的会 话劫持攻击。<br />
+　　一、会话劫持原理<br />
+&nbsp;<br />
+　　1、什么是会话劫持<br />
+&nbsp;<br />
+　　在现实生活中，比如你去市场买菜，在交完钱后你要求先去干一些别的事情，稍候再来拿菜；如果这个时候某个陌生人要求把菜拿走，卖菜的人会把菜给 陌生人吗？！当然，这只是一个比喻，但这恰恰就是会话劫持的喻意。所谓会话，就是两台主机之间的一次通讯。例如你Telnet到某台主机，这就是一次Telnet会话；你浏览某个网站，这就是一次HTTP会话。而会话劫持（Session Hijack），就是结合了嗅探以及欺骗技术在内的攻击手段。例如，在一次正常的会话过程当中，攻击者作为第三方参与到其中，他可以在正常数据包中插入恶 意数据，也可以在双方的会话当中进行监听，甚至可以是代替某一方主机接管会话。我们可以把会话劫持攻击分为两种类型：1）中间人攻击(Man In The Middle，简称MITM)，2）注射式攻击（Injection）；并且还可以把会话劫持攻击分为两种形式：1）被动劫持，2）主动劫持；被动劫持实 际上就是在后台监视双方会话的数据流，丛中获得敏感数据；而主动劫持则是将会话当中的某一台主机&ldquo;踢&rdquo;下线，然后由攻击者取代并接管会话，这种攻击方法危害非常大，攻击者可以做很多事情，比如&ldquo;cat etc/master.passwd&rdquo;（FreeBSD下的Shadow文件）。<br />
+&nbsp;<br />
+　　MITM攻击简介<br />
+&nbsp;<br />
+　　这也就是我们常说的&ldquo;中间人攻击&rdquo;，在网上讨论比较多的就是SMB会话劫持，这也是一个典型的中间人攻击。要想正确的实施中间人攻击，攻击者首 先需要使用ARP欺骗或DNS欺骗，将会话双方的通讯流暗中改变，而这种改变对于会话双方来说是完全透明的。关于ARP欺骗<a href="http://www.2cto.com" target="_blank" class="keylink">黑客</a>防线介绍的比较多，网上的 资料也比较多，我就不在多说了，我只简单谈谈DNS欺骗。DNS（Domain Name System），即域名服务器， 我们几乎天天都要用到。对于正常的DNS请求，例如在浏览器输入www.hacker.com.cn，然后系统先查看Hosts文件，如果有相对应的IP，就使用这个IP地址访问网站（其实，利用Hosts文件就可以实现DNS欺骗）；如果没有，才去请求DNS服务器；DNS服务器在接收到请求之后， 解析出其对应的IP地址，返回给我本地，最后你就可以登陆到黑客防线的网站。而DNS欺骗则是，目标将其DNS请求发送到攻击者这里，然后攻击者伪造DNS响应，将正确的IP地址替换为其他IP，之后你就登陆了这个攻击者指定的IP，而攻击者早就在这个IP中安排好了恶意网页，可你却在不知不觉中已经 被攻击者下了&ldquo;套&rdquo;&hellip;&hellip;DNS欺骗也可以在广域网中进行，比较常见的有&ldquo;Web服务器重定向&rdquo;、&ldquo;邮件服务器重定向&rdquo;等等。但不管是ARP欺骗，还是DNS欺骗，中间人攻击都改变正常的通讯流，它就相当于会话双方之间的一个透明代理，可以得到一切想知道的信息，甚至是利用一些有缺陷的加密协议来实现。<br />
+&nbsp;<br />
+　　注射式攻击简介<br />
+&nbsp;<br />
+　　这种方式的会话劫持比中间人攻击实现起来简单一些，它不会改变会话双方的通讯流，而是在双方正常的通讯流插入恶意数据。在注射式攻击中，需要实 现两种技术：1）IP欺骗，2）预测TCP序列号。如果是UDP协议，只需伪造IP地址，然后发送过去就可以了，因为UDP没有所谓的TCP三次握手，但 基于UDP的应用协议有流控机制，所以也要做一些额外的工作。对于IP欺骗，有两种情况需要用到：1）隐藏自己的IP地址；2）利用两台机器之间的信任关 系实施入侵。在Unix/Linux平台上，可以直接使用Socket构造IP包，在IP头中填上虚假的IP地址，但需要root权限；在Windows 平台上，不能使用Winsock，需要使用Winpacp（也可以使用Libnet）。例如在Linux系统，首先打开一个Raw Socket（原始套接字），然后自己编写IP头及其他数据。可以参考下面的实例代码：<br />
+&nbsp;<br />
+sockfd = socket(AF_INET, SOCK_RAW, 255)；<br />
+setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &amp;on, sizeof(on))；<br />
+&nbsp;<br />
+struct ip *ip；<br />
+struct tcphdr *tcp；<br />
+struct pseudohdr pseudoheader；<br />
+ip-＞ip_src.s_addr = xxx；<br />
+pseudoheader.saddr.s_addr = ip-＞ip_src.s_addr；<br />
+tcp-＞check = tcpchksum((u_short *)&amp;pseudoheader,12+sizeof(struct tcphdr))；<br />
+sendto(sockfd, buf, len, 0, (const sockaddr *)addr, sizeof(struct sockaddr_in))；<br />
+&nbsp;<br />
+　　对于基于TCP协议的注射式会话劫持，攻击者应先采用嗅探技术对目标进行简听，然后从简听到的信息中构造出正确的序列号，如果不这样，你就必须先猜测目标的ISN（初始序列号），这样无形中对会话劫持加大了难度。那为什么要猜测会话双方的序列号呢？请继续往下看。<br />
+&nbsp;<br />
+　　2、TCP会话劫持<br />
+&nbsp;<br />
+　　本文主要叙述基于TCP协议的会话劫持。如果劫持一些不可靠的协议，那将轻而易举，因为它们没有提供一些认证措施；而TCP协议被欲为是可靠的传输协议，所以要重点讨论它。<br />
+&nbsp;<br />
+　　根据TCP/IP中的规定，使用TCP协议进行通讯需要提供两段序列号，TCP协议使用这两段序列号确保连接同步以及安全通讯，系统的TCP/IP协议栈依据时间或线性的产生这些值。在通讯过程中，双方的序列号是相互依赖的，这也就是为什么称TCP协议是可靠的传输协议（具体可参见RFC 793）。如果攻击者在这个时候进行会话劫持，结果肯定是失败，因为会话双方&ldquo;不认识&rdquo;攻击者，攻击者不能提供合法的序列号；所以，会话劫持的关键是预测 正确的序列号，攻击者可以采取嗅探技术获得这些信息。<br />
+&nbsp;<br />
+TCP协议的序列号<br />
+&nbsp;<br />
+　　现在来讨论一下有关TCP协议的序列号的相关问题。在每一个数据包中，都有两段序列号，它们分别为：<br />
+&nbsp;<br />
+SEQ：当前数据包中的第一个字节的序号<br />
+ACK：期望收到对方数据包中第一个字节的序号<br />
+&nbsp;<br />
+　　假设双方现在需要进行一次连接：<br />
+&nbsp;<br />
+S_SEQ：将要发送的下一个字节的序号<br />
+S_ACK：将要接收的下一个字节的序号<br />
+S_WIND：接收窗口<br />
+//以上为服务器（Server）<br />
+C_SEQ：将要发送的下一个字节的序号<br />
+C_ACK：将要接收的下一个字节的序号<br />
+C_WIND：接收窗口<br />
+//以上为客户端（Client）<br />
+&nbsp;<br />
+它们之间必须符合下面的逻辑关系，否则该数据包会被丢弃，并且返回一个ACK包（包含期望的序列号）。<br />
+C_ACK &lt;= C_SEQ &lt;= C_ACK + C_WIND<br />
+S_ACK &lt;= S_SEQ &lt;= S_ACK + S_WIND<br />
+&nbsp;<br />
+　　如果不符合上边的逻辑关系，就会引申出一个&ldquo;致命弱点&rdquo;，具体请接着往下看。<br />
+&nbsp;<br />
+　　致命弱点<br />
+&nbsp;<br />
+　　这个致命的弱点就是ACK风暴(Storm)。当会话双方接收到一个不期望的数据包后，就会用自己期望的序列号返回ACK包；而在另一端，这个 数据包也不是所期望的，就会再次以自己期望的序列号返回ACK包&hellip;&hellip;于是，就这样来回往返，形成了恶性循环，最终导致ACK风暴。比较好的解决办法是先进 行ARP欺骗，使双方的数据包&ldquo;正常&rdquo;的发送到攻击者这里，然后设置包转发，最后就可以进行会话劫持了，而且不必担心会有ACK风暴出现。当然，并不是所 有系统都会出现ACK风暴。比如Linux系统的TCP/IP协议栈就与RFC中的描述略有不同。注意，ACK风暴仅存在于注射式会话劫持。<br />
+&nbsp;<br />
+　　TCP会话劫持过程<br />
+&nbsp;<br />
+　　假设现在主机A和主机B进行一次TCP会话，C为攻击者，劫持过程如下：<br />
+&nbsp;<br />
+A向B发送一个数据包<br />
+SEQ (hex): X ACK (hex): Y<br />
+FLAGS: -AP--- Window: ZZZZ，包大小为:60<br />
+&nbsp;<br />
+B回应A一个数据包<br />
+SEQ (hex): Y ACK (hex): X+60<br />
+FLAGS: -AP--- Window: ZZZZ，包大小为:50<br />
+&nbsp;<br />
+A向B回应一个数据包<br />
+SEQ (hex): X+60 ACK (hex): Y+50<br />
+FLAGS: -AP--- Window: ZZZZ，包大小为:40<br />
+&nbsp;<br />
+B向A回应一个数据包<br />
+SEQ (hex): Y+50 ACK (hex): X+100<br />
+FLAGS: -AP--- Window: ZZZZ，包大小为:30<br />
+&nbsp;<br />
+攻击者C冒充主机A给主机B发送一个数据包<br />
+SEQ (hex): X+100 ACK (hex): Y+80<br />
+FLAGS: -AP--- Window: ZZZZ，包大小为:20<br />
+&nbsp;<br />
+B向A回应一个数据包<br />
+SEQ (hex): Y+80 ACK (hex): X+120<br />
+FLAGS: -AP--- Window: ZZZZ，包大小为:10<br />
+&nbsp;<br />
+　　现在，主机B执行了攻击者C冒充主机A发送过来的命令，并且返回给主机A一个数据包；但是，主机A并不能识别主机B发送过来的数据包，所以主机A会以期望的序列号返回给主机B一个数据包，随即形成ACK风暴。如果成功的解决了ACK风暴（例如前边提到的ARP欺骗），就可以成功进行会话劫持了。<br />
+&nbsp;<br />
+　　关于理论知识就说到这里，下面我以具体的实例演示一次会话劫持。<br />
+&nbsp;<br />
+二、会话劫持实践<br />
+&nbsp;<br />
+　　1、唠叨几句<br />
+&nbsp;<br />
+　　可以进行会话劫持的工具很多，比较常用有Juggernaut，它可以进行TCP会话劫持的网络Sniffer程序；TTY Watcher，而它是针对单一主机上的连接进行会话劫持。还有如Dsniff这样的工具包也可以实现会话劫持，只是看你会不会使用了。但，能将会话劫持 发挥得淋漓尽致的，还要算Hunt这个工具了。它的作者是Pavel Krauz，可以工作在Linux和一些Unix平台下。它的功能非常强大，首先，无论是在共享式网络还是交换式网络，它都可以正常工作；其次，可以进行 中间人攻击和注射式攻击。还可以进行嗅探、查看会话、监视会话、重置会话。通过前面的叙述，我们知道在注射式攻击中，容易出现ACK风暴，解决办法是先进 行ARP欺骗；而使用Hunt进行注射式攻击时，它并不进行ARP欺骗，而是在会话劫持之后，向会话双方发送带RST标志位的TCP包以中断会话，避免ACK风暴继续下去。而中间人攻击是先进行ARP欺骗，然后进行会话劫持。Hunt目前最新版本是1.5，可以到Pavel Krauz网站<a href="http://www.2cto.com/soft" target="_blank" class="keylink">下载</a>源代码包和二进制文件：http://lin.fsid.cvut.cz/~kra/#hunt。<br />
+&nbsp;<br />
+　　现在来看看如果使用Hunt，首先是下载并编译源代码：<br />
+&nbsp;<br />
+[root@dahubaobao hunt]#wget http://www.ringz.org/hunt-1.5.tgz<br />
+[root@dahubaobao hunt]#tar zxvf hunt-1.5.tgz<br />
+[root@dahubaobao hunt]#cd hunt-1.5<br />
+[root@dahubaobao hunt-1.5]#make<br />
+[root@dahubaobao hunt-1.5]#./hunt<br />
+//Hunt是完全交互试的操作<br />
+解释一下各个选项的含义<br />
+l/w/r) list/watch/reset connections<br />
+//l（字母l）为查看当前网络上的会话；w为监视当前网络上的某个会话；r为重置当前网络上的某个会话。<br />
+a) arp/simple hijack (avoids ack storm if arp used)<br />
+//中间人攻击（会话劫持），Hunt先进行ARP欺骗，然后进行会话劫持。使用此方法可以避免出现ACK风暴。<br />
+s) simple hijack<br />
+//简单的会话劫持，也就是注射式攻击。会出现ACK风暴。<br />
+d) daemons rst/arp/sniff/mac<br />
+//该选项共实现四个功能，分别为：终止会话，自动发送带RST标志位的TCP包；ARP欺骗后进行数据包转发；不用说了，嗅探功能；在当前网络上收集MAC地址。<br />
+其他的选项很简单，不在多说了。还是来看看具体的例子吧，我想大家都等不及了！^_^<br />
+&nbsp;<br />
+2、应用实例<br />
+&nbsp;<br />
+　　测试环境：<br />
+&nbsp;<br />
+　　攻击者：Red Hat Linux 9.0 IP：192.168.0.10<br />
+主机A：Windows Advanced Server IP：192.168.0.1<br />
+主机B：FreeBSD 4.9 STABLE IP：192.168.0.20<br />
+&nbsp;<br />
+[root@dahubaobao hunt-1.5]#./hunt<br />
+/*<br />
+* hunt 1.5<br />
+* multipurpose connection intruder / sniffer for Linux<br />
+* (c) 1998-2000 by kra<br />
+*/<br />
+starting hunt<br />
+--- Main Menu --- rcvpkt 0, free/alloc 63/64 ------<br />
+l/w/r) list/watch/reset connections<br />
+u) host up tests<br />
+a) arp/simple hijack (avoids ack storm if arp used)<br />
+s) simple hijack<br />
+d) daemons rst/arp/sniff/mac<br />
+o) options<br />
+x) exit<br />
+*＞l //查看当前网络上的会话<br />
+0）192.168.0.1 [3465] ?192.168.0.20 [23]<br />
+//主机A正在Telnet到主机B<br />
+&nbsp;<br />
+--- Main Menu --- rcvpkt 0, free/alloc 63/64 ------<br />
+l/w/r) list/watch/reset connections<br />
+u) host up tests<br />
+a) arp/simple hijack (avoids ack storm if arp used)<br />
+s) simple hijack<br />
+d) daemons rst/arp/sniff/mac<br />
+o) options<br />
+x) exit<br />
+*＞w //监视当前网络上的会话<br />
+0）192.168.0.1 [3465] ?192.168.0.20 [23]<br />
+Choose conn＞0 //选择打算监视的会话。由于我的条件有限，不能模拟多个会话，请多见量。<br />
+Dump [s]rc/[d]st/oth ＞//回车<br />
+Print sec/dst same charactes y/n [n]＞//回车 现在就可以监视会话了。主机A输入的一切内容，我们都可以看到。主机A在Telnet并登陆之后，直接su root，password：后边的就是root的密码。现在这个系统已经完全由你所控制了，自由发挥吧！<br />
+&nbsp;<br />
+--- Main Menu --- rcvpkt 0, free/alloc 63/64 ------<br />
+l/w/r) list/watch/reset connections<br />
+u) host up tests<br />
+a) arp/simple hijack (avoids ack storm if arp used)<br />
+s) simple hijack<br />
+d) daemons rst/arp/sniff/mac<br />
+o) options<br />
+x) exit<br />
+*＞s //进行注射式会话劫持<br />
+0）192.168.0.1 [3465] ?192.168.0.20 [23]<br />
+choose conn＞0<br />
+dump connection y/n [n]＞<br />
+Enter the command string you wish executed or [cr]＞cat /etc/passwd<br />
+攻击者的意图是获取主机B的passwd文件的内容，但由于注射式会话劫持缺陷，导致了ACK风暴，所以Hunt向会话双方发送了一个带RST标志位的TCP包来阻止ACK风暴。<br />
+&nbsp;<br />
+--- Main Menu --- rcvpkt 0, free/alloc 63/64 ------<br />
+l/w/r) list/watch/reset connections<br />
+u) host up tests<br />
+a) arp/simple hijack (avoids ack storm if arp used)<br />
+s) simple hijack<br />
+d) daemons rst/arp/sniff/mac<br />
+o) options<br />
+x) exit<br />
+*＞a //进行中间人会话劫持<br />
+0）192.168.0.1 [3862] ?192.168.0.20 [23]<br />
+choose conn＞0<br />
+arp spoof src in dst y/n [y]＞<br />
+src MAC [XX:XX:XX:XX:XX:XX]＞<br />
+arp spoof dst in src y/n [y]＞<br />
+dst MAC [XX:XX:XX:XX:XX:XX]＞<br />
+input mode [r]aw, [l]ine+echo+\r, line+[e]cho [r]＞<br />
+dump connectin y/n [y]＞n<br />
+press key to take voer of connection<br />
+ARP spoof of 192.168.0.20 with fake mac XX:XX:XX:XX:XX:XX in host 192.168.0.1 FA<br />
+ILED<br />
+do you want to force arp spoof nutil successed y/n [y]＞<br />
+CTRL-C to break<br />
+CTRL+C //手工输入CTRL+C中断，不需等待<br />
+-- operation canceled - press any key＞<br />
+ARP spoof failed<br />
+ARP spoof of 192.168.0.20 in host 192.168.0.1 FAILED<br />
+you took over the connection<br />
+CTRL-] to break<br />
+-bash-2.05b$id<br />
+....................<br />
+&nbsp;<br />
+　　现在，攻击者已经成功的劫持了主机A和B之间的Telnet会话。主机A输入的一切命令攻击者都可以看到，并且攻击者也可以自行插入命令。正如 前边所说的，这种会话劫持方式先进行ARP欺骗，然后才劫持，所以，ACK风暴是不会出现的；而且，这种方式要比注射式会话劫持危害更大，从上文中我想就 能看出来，我就不必在多说什么了。还有一些如Sniffer等功能，都很简单，由于已不在本文范畴，故不在多说。<br />
+&nbsp;<br />
+　　三、会话劫持防范 www.2cto.com<br />
+&nbsp;<br />
+　　防范会话劫持是一个比较大的工程。首先应该使用交换式网络替代共享式网络，虽然像Hunt这样的工具可以在交换环境中实现会话劫持，但还是应该 使用交换式网络替代共享式网络，因为这样可以防范最基本的嗅探攻击。然而，最根本的解决办法是采用加密通讯，使用SSH代替Telnet、使用SSL代替HTTP，或者干脆使用IPSec/VPN，这样会话劫持就无用武之地了。其次，监视网络流量，如发现网络中出现大量的ACK包，则有可能已被进行了会话 劫持攻击。<br />
+&nbsp;<br />
+　　还有一点是比较重要的，就是防范ARP欺骗。实现中间人攻击的前提是ARP欺骗，如能阻止攻击者进行ARP欺骗，中间人攻击还怎样进行？！如何防范ARP欺骗，黑客防线有过详细的介绍，可以参考2003年第9期杂志。<br />
+&nbsp;<br />
+　　总结<br />
+&nbsp;<br />
+　　对于渗透内部网络，会话劫持确实是一种比较有效的方法，我们应该掌握。本文的实践性很强，请大家务必动手试试，并希望能掌握此技术。Hunt这个强悍的工具使用方法很简单，但却可以把会话劫持发挥淋漓尽致，真佩服作者的<a href="http://www.2cto.com/kf" target="_blank" class="keylink">编程</a>功底						</dd></dl>
+		<script type="text/javascript">
+		<!--
+		$(function(){
+		  $('#Article img').LoadImage(true, 630, 560,'http://www.2cto.com/statics/images/s_nopic.gif');    
+		})
+		
+		//-->
+		</script>
+	<div id="pages" class="box_body" id="fontzoom">	</div>
+	<dl style="width:650px;height:100px;padding-top:10px;float:left;padding-left:10px">
+		<dd><script type="text/javascript">BAIDU_CLB_fillSlot("771048");</script></dd>
+	</dl>
+	<dl class="box_Nsc">
+		<dd class="lcopy"><a class="ckcopy" onclick="copyToClipBoard()">点击复制链接 与好友分享!</a><a class="ckhome" href="http://www.2cto.com/">回本站首页</a></dd>
+		<script> 
+		function copyToClipBoard(){ 
+		var clipBoardContent=document.title + '\r\n' + document.location; 
+		clipBoardContent+='\r\n'; 
+		window.clipboardData.setData("Text",clipBoardContent); 
+		alert("恭喜您！复制成功"); 
+		} 
+		</script>
+
+		<div class="Article-Tool">
+                               	  <!-- Baidu Button BEGIN -->
+<div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare"> <span style="float:left">分享到：</span>
+
+<a class="bds_qzone"></a>
+<a class="bds_tsina"></a>
+<a class="bds_tqq"></a>
+<a class="bds_baidu"></a>
+<a class="bds_renren"></a>
+<a class="bds_kaixin001"></a>
+<a class="bds_tieba"></a>
+<span class="bds_more">更多</span>
+</div>
+<script type="text/javascript" id="bdshare_js" data="type=tools&uid=12732" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+var bds_config = {'snsKey':{'tsina':'2386826374','tqq':'5e544a8fdea646c5a5f3967871346eb8'}};
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+                                
+	  </div>
+
+		
+		</dd>
+		<dd class="bbstt">您对本文章有什么意见或着疑问吗？请到<a href="http://bbs.2cto.com/">论坛讨论</a>您的关注和建议是我们前行的参考和动力&nbsp;&nbsp; </dd>
+	</dl>
+	<dl class="box_NPre">
+		<dd class="TLineX"><strong>上一篇：</strong><a href="http://www.2cto.com/Article/201210/159847.html">机房ARP攻击的一些防范方法</a></dd>
+		<dd><strong>下一篇：</strong><a href="http://www.2cto.com/Article/201210/159851.html">怎样保护自己的密码</a></dd>
+	</dl>
+	<dl class="linetb"></dl>
+
+	<dl class="about"><dd>相关文章</dd></dl>
+				<div class="alistline"><a href="http://www.2cto.com/Article/201211/167445.html" target=blank>同网关劫持与不同网关劫持实例</a></div>
+			<div class="alistline"><a href="http://www.2cto.com/Article/201212/173273.html" target=blank>嗅探、劫持 3389 端口、远程桌面、r</a></div>
+			<div class="alistline"><a href="http://www.2cto.com/Article/201212/174131.html" target=blank>低权限下实现VPN劫持的方法 </a></div>
+			<div class="alistline"><a href="http://www.2cto.com/Article/201212/179531.html" target=blank>运营商DNS劫持的那些事儿</a></div>
+			<div class="alistline"><a href="http://www.2cto.com/Article/201305/208057.html" target=blank>DNS劫持</a></div>
+			<div class="alistline"><a href="http://www.2cto.com/Article/201305/213740.html" target=blank>DNS劫持和DNS污染的区别</a></div>
+			<div class="alistline"><a href="http://www.2cto.com/Article/201307/231776.html" target=blank>利用短信劫持Facebook帐号</a></div>
+			<div class="alistline"><a href="http://www.2cto.com/Article/201309/242477.html" target=blank>无线路由器被劫持了DNS？图解七步恢复</a></div>
+			<dl class="linetb"></dl>
+	<dl style="width:650px;height:70px;padding-top:10px;float:left;padding-left:10px">
+		<dd><script type="text/javascript">BAIDU_CLB_fillSlot("182716");</script></dd>
+	</dl>
+
+	<dl style="width:650px;float:left;padding-left:10px">
+		<dd><script type="text/javascript">BAIDU_CLB_fillSlot("517916");</script></dd>
+	</dl>
+	<dl class="linetb"></dl>
+	<dl class="about"><dd>图文推荐</dd></dl>
+	<div class="picbox">
+						<dl class="wbox">
+			<dd class="npicbox"><a target="_blank" href="http://www.2cto.com/Article/201310/251906.html"><img src='http://www.2cto.com/uploadfile/2013/1022/thumb_126_90_20131022033003701.jpg'  width='126' height='90' border='0' /></a></dd>
+			<dd class="npictext"><a href="http://www.2cto.com/Article/201310/251906.html">BT3\BT4破解无线网络</a></dd>
+		</dl>
+				<dl class="wbox">
+			<dd class="npicbox"><a target="_blank" href="http://www.2cto.com/Article/201310/251880.html"><img src='http://www.2cto.com/uploadfile/2013/1022/thumb_126_90_20131022021440574.png'  width='126' height='90' border='0' /></a></dd>
+			<dd class="npictext"><a href="http://www.2cto.com/Article/201310/251880.html">XDCTF成长记录</a></dd>
+		</dl>
+				<dl class="wbox">
+			<dd class="npicbox"><a target="_blank" href="http://www.2cto.com/Article/201310/251515.html"><img src='http://up.2cto.com/2013/1021/20131021010657475.png'  width='126' height='90' border='0' /></a></dd>
+			<dd class="npictext"><a href="http://www.2cto.com/Article/201310/251515.html">详细部署dionaea低交</a></dd>
+		</dl>
+				<dl class="wbox">
+			<dd class="npicbox"><a target="_blank" href="http://www.2cto.com/Article/201310/250543.html"><img src='http://up.2cto.com/2013/1017/20131017110632819.jpg'  width='126' height='90' border='0' /></a></dd>
+			<dd class="npictext"><a href="http://www.2cto.com/Article/201310/250543.html">如何在 WebSphere </a></dd>
+		</dl>
+					</div>
+		<dl class="linetb"></dl>
+		<div id="pl" style="float:left;width:650px;padding:10px 10px 0px 10px;overflow:hidden;background-color:white">
+		<iframe src="http://www.2cto.com/uapi.php?tid=159848&catid=22&title=VENQyP20zs7Vyta6zb3Zs9bUrcDt0 vKtcD9IA==&forward=http://www.2cto.com/Article/201210/159848.html" width="100%" height="100%" id="comment_iframe" name="comment_iframe" frameborder="0" scrolling="no"></iframe>
+	</div>
+			<dl style="width:650px;float:left;padding-left:10px">
+		<dd><script type="text/javascript">BAIDU_CLB_fillSlot("771057");</script></dd>
+	</dl>
+	</div>
+	<div class="box_right">
+		<div style="float:left;width:300px;background:white;padding-left:10px;height:250px">
+			<a target="_blank" href="http://vip.2cto.com/"><img src="http://www.2cto.com/adv/300-250.gif" width="300" height="250" /></a></div>
+		<div class="box_right_line"><div class="xline"></div></div>
+		<div class="box_right_box">
+			<dl class="bTitle"><dd onmousemove="m_tab(1)" id="indexW" class="tablinkschecked">排行</dd><dd onmousemove="m_tab(2)" id="hotW" class="tablinkscheck">热门</dd></dl>
+		</div>
+		<div class="box_right_box">
+			<div class="paddingbox">
+				<dl class="index" id="index">
+					<dd class="picline"></dd>
+															<dd class="list">3,505 | <a target="_blank" title="简单获取WiFi密码" href="http://www.2cto.com/Article/201208/150618.html">简单获取WiFi密码</a></dd>
+										<dd class="list">2,544 | <a target="_blank" title="EWSA破解WPA密码图文教程" href="http://www.2cto.com/Article/201204/126408.html">EWSA破解WPA密码图文教程</a></dd>
+										<dd class="list">1,088 | <a target="_blank" title="无线wifi破解之在开启WPS下使用reaver破解" href="http://www.2cto.com/Article/201302/189052.html">无线wifi破解之在开启WPS下使用reaver</a></dd>
+										<dd class="list">776 | <a target="_blank" title="获取保存在路由器中的ADSL账号和密码" href="http://www.2cto.com/Article/201204/126406.html">获取保存在路由器中的ADSL账号和密码</a></dd>
+										<dd class="list">742 | <a target="_blank" title="使用Reaver加PIN码秒破WPA-PSK密码" href="http://www.2cto.com/Article/201204/129296.html">使用Reaver加PIN码秒破WPA-PSK密码</a></dd>
+										<dd class="list">717 | <a target="_blank" title="Tenda腾达某无线路由登陆密码绕过" href="http://www.2cto.com/Article/201303/194427.html">Tenda腾达某无线路由登陆密码绕过</a></dd>
+										<dd class="list">412 | <a target="_blank" title="在linux下使用reaver破解无线wifi密码" href="http://www.2cto.com/Article/201212/180203.html">在linux下使用reaver破解无线wifi密码</a></dd>
+										<dd class="list">339 | <a target="_blank" title="RFID安全之——ACR122U菜鸟初体验" href="http://www.2cto.com/Article/201201/115786.html">RFID安全之——ACR122U菜鸟初体验</a></dd>
+														</dl>
+				<dl class="index" id="hot" style="display:none">
+					<dd class="picline"></dd>
+															<dd class="list"><a target="_blank" title="使用Reaver加PIN码秒破WPA-PSK密码" href="http://www.2cto.com/Article/201204/129296.html">使用Reaver加PIN码秒破WPA-PSK密码</a></dd>
+										<dd class="list"><a target="_blank" title="EWSA破解WPA密码图文教程" href="http://www.2cto.com/Article/201204/126408.html">EWSA破解WPA密码图文教程</a></dd>
+										<dd class="list"><a target="_blank" title="简单获取WiFi密码" href="http://www.2cto.com/Article/201208/150618.html">简单获取WiFi密码</a></dd>
+										<dd class="list"><a target="_blank" title="获取保存在路由器中的ADSL账号和密码" href="http://www.2cto.com/Article/201204/126406.html">获取保存在路由器中的ADSL账号和密码</a></dd>
+										<dd class="list"><a target="_blank" title="RFID安全之——ACR122U菜鸟初体验" href="http://www.2cto.com/Article/201201/115786.html">RFID安全之——ACR122U菜鸟初体验</a></dd>
+										<dd class="list"><a target="_blank" title="PIN码学习教程，reaver 使用方法和技巧 " href="http://www.2cto.com/Article/201203/124132.html">PIN码学习教程，reaver 使用方法和技</a></dd>
+										<dd class="list"><a target="_blank" title="无线wifi破解之在开启WPS下使用reaver破解" href="http://www.2cto.com/Article/201302/189052.html">无线wifi破解之在开启WPS下使用reaver</a></dd>
+										<dd class="list"><a target="_blank" title="wpa2无线网络密码破解" href="http://www.2cto.com/Article/201112/113771.html">wpa2无线网络密码破解</a></dd>
+														</dl>
+			</div>
+			<script type="text/javascript">
+			<!--
+				function m_tab(index)
+				{
+					if (index == 1){
+						document.getElementById("indexW").className = "tablinkschecked";
+						document.getElementById("hotW").className = "tablinkscheck";
+						document.getElementById("index").style.display = "block";
+						document.getElementById("hot").style.display = "none";
+					}
+					else{
+						document.getElementById("hotW").className = "tablinkschecked";
+						document.getElementById("indexW").className = "tablinkscheck";
+						document.getElementById("index").style.display = "none";
+						document.getElementById("hot").style.display = "block";
+					}
+				}
+			//-->
+			</script>
+		</div>
+		<div class="rightlineT"><div class="rxline"></div></div>
+		<div style="float:left;width:300px;background:white;padding-left:10px;height:60px">
+				<!-- 广告位：内容页右侧小广告位 -->
+			<script type="text/javascript">BAIDU_CLB_fillSlot("406189");</script>
+		</div>
+		<div class="rightlineT"><div class="rxline"></div></div>
+		<div style="float:left;width:300px;background:white;padding-left:10px;height:80px">
+				<!-- 广告位：内容页右侧小广告位 -->
+			<script type="text/javascript">BAIDU_CLB_fillSlot("703749");</script>
+		</div>
+		<div class="rightlineNo"></div>
+		<div class="box_right_box">
+			<dl class="bTitle borT"><dd class="newarc"></dd></dl>
+		</div>
+		<div class="box_right_box">
+			<div class="paddingbox">
+				<dl class="index">
+									<iframe frameborder="0" name="Iframe1" src="http://www.2cto.com/bbsdy/index.html" width="100%" height="200">	
+				您的浏览器不支持嵌入式框架，或者当前配置为不显示嵌入式框架。
+			</iframe>
+								</dl>
+			</div>
+		</div>
+                                <div class="rightlineT"><div class="rxline"></div></div>
+
+		<div style="float:left;width:300px;background:white;padding-left:10px;height:250px"><script type="text/javascript">BAIDU_CLB_fillSlot("182692");</script> </div>
+		<div class="box_right_line"><div class="xline"></div></div>
+		<div class="box_right_box">
+			<dl class="bTitle">
+				<dd onmousemove="m_tabs(1)" id="ArticlesW" class="tablinkschecked">文章</dd>
+				<dd onmousemove="m_tabs(2)" id="DownW" class="tablinkscheck">下载</dd>
+				<dd onmousemove="m_tabs(3)" id="BookW" class="tablinkscheck">读书</dd>
+			</dl>
+		</div>
+		<div class="box_right_box">
+			<div class="paddingbox">
+				<dl class="index" id="Articles">
+					<dd class="picline"></dd>
+															<dd class="list">·&nbsp;<a target="_blank" title="Win2000下关闭无用端口" href="http://www.2cto.com/Article/200410/1.html">Win2000下关闭无用端口</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="禁止非法用户登录综合设置 [win9x篇]" href="http://www.2cto.com/Article/200410/2.html">禁止非法用户登录综合设置 [win9x篇]</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="关上可恶的后门——消除NetBIOS隐患" href="http://www.2cto.com/Article/200410/3.html">关上可恶的后门——消除NetBIOS隐患</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="网络入侵检测系统" href="http://www.2cto.com/Article/200410/4.html">网络入侵检测系统</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="潜伏在Windows默认设置中的陷井" href="http://www.2cto.com/Article/200410/5.html">潜伏在Windows默认设置中的陷井</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="调制解调器的不安全" href="http://www.2cto.com/Article/200410/6.html">调制解调器的不安全</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="构建Windows 2000服务器的安全防护林" href="http://www.2cto.com/Article/200410/7.html">构建Windows 2000服务器的安全防护林</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="SQL Server 2000的安全配置" href="http://www.2cto.com/Article/200410/8.html">SQL Server 2000的安全配置</a></dd>
+														</dl>
+				<dl class="index" id="Down" style="display:none">
+					<dd class="picline"></dd>
+															<dd class="list">·&nbsp;<a target="_blank" title="Windows优化大师注册机源码" href="http://www.2cto.com/soft/200409/53.html">Windows优化大师注册机源码</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="Process Viewer 汉化版" href="http://www.2cto.com/soft/200409/62.html">Process Viewer 汉化版</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="Aspcode动画教程" href="http://www.2cto.com/soft/200409/79.html">Aspcode动画教程</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="WIN 2000服务器防止ICMP数据包攻击教程" href="http://www.2cto.com/soft/200409/128.html">WIN 2000服务器防止ICMP数据包攻击教程</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="实现网络隐身的简单方法" href="http://www.2cto.com/soft/200409/129.html">实现网络隐身的简单方法</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="手工进行克隆帐号" href="http://www.2cto.com/soft/200409/130.html">手工进行克隆帐号</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="用W32DASM破解网页合并器的密码" href="http://www.2cto.com/soft/200409/134.html">用W32DASM破解网页合并器的密码</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="注册表操作动画教程" href="http://www.2cto.com/soft/200409/138.html">注册表操作动画教程</a></dd>
+														</dl>
+				<dl class="index" id="Book" style="display:none">
+					<dd class="picline"></dd>
+															<dd class="list">·&nbsp;<a target="_blank" title="黑客攻防技术宝典：Web实战篇（第2版）" href="http://book.2cto.com/201206/20.html">黑客攻防技术宝典：Web实战篇（第2版）</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="超级网管员——网络安全" href="http://book.2cto.com/201207/43.html">超级网管员——网络安全</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="代码大全（第二版）" href="http://book.2cto.com/201207/64.html">代码大全（第二版）</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="软件之道:软件开发争议问题剖析" href="http://book.2cto.com/201207/68.html">软件之道:软件开发争议问题剖析</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="CSS插件工具箱" href="http://book.2cto.com/201207/78.html">CSS插件工具箱</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="CSS入门经典(第3版)" href="http://book.2cto.com/201207/139.html">CSS入门经典(第3版)</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="C#并行编程高级教程：精通.NET 4 Parallel Extension" href="http://book.2cto.com/201207/169.html">C#并行编程高级教程：精通.NET 4 Pa</a></dd>
+										<dd class="list">·&nbsp;<a target="_blank" title="CMMI+敏捷整合开发" href="http://book.2cto.com/201207/190.html">CMMI+敏捷整合开发</a></dd>
+														</dl>
+			</div>
+			<script type="text/javascript">
+			<!--
+				function m_tabs(index)
+				{
+					if (index == 1){
+						document.getElementById("ArticlesW").className = "tablinkschecked";
+						document.getElementById("DownW").className = "tablinkscheck";
+						document.getElementById("BookW").className = "tablinkscheck";
+						document.getElementById("Articles").style.display = "block";
+						document.getElementById("Down").style.display = "none";
+						document.getElementById("Book").style.display = "none";
+					}
+					else if (index == 2){
+						document.getElementById("ArticlesW").className = "tablinkscheck";
+						document.getElementById("DownW").className = "tablinkschecked";
+						document.getElementById("BookW").className = "tablinkscheck";
+						document.getElementById("Articles").style.display = "none";
+						document.getElementById("Down").style.display = "block";
+						document.getElementById("Book").style.display = "none";
+					}
+					else{
+						document.getElementById("ArticlesW").className = "tablinkscheck";
+						document.getElementById("DownW").className = "tablinkscheck";
+						document.getElementById("BookW").className = "tablinkschecked";
+						document.getElementById("Articles").style.display = "none";
+						document.getElementById("Down").style.display = "none";
+						document.getElementById("Book").style.display = "block";
+					}
+				}
+			//-->
+			</script>
+		</div>
+		<div class="rightlineNo"></div>
+		<div class="box_right_box">
+			<dl class="bTitle borT"><dd class="newdown"></dd></dl>
+		</div>
+		<div class="box_right_box">
+			<div class="paddingbox">
+				<dl class="index">
+															<dd class="picbox"><a target="_blank" class="plink" href="http://www.2cto.com/Article/201111/110200.html"><img class='pic1' src='http://up.2cto.com/2011/1106/20111106020104549.jpg'  width='126' height='90' border='0' /></a><span><a href="http://www.2cto.com/Article/201111/110200.html">关于移动校园WLAN的安</a></span></dd>
+										<dd class="picbox"><a target="_blank" class="plink" href="http://www.2cto.com/Article/201111/111265.html"><img class='pic1' src='http://up.2cto.com/2011/1116/20111116122622953.jpg'  width='126' height='90' border='0' /></a><span><a href="http://www.2cto.com/Article/201111/111265.html">内网渗透案例(含续)</a></span></dd>
+															<dd class="picline"></dd>
+															<dd class="list">&#9642;&nbsp;<a target="_blank" href="http://www.2cto.com/Article/201111/110200.html">关于移动校园WLAN的安全性</a></dd>
+										<dd class="list">&#9642;&nbsp;<a target="_blank" href="http://www.2cto.com/Article/201111/111265.html">内网渗透案例(含续)</a></dd>
+										<dd class="list">&#9642;&nbsp;<a target="_blank" href="http://www.2cto.com/Article/201112/113264.html">谁动了我的隐私 — 隐私风险初探 </a></dd>
+										<dd class="list">&#9642;&nbsp;<a target="_blank" href="http://www.2cto.com/Article/201112/113984.html">六要五不要：WiFi安全的十一个注意事项</a></dd>
+										<dd class="list">&#9642;&nbsp;<a target="_blank" href="http://www.2cto.com/Article/201112/114611.html">APP协议与ARP攻击</a></dd>
+										<dd class="list">&#9642;&nbsp;<a target="_blank" href="http://www.2cto.com/Article/201202/118349.html">DNS域传送泄露漏洞详解</a></dd>
+										<dd class="list">&#9642;&nbsp;<a target="_blank" href="http://www.2cto.com/Article/201203/121412.html">不想你的ssh被暴力攻破？来个狠的！</a></dd>
+										<dd class="list">&#9642;&nbsp;<a target="_blank" href="http://www.2cto.com/Article/201203/121696.html">为Windows下的Apache服务器添加防DDoS</a></dd>
+														</dl>
+			</div>
+			<div class="xline"></div>
+		</div>
+		<div class="box_right_line"><div class="xline"></div></div>
+		<div style="float:left;width:300px;background:white;padding-left:10px;height:250px">
+			<script type="text/javascript">BAIDU_CLB_fillSlot("771043");</script></div>
+		<div class="box_right_line"><div class="xline"></div></div>
+	</div>
+</div>
+<script type="text/javascript">
+<!--
+function showLogin(){
+	window.art.dialog({id:'Login',iframe:'http://www.2cto.com/index.php?m=member&c=index&a=login&tupe=mini', title:'快捷登陆', width:'450', height:'310', lock:true}, function(){var d = window.art.dialog({id:'Login'}).data.iframe;var form = d.document.getElementById('dosubmit');form.click();return false;}, function(){window.art.dialog({id:'Login'}).close()});void(0);
+}
+function add_favorite(title) {
+		$.getJSON('http://www.2cto.com/api.php?op=add_favorite&title='+encodeURIComponent(title)+'&url='+encodeURIComponent(location.href)+'&'+Math.random()+'&callback=?', function(data){
+			if(data.status==1)	{
+				$("#favorite").html('收藏成功');
+			} else {
+				alert('请登陆');
+				window.location.href='http://home.2cto.com/?forward='+encodeURIComponent(location.href);
+			}
+		});
+	}
+//-->
+</script>
+<script language="JavaScript" src="http://www.2cto.com/api.php?op=count&id=159848&modelid=1"></script>
+<!-- 广告位：右侧漂浮 -->
+<script type="text/javascript">BAIDU_CLB_fillSlot("137946");</script>
+
+<div style="width:980px;padding:8px 0px 8px 0px;margin:auto"><script type="text/javascript">BAIDU_CLB_fillSlot("333829");</script></div>
+<div class="foot">
+<p>
+<a target="_blank" href="http://www.2cto.com/about">关于我们</a> |
+<a target="_blank" href="http://www.2cto.com/about/contact.html">联系我们</a> |
+<a target="_blank" href="http://www.2cto.com/about/ads.html">广告服务</a> |
+<a target="_blank" href="http://www.2cto.com/about/touzi.html">投资合作</a> |
+<a target="_blank" href="http://www.2cto.com/about/Copyright.html">版权申明</a> |
+<a target="_blank" href="http://www.2cto.com/about/faq.html">在线帮助</a> |
+<a target="_blank" href="http://www.2cto.com/about/map.html">网站地图</a> |
+<a target="_blank" href="http://www.2cto.com/about/tg.html">作品发布</a> |
+<a target="_blank" href="http://vip.2cto.com/"><span style="COLOR: red">Vip技术培训</span></a>
+<br />
+<span class="style4">版权所有: <a href="http://www.2cto.com" target="_blank">红黑联盟</a>--致力于做最好的IT技术学习网站<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1898984a3d796e86ad73ad1f4bc9f240' type='text/javascript'%3E%3C/script%3E"));
+</script>    
+</span>
+</div></body>
+
+</html>

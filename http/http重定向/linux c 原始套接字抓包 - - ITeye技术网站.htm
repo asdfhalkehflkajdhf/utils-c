@@ -1,0 +1,957 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>linux c 原始套接字抓包 -  - ITeye技术网站</title>
+    <meta name="description" content="抓包分析主机上网浏览了那些网页，并把浏览网页的网址写入一个文件。 首先我列举下我在写抓包程序所犯下的错误。供大家学习参考。    创建原始套接字失败：              分析原因：刚开始的时候运行程序正常，但是同事覃书芹帮我虚拟机添加了一个虚拟网卡的时候就出现错误了。原因说出来很简单，就是设备名称错误，但是当时我怎么调都调不出来。最后请他们看了下，一下就看出来了。起码让我明白创建套接字的时候 ..." />
+    <meta name="keywords" content="socket, linux, 虚拟机, c, c++ linux c 原始套接字抓包" />
+    <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon" />
+    <link rel="search" type="application/opensearchdescription+xml" href="/open_search.xml" title="ITeye" />
+    <link href="/rss" rel="alternate" title="" type="application/rss+xml" />
+    <link href="http://www.iteye.com/stylesheets/blog.css?1384928085" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://www.iteye.com/stylesheets/themes/blog/blue.css?1326191326" media="screen" rel="stylesheet" type="text/css" />
+    <script src="http://www.iteye.com/javascripts/application.js?1358214518" type="text/javascript"></script>
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-535605-1']);
+  _gaq.push(['_setDomainName', 'iteye.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+      <link href="http://www.iteye.com/javascripts/syntaxhighlighter/SyntaxHighlighter.css?1348819953" media="screen" rel="stylesheet" type="text/css" />
+  <script src="http://www.iteye.com/javascripts/syntaxhighlighter/shCoreCommon.js?1325907333" type="text/javascript"></script>
+<script src="http://www.iteye.com/javascripts/hotkey.js?1324994303" type="text/javascript"></script>
+  <script src="http://www.iteye.com/javascripts/code_favorites.js?1358214518" type="text/javascript"></script>
+<script src="http://www.iteye.com/javascripts/weiboshare.js?1324994303" type="text/javascript"></script>
+  </head>
+  <body>
+    <div id="header">
+      <div id="blog_site_nav">
+  <a href="http://www.iteye.com/" class="homepage">首页</a>
+  <a href="http://www.iteye.com/news">资讯</a>
+  <a href="http://www.iteye.com/magazines">精华</a>
+  <a href="http://www.iteye.com/forums">论坛</a>
+  <a href="http://www.iteye.com/ask">问答</a>
+  <a href="http://www.iteye.com/blogs">博客</a>
+  <a href="http://www.iteye.com/blogs/subjects">专栏</a>
+  <a href="http://www.iteye.com/groups">群组</a>
+  <a href="#" onclick="return false;" id="msna"><u>更多</u> <small>▼</small></a>
+  <div class="quick_menu" style="display:none;">
+    <a target="_blank" href="http://job.iteye.com/iteye">招聘</a>
+    <a href="http://www.iteye.com/search">搜索</a>
+  </div>
+</div>
+
+      <div id="user_nav">
+      <a href="/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="/login">登录</a>
+    <a href="/signup" class="nobg">注册</a>
+  </div>
+
+    </div>
+
+    <div id="page">
+      <div id="branding" class="clearfix">
+        <div id="blog_name">
+          <h1><a href="/">cyotun</a></h1>
+        </div>
+        <div id='fd'></div>
+        <div id="blog_navbar">
+          <ul>
+            <li class='blog_navbar_for'><a href="http://cyotun.iteye.com"><strong>博客</strong></a></li>
+            <li ><a href="/weibo">微博</a></li>
+            <li ><a href="/album">相册</a></li>
+            <li ><a href="/link">收藏</a></li>
+            <li ><a href="/blog/guest_book">留言</a></li>
+            <li ><a href="/blog/profile">关于我</a></li>
+          </ul>
+    
+          <div class="search">
+            <form action="/blog/search" method="get">
+              <input class="search_text" id="query" name="query" style="margin-left: 10px;width: 110px;" type="text" value="" />
+              <input class="submit_search" type="submit" value="" />
+            </form>
+          </div> 
+          <div id="fd"></div>         
+        </div>
+      </div>
+      
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+
+          
+
+
+<div class="h-entry" style='display:none'>
+  <a href="http://cyotun.iteye.com" class="p-author" target="_blank">cyotun</a>
+</div>
+
+
+<div class="blog_main">
+  <div class="blog_title">
+    <h3>
+      <a href="/blog/1884634">linux c 原始套接字抓包</a>
+      <em class="actions">      </em>
+    </h3>
+    
+        <div class='news_tag'><a href="http://www.iteye.com/blogs/tag/socket">socket</a><a href="http://www.iteye.com/blogs/tag/linux">linux</a><a href="http://www.iteye.com/blogs/tag/%E8%99%9A%E6%8B%9F%E6%9C%BA">虚拟机</a><a href="http://www.iteye.com/blogs/tag/c">c</a><a href="http://www.iteye.com/blogs/tag/c++">c++</a>&nbsp;</div>
+  </div>
+
+  <div id="blog_content" class="blog_content">
+    抓包分析主机上网浏览了那些网页，并把浏览网页的网址写入一个文件。<br /><br />首先我列举下我在写抓包程序所犯下的错误。供大家学习参考。<br /><br />&nbsp;&nbsp; 创建原始套接字失败：<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 分析原因：刚开始的时候运行程序正常，但是同事覃书芹帮我虚拟机添加了一个虚拟网卡的时候就出现错误了。原因说出来很简单，就是设备名称错误，但是当时我怎么调都调不出来。最后请他们看了下，一下就看出来了。起码让我明白创建套接字的时候要与监听的网卡名称相对应，不然要监听eth1,结果在绑定设备名称的时候绑成了eth0，那就可能出现错误，获得不到效果。<br /><br />1.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 写文件总是乱码：<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 分析原因：这个问题在我进公司前以前就犯过，那时候是用C++写，改正过来比较快。现在在全字符环境下，改了半天，最后发现，在写的时候直接传了地址，而没有加上所传字符串的长度。导致乱码，加上一个sizeof()以后问题解决。<br /><br />2.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 浏览部分网页时程序出现段错误：<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在C环境下，出现段错误是很常见的，但对于我来说见的很少，所以出现这类问题的时候显得还不到哪错了。原因是我在定位域名字段的时候是以“com\r\n”结束为标记的。因为很多域名都是以.com结尾的，所以就忽略了还有以“.cn”或者以“.net”结尾的域名。我当时就奇怪了，为什么有的网页可以，但是访问有些域名的时候，一点击就出错。当找不到.com的时候就会定位到下一个包，定义到一个不存在的内存区域。所以导致段错误。<br /><br />3.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 分析的出是tcp包但是分析不出是http包：<br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 错误原因：这个错误本来应该是不会出现的，就是我把usleep(1000),改为了sleep（1），都是停止一秒钟。在while循环里用sleep（1）可以让程序暂停执行一秒钟效果很明显，但是usleep（1000）就不是很明显了。在while循环里用sleep（1）就明显减慢了抓包的速度，所以就出现抓漏了包的情况。把while循环里的sleep（1）改成usleep（1000）；就行了。<br /><br />程序过程：<br /><br />首先抓住经过网卡的数据包，首先检测他是不是ip包，如果是剥去包头，然后看是不是tcp包，如果是则检测它的端口是不是80端口。如果是则证明传输的是http协议。然后就可以分析是不是存在“get”字段，是不是存在“host”字段。然后取“host”后面的一个字符串，即我们要得到的主机访问的域名，即上网记录。<br /><br />具体代码如下：<br /><br /><pre name="code" class="C">
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;sys/ioctl.h&gt;
+
+#include &lt;net/ethernet.h&gt;
+
+#include &lt;netinet/in.h&gt;
+#include &lt;linux/if_ether.h&gt;
+#include &lt;linux/if_packet.h&gt;
+#include &lt;linux/if_arp.h&gt;
+
+ 
+
+
+#define NOT_UNICAST(e) ((e[0] &amp; 0x01) != 0)
+
+
+#define APP_NAME "pppc"
+#define APP_VER  "0.1.0"
+
+#define PPPOE_DISCOVER  0x8863
+#define PPPOE_SESSION   0x8864
+
+#define ETH_ALEN      6
+#define NET_FACE_LEN  8
+
+#define TRUE  1
+#define FALSE 0
+
+#ifndef ETH_DATA_LEN
+#define ETH_DATA_LEN  ETHERMTU
+#endif
+
+
+#pragma pack(1)
+
+typedef struct __st_pconn
+{
+    unsigned char  myName[NET_FACE_LEN];
+    unsigned char  myEth[ETH_ALEN];
+    unsigned char  peerEth[ETH_ALEN];
+   
+    unsigned short session_id;
+    int            net_socket;
+   
+} tPconn;
+
+typedef struct __st_eth_head
+{
+    unsigned char  dst[ETH_ALEN];
+    unsigned char  src[ETH_ALEN];
+    unsigned short proto;
+   
+} tEthHead;
+
+typedef struct __st_pppoe_head
+{
+    unsigned char  ver:4;
+    unsigned char  type:4;
+    unsigned char  code;
+    unsigned short sid;
+    unsigned short len;
+   
+} tPPPPOEHead;
+
+typedef struct __st_pppoe_pkt_info
+{
+    tEthHead      ethHead;
+    tPPPPOEHead   pppoeHead;
+    unsigned char payload[32];
+   
+} tPPPOEPkt;
+
+typedef struct __st_ip_pkt_head
+{
+   //unsigned char  hlen:4;
+   //unsigned char  ver:4;
+   unsigned char  vhlen;
+   unsigned char  tos;
+   unsigned short tlen;
+   unsigned short ipid;
+   unsigned short flag;
+   unsigned char  ttl;
+   unsigned char  proto;
+   unsigned short checksum;
+   unsigned long  sip;
+   unsigned long  dip;
+   unsigned char  data[1];
+  
+} tIPktHead;
+
+
+typedef struct _st_tcp
+{
+   unsigned short sport;
+   unsigned short dport;
+   unsigned long  seq;
+   unsigned long  ack;
+   unsigned char  offset;
+   unsigned char  code;
+   unsigned short window;
+   unsigned short cksum;
+   unsigned short urg;
+   unsigned char  data[1];
+   
+} tTcp;
+
+
+#pragma pack()
+
+ 
+
+
+/////////////////////////////// Define public var //////////////////////////////
+tPconn myConn;
+/////////////////////////// End of Define public var ///////////////////////////
+
+char *inet_htoa(unsigned long ipaddr)
+{
+    static char buf[10][20];
+    static int  old_index=0;
+    int    index;
+    unsigned char  t1;
+    unsigned char  bFlag = FALSE;
+    char   *pbuf;
+
+    index     = old_index;
+    old_index = (old_index+1) % 10;
+
+    pbuf  = buf[index];
+    t1    = (ipaddr &gt;&gt; 24) &amp; 0xff;
+    *pbuf = (t1 / 100);
+    if (*pbuf != 0)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+        bFlag = TRUE;
+    }
+    *pbuf = ((t1 / 10) % 10);
+    if (*pbuf != 0)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+    }
+    else if (bFlag)
+    {
+        *pbuf += 0x30;
+          pbuf++;
+    }
+    *pbuf++ = (t1 % 10) + 0x30;
+    *pbuf++ = '.';
+
+    /******************************/
+    bFlag = FALSE;
+    t1 = (ipaddr &gt;&gt; 16) &amp; 0xff;
+    *pbuf = (t1 / 100);
+    if (*pbuf != 0)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+        bFlag = TRUE;
+    }
+    *pbuf = ((t1 / 10) % 10);
+    if (*pbuf != 0)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+    }
+    else if (bFlag)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+    }
+    *pbuf++ = (t1 % 10) + 0x30;
+    *pbuf++ = '.';
+
+    /******************************/
+    bFlag = FALSE;
+    t1 = (ipaddr &gt;&gt; 8) &amp; 0xff;
+    *pbuf = (t1 / 100);
+    if (*pbuf != 0)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+        bFlag = TRUE;
+    }
+    *pbuf = ((t1 / 10) % 10);
+    if (*pbuf != 0)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+    }
+    else if (bFlag)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+    }
+    *pbuf++ = (t1 % 10) + 0x30;
+    *pbuf++ = '.';
+
+    /******************************/
+    bFlag = FALSE;
+    t1 = ipaddr &amp; 0xff;
+    *pbuf = (t1 / 100);
+    if (*pbuf != 0)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+        bFlag = TRUE;
+    }
+    *pbuf = ((t1 / 10) % 10);
+    if (*pbuf != 0)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+    }
+    else if (bFlag)
+    {
+        *pbuf += 0x30;
+        pbuf++;
+    }
+    *pbuf++ = (t1 % 10) + 0x30;
+    *pbuf = '\0';
+
+    pbuf   = buf[index];
+    return pbuf;
+}
+
+
+int init_rawsocket(char *dev_name)
+{
+    int raw_sock_fd;
+    struct sockaddr_ll sll;
+    struct ifreq ifstruct;
+
+    memset(&amp;sll, 0, sizeof(struct sockaddr_ll));
+    strcpy(ifstruct.ifr_name, dev_name);
+
+
+    raw_sock_fd = socket(PF_PACKET, SOCK_RAW, htons(IPPROTO_RAW));
+
+    if (ioctl(raw_sock_fd, SIOCGIFINDEX, &amp;ifstruct) == -1)//指定socket，把信息存入到ifstruct中
+    {
+        printf("ioctl SIOCGIFINDEX [%s] Error!!!", dev_name);
+        close(raw_sock_fd);
+        exit(1);
+        return -1;
+    }
+
+    sll.sll_family   = PF_PACKET;
+    sll.sll_ifindex  = ifstruct.ifr_ifindex;
+    sll.sll_protocol = htons(ETH_P_ALL);
+    sll.sll_hatype   = ARPHRD_ETHER;
+    sll.sll_pkttype  = PACKET_OTHERHOST;
+    sll.sll_halen    = ETH_ALEN;
+    sll.sll_addr[6]  = 0;
+    sll.sll_addr[7]  = 0;
+
+    if (ioctl(raw_sock_fd, SIOCGIFHWADDR, &amp;ifstruct) == -1)
+    {
+        printf("\nioctl SIOCGIFHWADDR [%s] Error!!!", dev_name);
+        close(raw_sock_fd);
+        exit(1);
+        return -1;
+    }
+
+    if (ioctl(raw_sock_fd, SIOCGIFFLAGS, &amp;ifstruct) &lt; 0)
+ {
+  printf("ioctl SIOCGIFFLAGS [%s] Error!!!", dev_name);
+  close(raw_sock_fd);
+                exit(1);
+  return -1;
+ }
+#if 1
+    ifstruct.ifr_flags |= IFF_PROMISC;   //set promisc
+    if (ioctl(raw_sock_fd, SIOCSIFFLAGS, &amp;ifstruct) == -1)
+    {
+        printf("Set [%s] promisc error\n", dev_name);
+        close(raw_sock_fd);
+        exit(1);
+        return -1;
+    }
+#endif
+    if (bind(raw_sock_fd, (struct sockaddr *)&amp;sll, sizeof(struct sockaddr_ll)) == -1)
+ {
+  printf("Bind %s Error!", dev_name);
+  close(raw_sock_fd);
+              exit(1);
+  return -1;
+ }
+
+    return raw_sock_fd;
+
+   
+} /* End of init_rawsocket */
+
+
+int init_netface(tPconn *pPconn)
+{
+    struct ifreq ifr; 
+    struct sockaddr_ll pSock;
+    int optval = 1;
+
+    if (!pPconn)   
+        return 0;
+
+ //把创建 的socket套接字传给pCONN
+    pPconn-&gt;net_socket = init_rawsocket(pPconn-&gt;myName);
+    printf("Raw fd [%d]\n", pPconn-&gt;net_socket);
+
+    strncpy(ifr.ifr_name, pPconn-&gt;myName, NET_FACE_LEN);  
+
+
+    //获取网卡的MAC地址
+ if (ioctl(pPconn-&gt;net_socket, SIOCGIFHWADDR, &amp;ifr) &lt; 0)
+ {
+     printf("ioctl(SIOCGIFHWADDR) error");
+     exit(0);
+ }
+ memcpy(pPconn-&gt;myEth, ifr.ifr_hwaddr.sa_data, ETH_ALEN);
+
+
+ printf("Get [%s], MAC [%02x:%02x:%02x:%02x:%02x:%02x]\n",
+         pPconn-&gt;myName, pPconn-&gt;myEth[0], pPconn-&gt;myEth[1], pPconn-&gt;myEth[2],
+         pPconn-&gt;myEth[3], pPconn-&gt;myEth[4], pPconn-&gt;myEth[5]);
+
+
+    return 1;
+
+}
+
+ 
+
+
+int main(int argc, char **argv)
+{
+    int raw_fd = 0;
+    int rlen   = 0;
+    int n      = 0;
+    char buff[1500] = {0};
+    tEthHead *pEth = NULL;
+    tIPktHead*pOeh = NULL;
+    tTcp     *ptcp = NULL;
+    char     *tcpdata = NULL;
+    char     *tcpdend = NULL;
+    int      tcpdatalen = 0;
+    char     data [1024]={0} ;
+    char     *host = NULL;
+    char     *hostend = NULL;
+    char     hostdata[1024]={0};
+    char    ptjay[30];
+
+    memset(&amp;myConn, 0, sizeof(tPconn));
+
+    sprintf(myConn.myName, "eth0");
+    init_netface(&amp;myConn); 
+
+    printf("%s (v%s) started\n", APP_NAME, APP_VER);
+
+    printf("Eth head len %d, PPPOE head len %d, PPPOE pkt len %d\n",
+            sizeof(tEthHead), sizeof(tPPPPOEHead), sizeof(tPPPOEPkt));
+
+   
+    while (1)
+    {
+        //send_PADI(&amp;myConn);
+        rlen = read(myConn.net_socket, buff, 1514);//读取数据报
+        if (rlen &gt; 0)
+        {
+            pEth = (tEthHead *)buff;  
+   
+           
+           // printf("Get a packet, DMAC [%02x:%02x:%02x:%02x:%02x:%02x], SMAC [%02x:%02x:%02x:%02x:%02x:%02x]\n",
+           //        pEth-&gt;dst[0], pEth-&gt;dst[1],pEth-&gt;dst[2],pEth-&gt;dst[3],pEth-&gt;dst[4],pEth-&gt;dst[5],
+           //         pEth-&gt;src[0], pEth-&gt;src[1],pEth-&gt;src[2],pEth-&gt;src[3],pEth-&gt;src[4],pEth-&gt;src[5]);
+            switch (ntohs(pEth-&gt;proto))
+            {
+                case 0x0800:
+                {
+                    pOeh = (tIPktHead*)(buff+sizeof(tEthHead));
+                   // printf("Get a ip packet\n");
+                   // printf("SIP[%s], DIP[%s], ipid [%d], tlen [%d], ver [%d], hlen [%d]\n",
+                   //       inet_htoa(ntohl(pOeh-&gt;sip)), inet_htoa(ntohl(pOeh-&gt;dip)),
+                   //        ntohs(pOeh-&gt;ipid), ntohs(pOeh-&gt;tlen), (pOeh-&gt;vhlen&amp;0xf0)&gt;&gt;4, (pOeh-&gt;vhlen&amp;0x0f)&lt;&lt;2);
+                    switch (pOeh-&gt;proto)
+                    {
+                        case 0x06:
+                        {
+                              //printf("Get a TCP packet\n");
+
+                            ptcp = (tTcp*)pOeh-&gt;data; 
+       //printf("%d\n",ntohs(ptcp-&gt;dport));
+                            if (ntohs(ptcp-&gt;dport)==80)
+                            {
+                             //  printf("Get a http packet\n");
+
+                               tcpdata = (char*)(ptcp-&gt;data);                              
+                               if(strncmp(tcpdata, "GET ", 4) == 0)
+                                  {
+                                    //printf("Get a get http packet\n");
+
+                                    tcpdend = strstr(ptcp-&gt;data, " HTTP/1.1\r\n");
+
+                                    printf("http data is \n");
+         
+                                    tcpdata += 4;
+                                    tcpdatalen = tcpdend-tcpdata;
+
+                                    printf("%d\n", tcpdatalen);
+
+                                    printf("%s\n", strncpy(data, tcpdata, tcpdatalen));
+
+                                   host = strstr(ptcp-&gt;data, "Host: ");
+     strncpy(ptjay,host,30);
+     printf("测试用的%s\n",ptjay);
+                                   hostend = strstr(ptjay, "\r\n");
+     strncpy(ptjay,hostend,5);
+     printf("测试用的二%s",ptjay);
+                                   tcpdatalen = hostend - host;
+
+                                   printf("%s\n",strncpy(hostdata, host, tcpdatalen));
+     host=NULL;
+     hostend=NULL;
+     strncpy(data,"0",1);
+     strncpy(ptjay,"0",1);
+
+                                   }
+                               //else
+                               //   printf("Get other http packet\n");
+
+
+                             }
+                            // else
+                            //    printf("Get not http packet\n");
+
+                        }
+                        break;
+
+                        default:
+                      //  printf("Get not tcp packet\n");
+                        break;
+                    }
+                }
+                break;
+    
+                default:
+                    //printf("Get other packet\n");
+                break;
+            }              
+        }
+        //printf("Send PADI\n");
+        //printf("包结束\n");
+        usleep(1000);
+    }
+
+ 
+
+}
+</pre><br /><br /><pre name="code" class="C">
+int init_rawsocket(char *dev_name)
+{
+    int raw_sock_fd;
+    struct sockaddr_ll sll;
+    struct ifreq ifstruct;
+
+    memset(&amp;sll, 0, sizeof(struct sockaddr_ll));
+    strcpy(ifstruct.ifr_name, dev_name);
+
+    raw_sock_fd = socket(PF_PACKET, SOCK_RAW, htons(IPPROTO_RAW));
+    if (ioctl(raw_sock_fd, SIOCGIFINDEX, &amp;ifstruct) == -1)//指定socket，把信息存入到ifstruct中
+    {
+        printf("ioctl SIOCGIFINDEX [%s] Error!!!", dev_name);
+        close(raw_sock_fd);
+        exit(1);
+        return -1;
+    }
+
+    sll.sll_family   = PF_PACKET;
+    sll.sll_ifindex  = ifstruct.ifr_ifindex;
+    sll.sll_protocol = htons(ETH_P_ALL);
+    sll.sll_hatype   = ARPHRD_ETHER;
+    sll.sll_pkttype  = PACKET_OTHERHOST;
+    sll.sll_halen    = ETH_ALEN;
+    sll.sll_addr[6]  = 0;
+    sll.sll_addr[7]  = 0;
+
+    if (ioctl(raw_sock_fd, SIOCGIFHWADDR, &amp;ifstruct) == -1)
+    {
+        printf("\nioctl SIOCGIFHWADDR [%s] Error!!!", dev_name);
+        close(raw_sock_fd);
+        exit(1);
+        return -1;
+    }
+
+    if (ioctl(raw_sock_fd, SIOCGIFFLAGS, &amp;ifstruct) &lt; 0)
+    {
+        printf("ioctl SIOCGIFFLAGS [%s] Error!!!", dev_name);
+        close(raw_sock_fd);
+                exit(1);
+        return -1;
+    }
+#if 1
+    ifstruct.ifr_flags |= IFF_PROMISC;   //set promisc
+    if (ioctl(raw_sock_fd, SIOCSIFFLAGS, &amp;ifstruct) == -1)
+    {
+        printf("Set [%s] promisc error\n", dev_name);
+        close(raw_sock_fd);
+        exit(1);
+        return -1;
+    }
+#endif
+    if (bind(raw_sock_fd, (struct sockaddr *)&amp;sll, sizeof(struct sockaddr_ll)) == -1)
+    {
+        printf("Bind %s Error!", dev_name);
+        close(raw_sock_fd);
+              exit(1);
+        return -1;
+    }
+
+    return raw_sock_fd;
+} /* End of init_rawsocket */
+
+
+int init_netface(tPconn *pPconn)
+{
+    struct ifreq ifr;  
+    struct sockaddr_ll pSock;
+    int optval = 1;
+
+    if (!pPconn)    
+        return 0;
+
+    //把创建 的socket套接字传给pCONN
+    pPconn-&gt;net_socket = init_rawsocket(pPconn-&gt;myName);
+    printf("Raw fd [%d]\n", pPconn-&gt;net_socket);
+
+    strncpy(ifr.ifr_name, pPconn-&gt;myName, NET_FACE_LEN);   
+
+
+    //获取网卡的MAC地址
+    if (ioctl(pPconn-&gt;net_socket, SIOCGIFHWADDR, &amp;ifr) &lt; 0) 
+    {
+        printf("ioctl(SIOCGIFHWADDR) error");
+        exit(0);
+    }
+    memcpy(pPconn-&gt;myEth, ifr.ifr_hwaddr.sa_data, ETH_ALEN);
+	
+    printf("Set mac?");
+    if(getchar()=='y')
+    {
+	printf("mac:");
+	scanf("%02x%02x%02x%02x%02x%02x",&amp;pPconn-&gt;myEth[0], &amp;pPconn-&gt;myEth[1], &amp;pPconn-&gt;myEth[2], 
+              &amp;pPconn-&gt;myEth[3], &amp;pPconn-&gt;myEth[4], &amp;pPconn-&gt;myEth[5]);
+    }
+
+    printf("Get [%s], MAC [%02x:%02x:%02x:%02x:%02x:%02x]\n", 
+            pPconn-&gt;myName, pPconn-&gt;myEth[0], pPconn-&gt;myEth[1], pPconn-&gt;myEth[2], 
+            pPconn-&gt;myEth[3], pPconn-&gt;myEth[4], pPconn-&gt;myEth[5]);
+
+            return 1;
+}
+
+/*构造PADT数据包，结束PPPOE会话*/
+tPPPOEPkt * makepadt(tPPPOEPkt * phead)
+{
+    unsigned short sessionid;
+    sessionid = phead-&gt;pppoeHead.sid;
+    if (phead != NULL)
+    {
+        phead-&gt;pppoeHead.code= 0xA7;
+        phead-&gt;pppoeHead.len = 0x0000;      
+        phead-&gt;pppoeHead.sid = sessionid;
+        phead-&gt;payload[0] = 0;
+    }
+    return phead;
+}
+
+int main(int argc, char **argv)
+{
+    int raw_fd = 0;
+    int rlen   = 0;
+    int n      = 0; 
+    char buff[1500] = {0};
+    char netcard[6]="eth0";
+    tEthHead * pEth= NULL;
+    tPPPOEPkt * pPPPhd = NULL;
+    int num = 0;
+    unsigned short i;
+    memset(&amp;myConn, 0, sizeof(tPconn));
+    //scanf("%s",&amp;netcard);
+	//getchar();
+    sprintf(myConn.myName, netcard);
+    init_netface(&amp;myConn);
+
+    while (1)
+    {
+	
+        //send_PADI(&amp;myConn);
+        rlen = read(myConn.net_socket, buff, 1514);
+        if (rlen &gt; 0)
+        {
+            pEth = (tEthHead *)buff;        
+            /*过滤PPPOE的数据包*/
+            //if (ntohs(pEth-&gt;proto) == 0x8863)
+            //{
+		
+				
+                pPPPhd = (tPPPOEPkt *)pEth;
+		printf("%u\n",pPPPhd-&gt;pppoeHead.sid);
+                if (ntohs(pPPPhd-&gt;pppoeHead.sid) != 0x0000)
+                {
+		    printf("!0x0000\n");
+                    pPPPhd = makepadt(pPPPhd);
+		    //send the changed package
+                    rlen = write(myConn.net_socket,(char *)pPPPhd, rlen);
+                    printf("the len is %d\n", rlen);
+                
+		}
+            //}                
+        }
+        usleep(1000);
+    }
+    return 0;
+}
+</pre>
+  </div>
+
+  
+
+
+  <IFRAME SRC="/iframe_ggbd/794" SCROLLING=no WIDTH=468 HEIGHT=60 FRAMEBORDER=0></IFRAME>
+  
+  <div id="bottoms" class="clearfix">
+    
+    <div id="share_weibo">分享到：
+      <a data-type='sina' href="javascript:;" title="分享到新浪微博"><img src="/images/sina.jpg"></a>
+      <a data-type='qq' href="javascript:;" title="分享到腾讯微博"><img src="/images/tec.jpg"></a>
+    </div>
+  </div>
+
+  <div class="blog_nav">
+    <div class="pre_next">
+      <a href="/blog/1911234" class="next" title="禁用DropDownList的Items">禁用DropDownList的Items</a>
+      |
+      <a href="/blog/1873607" class="pre" title="JS实现添加删除Div">JS实现添加删除Div</a>
+    </div>
+  </div>
+  <div class="blog_bottom">
+    <ul>
+      <li>2013-06-08 21:39</li>
+      <li>浏览 194</li>
+      <li><a href="#comments">评论(1)</a></li>
+      
+      
+      <li>分类:<a href="http://www.iteye.com/blogs/category/internet">互联网</a></li>      
+      <li class='last'><a href="http://www.iteye.com/wiki/blog/1884634" target="_blank" class="more">相关推荐</a></li>
+    </ul>
+  </div>
+
+  <div class="blog_comment">
+    <h5>评论</h5>
+    <a id="comments" name="comments"></a>
+    <div id="bc2315227">
+  <div class="comment_title">
+    1 楼
+    <a href='http://zsz6181.iteye.com' target='_blank' title='zsz6181'>zsz6181</a>
+    2013-06-14&nbsp;&nbsp;
+    
+    
+  </div>
+  <div class="comment_content">这个怎么入门呢</div>
+</div>
+
+
+    
+    
+  </div>
+
+  <div class="blog_comment">
+    <h5>发表评论</h5>
+            <p style="text-align:center; margin-top:30px;margin-bottom:0px;"><a href="/login" style="background-color:white;"> <img src="/images/login_icon.png" style="vertical-align:middle; margin-right: 10px;" /></a><a href="/login">  您还没有登录,请您登录后再发表评论 </a></p>
+      </div>
+</div>
+
+
+<script type="text/javascript">
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+
+  $$('#main .blog_content pre[name=code]').each(function(pre, index){ // blog content
+    var post_id = 1884634;
+    var location = window.location;
+    source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+    pre.writeAttribute('codeable_id', post_id);
+    pre.writeAttribute('codeable_type', "Blog");
+    pre.writeAttribute('source_url', source_url);
+    pre.writeAttribute('pre_index', index);
+    pre.writeAttribute('title', 'linux c 原始套接字抓包');
+  });
+
+  fix_image_size($$('div.blog_content img'), 700);
+
+  function processComment() {
+    $$('#main .blog_comment > div').each(function(comment){// comment
+      var post_id = comment.id.substr(2);
+      $$("#"+comment.id+" pre[name=code]").each(function(pre, index){
+        var location = window.location;
+        source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+        source_url += "#" + comment.id;
+        pre.writeAttribute('codeable_id', post_id);
+        pre.writeAttribute('codeable_type', "BlogComment");
+        pre.writeAttribute('source_url', source_url);
+        pre.writeAttribute('pre_index', index);
+        pre.writeAttribute('title', 'linux c 原始套接字抓包');
+      });
+    });
+  }
+
+  function quote_comment(id) {
+    new Ajax.Request('/editor/quote', {
+      parameters: {'id':id, 'type':'BlogComment'},
+      onSuccess:function(response){editor.bbcode_editor.textarea.insertAfterSelection(response.responseText);
+        Element.scrollTo(editor.bbcode_editor.textarea.element);}
+    });
+  }
+
+  code_favorites_init();
+  processComment();
+  new WeiboShare({share_buttons: $('share_weibo'), img_scope: $('blog_content')});
+</script>
+
+
+
+
+        </div>
+
+        <div id="local">
+          <div class="local_top"></div>
+          <div id="blog_owner">
+  <div id="blog_owner_logo"><a href='http://cyotun.iteye.com'><img alt="cyotun的博客" class="logo" src="http://www.iteye.com/images/user-logo.gif?1324994303" title="cyotun的博客: " /></a></div>
+  <div id="blog_owner_name">cyotun</div>
+</div>
+
+          <div id="blog_actions">
+            <ul>
+              <li>浏览: 639 次</li>
+              <li>性别: <img alt="Icon_minigender_1" src="http://www.iteye.com/images/icon_minigender_1.gif?1324994303" title="男" /></li>
+              
+              <li><img src='/images/status/offline.gif'/></li>
+              
+            </ul>
+          </div>
+          <div id="user_visits" class="clearfix">
+            <h5>最近访客 <span style='font-weight:normal;font-size:12px;padding-left:30px;'><a href="/blog/user_visits">更多访客&gt;&gt;</a></span></h5>
+            
+              <div class="user_visit">
+                <div class="logo"><a href='http://dylinshi126.iteye.com' target='_blank'><img alt="dylinshi126的博客" class="logo" src="http://www.iteye.com/images/user-logo-thumb.gif?1324994303" title="dylinshi126的博客: " /></a></div>
+                <div class="left"><a href='http://dylinshi126.iteye.com' target='_blank' title='dylinshi126'>dylinshi126</a></div>
+              </div>
+            
+          </div>
+
+          
+
+                      <div id="blog_menu">
+              <h5>文章分类</h5>
+              <ul>
+                <li><a href="/">全部博客 (9)</a></li>
+                
+              </ul>
+            </div>
+            <div id='month_blogs'>
+              <h5>社区版块</h5>
+              <ul>
+                <li><a href="/blog/news">我的资讯</a> (0)</li>
+                <li>
+                  <a href="/blog/post">我的论坛</a> (0)
+                </li>
+                <li><a href="/blog/answered_problems">我的问答</a> (0)</li>
+              </ul>
+            </div>
+            <div id="month_blogs">
+              <h5>存档分类</h5>
+              <ul>
+                
+                  <li><a href="/blog/monthblog/2013-08">2013-08</a> (2)</li>
+                
+                  <li><a href="/blog/monthblog/2013-07">2013-07</a> (1)</li>
+                
+                  <li><a href="/blog/monthblog/2013-06">2013-06</a> (1)</li>
+                
+                <li><a href="/blog/monthblog_more">更多存档...</a></li>
+              </ul>
+            </div>
+            
+            
+              <div id="comments_top">
+                <h5>评论排行榜</h5>
+                <ul>
+                  
+                    <li><a href="/blog/1884634" title="linux c 原始套接字抓包">linux c 原始套接字抓包</a></li>
+                  
+                </ul>
+              </div>
+            
+
+            <div id="guest_books">
+              <h5>最新评论</h5>
+              <ul>
+                
+                <li>
+                  <a href='http://zsz6181.iteye.com' target='_blank' title='zsz6181'>zsz6181</a>： 
+                  这个怎么入门呢<br />
+                  <a href="/blog/1884634#bc2315227">linux c 原始套接字抓包</a>
+                </li>
+                
+              </ul>
+            </div>
+
+            <div class="local_bottom"></div>
+          
+        </div>
+      </div>
+
+      <div id="footer" class="clearfix">
+        <div id="copyright">
+          <hr/>
+          声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。若作者同意转载，必须以超链接形式标明文章原始出处和作者。<br />
+          &copy; 2003-2012 ITeye.com.   All rights reserved.  [ 京ICP证110151号  京公网安备110105010620 ]
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.iteye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=' width='0' height='0' />");
+</script>
+
+<script src="http://csdnimg.cn/pubfooter/js/tracking.js?version=20130923164150" type="text/javascript"></script>
+
+    
+    
+  </body>
+</html>

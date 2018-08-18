@@ -1,0 +1,1515 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<meta http-equiv="Content-Type"	content="text/html;	charset=gb2312">
+<title>自定义发IP包例子(TCP/IP包发送) - WIK - 51CTO技术博客</title>
+<meta name="description" content="/*2000.11.13自定义发IP包例子(TCP/IP包发送)给目标主机的端口发送一个syn请求,注意目标主机的信息会发给发送IP地址的主机这说明TCP/IP协议本身有IP期骗的漏洞这种方运可以自己写成特殊的基于IP协议上层的自定义..">
+<meta name="keywords" content="ip,报文,休闲,职场">
+<meta http-equiv="Cache-Control" content="private">
+<base href="http://noyear.blog.51cto.com/"></base>
+<script src="/js/def.js"></script>
+<SCRIPT language=javascript src="http://blog.51cto.com/js/message.js" type=text/javascript></SCRIPT>
+<SCRIPT language=javascript src="http://blog.51cto.com/js/user_comment.js" type=text/javascript></SCRIPT>
+<SCRIPT language=javascript src="http://blog.51cto.com/js/base2.js" type=text/javascript></SCRIPT>
+<SCRIPT language=javascript src="http://blog.51cto.com/js/dialog_utf8.js" type=text/javascript></SCRIPT>
+<link href="/css/skin/33.css" rel="stylesheet" type="text/css">
+<link rel="alternate" href="../rss.php?uid=819034" type="application/rss+xml" title="RSS 2.0">
+<link rel="edituri" type="application/rsd+xml" title="rsd" href="xmlrpc.php?rsd=1" />
+<link href="http://blog.51cto.com/group/css/header_master_top.css" rel="stylesheet" type="text/css" />
+<link href="http://blog.51cto.com/css/skin/base.css" rel="stylesheet" type="text/css" />
+<script src="http://blog.51cto.com/js/poptop.js"></script>
+<style type="text/css">
+	.mainNav li a{display:inline-block}
+</style>
+<script>
+var myid = "";
+function add_flink(){
+	if(myid==""){
+
+        var refurlk = "http://noyear.blog.51cto.com/819034/469266";
+
+				//commentSubmit("",refurlk);
+				location.href="http://home.51cto.com/index.php?reback="+encodeURIComponent(encodeURIComponent(refurlk));
+				return false;
+	}else{
+      		var url='/mod/edit_flink.php?type=addflink&uid=819034&flink=http://noyear.blog.51cto.com';
+		var ajax = InitAjax1();
+		ajax.open("GET", url, true);
+		ajax.onreadystatechange = function() {
+			if (ajax.readyState == 4 && ajax.status == 200) {
+				if(ajax.responseText==""){
+					alert("添加成功。");
+				}
+				if(ajax.responseText=="1"){
+				alert("链接指向自己。");
+				}
+				if(ajax.responseText=="2"){
+				alert("友情链接已存在。")
+				}
+			}
+		}
+		ajax.send(null);
+	}
+
+
+
+}
+function sendmessage(){
+
+	var refurlk = "http://noyear.blog.51cto.com/819034/469266";
+
+	if(myid){
+		return true;
+	}else{
+		commentSubmit("",refurlk);
+		return false;
+	}
+}
+function copylink(ourl){
+	if(!ourl){
+		var clipBoardContent = "http://noyear.blog.51cto.com";
+	}else{
+		var clipBoardContent = ourl;
+	}
+	window.clipboardData.setData("Text",clipBoardContent);
+	alert("复制成功!");
+	return false;
+}
+function correctPNG() {
+if (document.getElementById('blog_touxian'))
+{
+var img = document.getElementById('blog_touxian');
+      var imgName = img.src.toUpperCase()
+      var imgID = (img.id) ? "id='" + img.id + "' " : ""
+      var imgClass = (img.className) ? "class='" + img.className + "' " : ""
+      var imgTitle = (img.title) ? "title='" + img.title + "' " : "title='" + img.alt + "' "
+      var imgStyle = "display:inline-block;" + img.style.cssText
+      if (img.align == "left") imgStyle = "float:left;" + imgStyle
+      if (img.align == "right") imgStyle = "float:right;" + imgStyle
+      if (img.parentElement.href) imgStyle = "cursor:hand;" + imgStyle
+      var strNewHTML = "<span " + imgID + imgClass + imgTitle
+         + " style=\"" + "width:" + img.width + "px; height:" + img.height + "px;" + imgStyle + ";"
+         + "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader"
+         + "(src=\'" + img.src + "\', sizingMethod='scale');\"></span>" ;
+      img.outerHTML = strNewHTML;
+}
+}
+//window.attachEvent("onload", correctPNG);
+window.onload=correctPNG;
+
+function copy(){
+var text=document.getElementById("txtUser").value;
+if(copy2Clipboard(text)!=false){ 
+alert("复制成功了！ "); 
+} 
+}
+function copy2Clipboard(txt){ 
+if(window.clipboardData){ 
+window.clipboardData.clearData(); 
+window.clipboardData.setData("Text",txt); 
+}else if(navigator.userAgent.indexOf("Opera")!=-1){ 
+window.location=txt; 
+}else if(window.netscape){ 
+try{ 
+netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect"); 
+} 
+catch(e){ 
+alert("您使用的浏览器不支持此复制功能，请使用Ctrl+C或鼠标右键。"); 
+return false; 
+} 
+var clip=Components.classes['@mozilla.org/widget/clipboard;1'].createInstance(Components.interfaces.nsIClipboard); 
+if(!clip)return; 
+var trans=Components.classes['@mozilla.org/widget/transferable;1'].createInstance(Components.interfaces.nsITransferable); 
+if(!trans)return; 
+trans.addDataFlavor('text/unicode'); 
+var str=new Object(); 
+var len=new Object(); 
+var str=Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString); 
+var copytext=txt;str.data=copytext; 
+trans.setTransferData("text/unicode",str,copytext.length*2); 
+var clipid=Components.interfaces.nsIClipboard; 
+if(!clip)return false; 
+clip.setData(trans,null,clipid.kGlobalClipboard); 
+return true;
+} 
+}
+
+function mod_close(){
+  document.getElementById('mod_tg').style.display="none";
+}
+
+function match_invite(uid) {
+    var url='/mod/match_invite.php';
+	var ajax = InitAjax();
+    var re = 'uid=' + uid;
+	ajax.open("POST", url, true);
+    ajax.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+	ajax.send(re);
+    ajax.onreadystatechange = function() {
+        if (ajax.readyState == 4 && ajax.status == 200) {
+            if(ajax.responseText == 1){
+                alert("邀请信息已经发送成功。");
+            } else if(ajax.responseText=="-1"){
+                alert("邀请失败，请稍候再试。");
+            } else if(ajax.responseText=="2"){
+                alert("该用户已经报名了。")
+            }
+        }
+    }
+}
+
+</script>
+<style type="text/css">
+/*
+.artContent img {max-width:450px !important;}
+.showContent img{max-width:650px!important;}
+*/
+
+.artContent img{max-width: 450px; width:expression(this.width > 450 ? "450px" : this.width)}
+/*
+.showContent img{max-width: 450px; width:expression(this.width > 650 ? "650px" : this.width)}
+*/
+
+
+</style>
+</head>
+
+<body >
+
+<div id="home_top">
+<div class="top_nav" style="width:990px;">
+<div class="left"  style="margin-top:10px; width:440px;"><a href="http://blog.51cto.com/" target="_blank"><img src="images/head_blog_sibebar_logo.gif" align="absmiddle" style="margin-top:-4px;" /></a><a target="_blank" href="http://www.51cto.com">51CTO首页</a><img height="25" align="absmiddle" width="16" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" style="margin-top:-4px;" ><a href="http://blog.51cto.com/" target="_blank">51CTO博客</a><img height="25" align="absmiddle" width="16" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" style="margin-top:-4px;" ><a href="http://home.51cto.com?reback=http%253A%252F%252Fnoyear.blog.51cto.com%252F819034%252F469266" >我的博客</a><img height="25" align="absmiddle" width="16" src="http://home.51cto.com/public/themes/blue/images/top_bg_xian.gif" style="margin-top:-4px;" >
+
+<a target="_blank" href="http://blog.51cto.com/search.php">搜索</a>
+<a href="javascript:void(0);" style="color:#FF0000; text-decoration:underline; display:none" id="showMessagerDim">每日博报</a>
+</div>
+
+<div class="right" style="width:550px;">
+<div class="more"><img height="16" align="absmiddle" width="27" src="http://home.51cto.com/public/themes/blue/images/top_shequ.gif">社区：<a target="_blank" href="http://edu.51cto.com/">学院</a><a target="_blank" href="http://bbs.51cto.com">论坛</a><a target="_blank" href="http://blog.51cto.com">博客</a><a target="_blank" href="http://down.51cto.com">下载</a><a href="javascript:viod(0);" onmouseout="popupClose()" onmouseover="show(3,this)">更多<img align="absmiddle" style="padding-left: 4px;" src="http://images.51cto.com/images/art/top_images/nav_ico1.gif"></a>            </div>            <span id="login_status"><div class="login" id="login_status"></div>    </span>                </div>    </div></div>
+
+
+
+<div class="subMenu3" id="s3" onmouseover="popupNoClose()" onmouseout="popupClose()">
+<ul>
+<li><a href="http://home.51cto.com" target="_blank">家园</a></li>
+<li><a href="http://edu.51cto.com" target="_blank">学院</a></li>
+<li><a href="http://blog.51cto.com" target="_blank">博客</a></li>
+<li><a href="http://bbs.51cto.com" target="_blank">论坛</a></li>
+<li><a href="http://down.51cto.com" target="_blank">下载</a></li>
+
+<li><a href="http://selftest.51cto.com" target="_blank">自测</a></li>
+<li><a href="http://doctor.51cto.com" target="_blank">门诊</a></li>
+<li><a href="http://blog.51cto.com/newsletter/" target="_blank">周刊</a></li>
+<li><a href="http://book.51cto.com" target="_blank">读书</a></li>
+<li><a href="http://g.51cto.com" target="_blank">技术圈</a></li>
+</ul>
+</div>
+<!--简导航end-->
+
+
+
+<div class="headerBox">
+<div class="header">
+<div class="header_l">
+<div class="logo_blogname">
+
+
+
+<div class="blogName">
+<a href="http://noyear.blog.51cto.com"><h1>WIK</h1></a>
+</div>
+</div><!--logo_blogname end-->
+<div class="blogLink">
+
+<a href="http://noyear.blog.51cto.com">http://noyear.blog.51cto.com</a> <input id="txtUser" type="hidden" size=32 value="http://noyear.blog.51cto.com" />   <a href="javascript:void(0);" onclick="copy();">【复制】</a> <a href='/rss.php?uid=819034' target='_blank'><a href='/rss.php?uid=819034' target='_blank'>【订阅】</a>
+
+</div>
+
+
+
+</div><!--header_l end-->
+<div class="header_r">
+<div class="blogInfo"><span><a href="http://noyear.blog.51cto.com/819034/o" title="察看noyear所有原创文章">原创</a>:36</span><span><a href="http://noyear.blog.51cto.com/819034/t" title="察看noyear所有翻译文章">翻译</a>:0</span><span><a href="http://noyear.blog.51cto.com/819034/c" title="察看noyear所有转载文章">转载</a>:24</span></div>
+<div class="blogNav"><a href="/">博 客</a>|<a href="http://home.51cto.com/apps/photo/index.php?s=/Index/photos/uid/819034">图库</a>|<a href="/addblog.php">写博文</a>|<a href="http://51ctoblog.blog.51cto.com/all/26414/4" target="_blank">帮 助</a></div>
+</div>
+</div>
+<!--header end-->
+</div><!--headerBox end-->
+<div class="mainNav">
+<span class="mainNavT"></span>
+<ul>
+<li><a href="/">首页</a></li>|<li><a href="/819034/d-1">linux</a></li>|<li><a href="/819034/d-2">网络</a></li>|<li><a href="/819034/d-3">web</a></li>|<li><a href="/819034/d-4">编程</a></li>|<li><a href="/819034/d-5">生活</a></li>
+</ul>
+<span class="mainNavB"></span>
+</div>
+<!--mainNav end-->
+
+<script type="text/javascript" src="http://blog.51cto.com/js/jquery-1.7.1.min.js"></script>
+<!--[if IE 6]>
+  <script type="text/javascript" src="http://images.watchstor.com/newhomes/png.js"></script>
+  <script>
+    DD_belatedPNG.fix('img,input,ul,li, .get-box, div, .add, .sub, .ui-slider-handle, .footer-chopper');
+  </script>
+<![endif]-->
+<link type="text/css" rel="stylesheet" href="/neweditor/editor/css/fck_editorarea.css"></link>
+<script type="text/javascript" charset="gbk" src="/e/u/third-party/SyntaxHighlighter/shCores.js"></script>
+<link rel="stylesheet" type="text/css" href="/e/u/third-party/SyntaxHighlighter/shCoreDefault.css"/>
+<script type="text/javascript" charset="gbk" src="/e/u/uparse.js"></script>
+<script type="text/javascript">
+	uParse('.showContent');
+	$(function(){
+		//SyntaxHighlighter.config.clipboardSwf = 'http://bbs.51cto.com/plugins/syntaxhighlighter/scripts/clipboard.swf'; 
+		//为了在编辑器之外能展示高亮代码
+		SyntaxHighlighter.highlight();
+	}); 
+</script>
+<script type="text/javascript">
+/**
+ * 回复评论需要用的js
+ * 2012-5-14
+ * by:chengtao
+ */
+ jQuery(function(){
+	blogpost.init();//初始化博客回复功能
+ })
+ /**
+  * 处理博文评论功能优化
+  */
+ blogpost={
+	abstruct_list:null,
+	init:function(){
+		blogpost.bind();//绑定一些时间
+		this.abstruct_list=new Array();//初始化保存评论信息的数组
+	},
+	/**
+	 * 博客回复需要绑定的一些事件
+	 */
+	bind:function(){
+		/**
+		 * 点击回复的事件
+		 */
+		jQuery('.repost').live('click',function(){
+			blogpost.repost(jQuery(this).attr('user_name'),jQuery(this).attr('parentid'));
+			return false;
+		});
+		/**
+		 * 点击楼层进行翻页且找到锚点
+		 */
+		jQuery('.anchor_page').live('click',function(){
+			var parentid = $(this).attr('parentid');
+			var tid=$(this).attr('tid');
+			$.get('/comments.php?tid='+tid+'&parentid='+parentid,function(data){
+				$('#artcomment').html(data);
+				window.location.hash=''+parentid;
+			})
+			return false;
+		}),
+		jQuery('.anchor_page').live('mouseover',function(){
+			var parentid = $(this).attr('parentid');
+			if(!blogpost.abstruct_list[parentid]){
+				var this_t = $(this);
+				$.get('/comments.php?cid='+parentid,function(data,textStatus){
+					blogpost.abstruct_list[parentid]=data;
+					this_t.attr('title',this_t.text()+':'+ blogpost.abstruct_list[parentid]);
+				});
+			}else{
+				$(this).attr('title',$(this).text()+':'+blogpost.abstruct_list[parentid]);
+			}
+		})
+	},
+	/**
+	 * @param user_name 用户名
+	 * @param parentid  父评论id
+	 */
+	repost:function(user_name,parentid){
+		window.location.hash='comment';
+		jQuery('#parentid').val(parentid);
+		jQuery('#commentcontent').val('回复 '+user_name+":\n").focus();
+		if(!$.browser.mozilla){
+			var elem = jQuery('#commentcontent')[0];		
+			var caretPos = elem.value.length;
+			if (elem.createTextRange) {
+				var range = elem.createTextRange();
+				range.move('character', caretPos);
+				range.select();
+			}else{
+				elem.setSelectionRange(caretPos, caretPos);	
+			}
+		}
+	},
+	/**
+	 * 发送完毕之后清理表单数据 不是ajax可能用不到
+	 */
+	clean:function(){
+		
+	}
+ }
+</script>
+<script type="text/javascript">
+jQuery(function(){
+	var anchor = document.location.hash;
+	var comment_id=anchor.split('#')[1];
+	if(!isNaN(parseInt(comment_id))){//是整形
+		jQuery.get('/comments.php?tid=469266&parentid='+comment_id,function(data){
+			jQuery('#artcomment').html(data);
+			window.location.hash=''+comment_id;
+		})
+	}
+});
+</script>
+
+
+
+<script type="text/javascript">
+jQuery(function() {
+	jQuery('#favourdiv').mouseover(function(){
+		if(jQuery(this).attr('className') == 'support01')
+		{
+			jQuery(this).attr('className', "support02");
+			jQuery(this).html('+1人');
+			jQuery(this).attr('title', "赞一个，我支持TA");
+		}
+		else if(jQuery(this).attr('className') == 'support03')
+		{
+			jQuery(this).attr('title', "你已经赞了这篇博文！");
+		}
+		
+	});
+	jQuery('#favourdiv').mouseout(function(){
+		if(jQuery(this).attr('className') == 'support02')
+		{
+			jQuery(this).attr('className', "support01");
+			jQuery(this).html("0人");
+		}
+	});
+	jQuery('.blog_match_yq').click(function(){
+		var wind_uid = '';
+		if(!wind_uid){
+			alert("请先登录！");
+			return false;
+		}
+		jQuery.ajax({
+			   type: "POST",
+			   url:"/contest2012/index.php?mod=sendmsg",
+			   dataType: "html",
+			   data: "vuid=" + 819034,
+			   success: function(data) {
+					if(data == 0)
+					{
+						alert("查无此人！");
+						return false;
+					}else if(data == 1){
+						alert("请先登录！");
+						return false;
+					}else if(data == 2){
+						alert("不能邀请自己！");
+						return false;
+					}else if(data == 22){  
+						alert("邀请信息已发出！");
+						return false;
+					}
+			   }
+		  });
+	});
+	jQuery('#favourdiv').click(function(){
+			jQuery.ajax({
+			   type: "POST",
+			   url:"/mod/favour.php",
+			   dataType: "html",
+			   data: "tid=" + 469266,
+			   success: function(data) {
+					if(data == 0)
+					{
+						alert("您还未登录或者已过期，请重新登录");
+						location.href = "http://home.51cto.com/index.php?reback=http%253A%252F%252Fnoyear.blog.51cto.com%252F819034%252F469266";
+						return false;
+					}
+					else if(data == '-1')
+					{
+						alert("参数传递错误！");
+						return false;
+					}
+					else if(data == '-2')
+					{
+						alert("该博文已被删除或者不存在！");
+						return false;
+					}
+					else if(data == '-3')
+					{
+						alert("您已经赞过了！");
+						return false;
+					}
+					else if(data == '-4')
+					{
+						alert("赞操作失败！");
+						return false;
+					}
+					else
+					{  
+						//alert("操作成功，你已经赞了这篇博文！");
+						jQuery('#favourdiv').attr('className', "support03");
+
+						var num = 0 + 1 + "人";
+						jQuery('#favourdiv').html(num);
+						jQuery('#favourer').html(data);
+						return false;
+					}
+			   }
+		  });
+	});
+	//Jaydar http://blog.51cto.com/js/header.php?uid=blogdb[uid]&tid=tid
+	jQuery.post('/js/header.php',{uid:819034,tid:469266},function(data){
+		jQuery('#readNum').html(data[0]);
+		jQuery('#cmtNum').html(data[1]);
+	},'json');
+	
+
+})
+
+jQuery(function(){
+	jQuery('#darid').bind('click',function(){
+		if(confirm("你确定删除此篇文章？")){
+			jQuery.ajax({
+				'type':'post',
+				'url':'user_index.php?action=delarticle',
+				'data':{'job':'del', 'selid':'469266'},
+				'dataType':'html',
+				'success':function(res){
+					if('ok' == res){
+						location.href="http://.blog.51cto.com";
+					}
+				
+				}
+			});
+		}
+	});
+});
+</script>
+
+
+
+
+<style type="text/css">
+.m_sharelinks{ 
+	line-height:36px; 
+	text-align:left; 
+	padding-left:20px; 
+	background:url(http://img1.51cto.com/images/share/ico_lb.gif) no-repeat left center;
+	float:left; 
+	width:600px; 
+	height:36px;
+}
+.m_sharelinks a{ margin-left:10px;}
+.m_sharebtn{ height:50px; width:726px; margin:0 auto;}
+.m_sharebtn01{width:520px; float:left;}
+.weibo_51cto{ background:url(http://img1.51cto.com/images/share/ico_mweibo.gif) no-repeat center center; display:block; width:33px; height:33px; float:left; margin:3px 3px 0 0;cursor:pointer;}
+.shareMored {
+    line-height: 36px;
+	float:right; 
+	text-align:right; 
+	width:100px; 
+	height:36px;
+}
+
+.showContent {
+	margin:20px 15px 8px;
+}
+.userImage img {
+    text-align: center;
+	border:0;
+	padding:0;
+}
+.photo_links{ line-height:30px; padding-top:5px; font-size:13px;width:170px; margin:0 auto;}
+.photo_links_blue{ text-align:center;}
+.photo_links_blue a:link,.photo_links_blue a:visited,.photo_links_blue a:hover,.photo_links_blue a:active{ color:#015F91; text-decoration: underline;}
+.photo_links_red{ text-align:left;}
+.photo_links_red a:link,.photo_links_red a:visited,.photo_links_red a:hover,.photo_links_red a:active{ color:#fc4343; text-decoration:underline;}
+.photo_links_red02{ text-align:center;}
+
+.vlist{ margin:10px 10px; height:65px;}
+.vlist img{ float:left; margin-right:10px;}
+.vlist dl{ text-align:left;}
+.vlist dl dt{ height:40px;line-height: 20px; overflow:hidden; padding-top:5px;}
+.vlist dl dt,.vlist dl dt a{ color:#262626;}
+.vlist dl dd,.vlist dl dd a{ color:#777;}
+
+.video-icon{
+    position: relative;
+}
+.video-icon a.i_video {
+    background: url("http://www.51cto.com/images/homepage/Images/eduplay.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    display: block;
+    height: 25px;
+    left:31px;
+    position: absolute;
+    top:22px;
+    width: 25px;
+    z-index: 10;
+}
+</style>
+<script language="JavaScript" type="text/javascript" src="http://g.51cto.com/js/group.js"></script>
+<div id="add_sys_type_div" style="width:600px;border:1px #58B0DD solid; background-color:#FFF; position:absolute;left:30%;top:300px;display:none;z-index:255"></div>
+<div id="add_sys_type_divs" style="width:550px;border:1px #58B0DD solid; background-color:#FFF; position:absolute;left:30%;top:300px;display:none;z-index:255"></div>
+
+<!--3245-->
+
+<div class="blogMain">
+<div class="blogLeft">
+
+
+<div class="box moduleUser">
+<div class="title">
+<h2><strong>noyear</strong> 的BLOG  </h2>
+</div>
+<div class="modCon">
+
+<div class="userImage" style="margin: 10px auto 5px;text-align: center;width: 130px;border: 1px solid #D4D4D4;">
+	<table width="100%" cellpadding="0" cellspacing="0">
+		<tr>
+			<td valign="middle" align="center" height="130"><script src="http://blog.51cto.com/mod/userface.php?useruid=819034"></script></td>
+		</tr>
+	</table>
+</div>
+<div class="photo_links">
+</div>
+
+
+
+
+
+
+
+
+
+<div class="crumbs">
+<a href="http://home.51cto.com/index.php?s=/space/819034#message" class="writeMessage" target="_blank">写留言</a><a href="http://g.51cto.com/addgroup.php?uid=" class="inCircle" target="_blank">邀请进圈子</a><a href="http://home.51cto.com/index.php?s=/Notify/write/uid/819034" class="message"  target="_blank">发消息</a> <a href='/' onclick='add_flink(819034);return false' class="joinLinks">加友情链接</a><a href="http://home.51cto.com/index.php?s=/space/819034" class="joinFriends"  target="_blank">进家园 加好友</a>
+</div>
+
+<div style="width:239px;height:64px;display:none;">
+
+
+<div style="float:left;"><p style="padding:15px 0 0 28px; line-height:20px;">2012年度IT博客大赛<br><a target="_blank" href="http://blog.51cto.com/contest2012/#top10000" style="color:#F00; text-decoration:underline;">十大杰出IT博客诞生</a></p></div>
+<div style="float:right;"><a target="_blank" href="http://blog.51cto.com/contest2012/"><img width="57" height="27" src="http://img1.51cto.com/images/blog_match_endlook.jpg" style="margin:23px 20px 0 0;"></a></div>
+<!-- <div style="float:left;"><p style="padding:15px 0 0 28px; line-height:20px;">星光评委正在评选<br><a target="_blank" href="http://blog.51cto.com/contest2012/index.php?mod=userlist_sec" style="color:#F00; text-decoration:underline;">2012年度IT博客大赛50强</a></p></div>
+<div style="float:right;"><img class="blog_match_yq" width="57" height="27" src="http://img1.51cto.com/images/blog_match_invite.jpg" style="margin:23px 20px 0 0;"></div> -->
+
+
+
+<div class="clear"></div>
+</div>
+
+
+</div><!--modCon end-->
+<span class="modBot"></span>
+</div>
+
+
+<div class="infoList box">
+<div class="title">
+<h2>博客统计信息</h2>
+</div>
+<div class="modCon">
+<p>
+<span class="infoListHead"></span>
+用户名：noyear<br />
+文章数：60<br />
+评论数：16<br />
+访问量：30007<br />
+<a href="http://home.51cto.com/index.php?s=/Account/credit" target="_blank">无忧币</a>：10<br />
+<a href="http://51ctoblog.blog.51cto.com/26414/5591" target="_blank">博客积分</a>：484<br />
+<a href="http://51ctoblog.blog.51cto.com/26414/5591" target="_blank">博客等级</a>：3<br />
+注册日期：2009-06-10<br />
+<script src="http://blog.51cto.com/active/no1/blogno1countdown.php"></script> 
+</p>
+</div>
+<span class="modBot"></span>
+</div>
+
+
+<div class="infoList box">
+	<div class="title">
+		<h2 class="fl">热门专题</h2>
+		<a target="_blank" class="fr" href="http://blog.51cto.com/zt">更多&gt;&gt;</a>
+	</div>
+	<div class="modCon">
+
+	
+		<div class="vlist">
+		  <a href="http://blog.51cto.com/zt/546" target="_blank"><img width="63" height="63" src="http://blog.51cto.com//images/special/1384245877_index.jpg" /></a>
+		<dl>
+		<dt>
+		  <a href="http://blog.51cto.com/zt/546" target="_blank" title="RHEL6从零基础到熟练使用">RHEL6从零基础到熟练使用</a></dt>
+		<dd>阅读量：8264</dd>
+		</dl>
+		</div>
+	
+		<div class="vlist">
+		  <a href="http://blog.51cto.com/zt/549" target="_blank"><img width="63" height="63" src="http://blog.51cto.com//images/special/1385434349_index.jpg" /></a>
+		<dl>
+		<dt>
+		  <a href="http://blog.51cto.com/zt/549" target="_blank" title="VMware5.5从零开始学起">VMware5.5从零开始学起</a></dt>
+		<dd>阅读量：3151</dd>
+		</dl>
+		</div>
+	
+		<div class="vlist">
+		  <a href="http://blog.51cto.com/zt/547" target="_blank"><img width="63" height="63" src="http://blog.51cto.com//images/special/1384498337_index.jpg" /></a>
+		<dl>
+		<dt>
+		  <a href="http://blog.51cto.com/zt/547" target="_blank" title=" Hyper-V 3.0功能部署"> Hyper-V 3.0功能部署</a></dt>
+		<dd>阅读量：1911</dd>
+		</dl>
+		</div>
+	
+		<div class="vlist">
+		  <a href="http://blog.51cto.com/zt/550" target="_blank"><img width="63" height="63" src="http://blog.51cto.com//images/special/1385447038_index.jpg" /></a>
+		<dl>
+		<dt>
+		  <a href="http://blog.51cto.com/zt/550" target="_blank" title="Windows Server入门教程">Windows Server入门教程</a></dt>
+		<dd>阅读量：4633</dd>
+		</dl>
+		</div>
+		
+		
+	</div>
+	<span class="modBot"></span>
+</div>
+
+
+<div class="hotArt box">
+<div class="title">
+<h2>热门文章</h2>
+</div>
+<div class="modCon">
+<ul>
+<li><a href="/819034/582792">&quot;应用程序正常初始..</a></li>
+<li><a href="/819034/410547">C语言中使用libpq访问Pos..</a></li>
+<li><a href="/819034/514529">函数调用过程描述</a></li>
+<li><a href="/819034/469254">用winpcap实现局域网DNS欺骗</a></li>
+<li><a href="/819034/469266">自定义发IP包例子(TCP/IP..</a></li>
+<li><a href="/819034/469258">WinPcap和Libnet开发包介绍</a></li>
+<li><a href="/819034/469268">setsockopt函数解析(转)</a></li>
+<li><a href="/819034/410548">C语言中使用ecpg访问Post..</a></li>
+
+</ul>
+</div>
+<span class="modBot"></span>
+</div>
+<div class="search box">
+<div class="title"><h2>搜索BLOG文章</h2></div>
+<div class="modCon">
+<form method=post action="search.php?" tabindex="99">
+<input type="hidden" name="step" value="2">
+<input type="hidden" name="authorid" value="819034">
+<input type="hidden" name="sch_area" value="S">
+<input type="text" value="" name="keyword"  class="searchInput" />
+<input type="submit" value="搜 索" class="searchBtn" />
+</form>
+</div><!--modCon end-->
+<span class="modBot"></span>
+</div>
+
+
+<div class="myHome box">
+<div class="title"><h2 class="fl">我的技术圈(<a href="/mygroup.php" target="_blank"><b>15</b></a>)</h2>
+<a href="http://home.51cto.com/apps/group/index.php?s=/Index/index/" class="fr" target="_blank">更多&gt;&gt;</a></div>
+<div class="modCon">
+<ul>
+
+<li><a href="http://g.51cto.com/andywen" target="_blank">美女黑客技术联盟</a>&nbsp;&nbsp;
+
+<img src="http://img1.51cto.com/image/skin/def/3.gif" alt=有新成员加入>
+
+</li>
+
+<li><a href="http://g.51cto.com/hk" target="_blank">网络黑客联盟</a>&nbsp;&nbsp;
+
+
+</li>
+
+<li><a href="http://g.51cto.com/linuxengineers" target="_blank">Linux运维工程师</a>&nbsp;&nbsp;
+
+
+</li>
+
+<li><a href="http://g.51cto.com/netsec" target="_blank">网络安全学习交流</a>&nbsp;&nbsp;
+
+
+</li>
+
+<li><a href="http://g.51cto.com/hack" target="_blank">黑客大联盟</a>&nbsp;&nbsp;
+
+
+</li>
+
+<li><a href="http://g.51cto.com/simeon" target="_blank">网络安全技术</a>&nbsp;&nbsp;
+
+
+</li>
+
+</ul>
+</div><!--modCon end-->
+<span class="modBot"></span>
+</div>
+
+
+<div class="box recentGuests">
+<div class="title">
+<h2>最近访客</h2>
+</div>
+<div class="modCon">
+<ul>
+
+<li><a href="http://547492.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=537492&size=middle" /></a>
+<p><a href="http://547492.blog.51cto.com">bdgboss</a></p>
+
+<li><a href="http://764790.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=754790&size=middle" /></a>
+<p><a href="http://764790.blog.51cto.com">天才V..</a></p>
+
+<li><a href="http://5242040.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=5232040&size=middle" /></a>
+<p><a href="http://5242040.blog.51cto.com">hewuqi</a></p>
+
+<li><a href="http://5927704.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=5917704&size=middle" /></a>
+<p><a href="http://5927704.blog.51cto.com">li228</a></p>
+
+<li><a href="http://1007319.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=997319&size=middle" /></a>
+<p><a href="http://1007319.blog.51cto.com">fylxaut</a></p>
+
+<li><a href="http://371701.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=361701&size=middle" /></a>
+<p><a href="http://371701.blog.51cto.com">nanye..</a></p>
+
+<li><a href="http://6094771.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=6084771&size=middle" /></a>
+<p><a href="http://6094771.blog.51cto.com">conglnew</a></p>
+
+<li><a href="http://8129231.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=8119231&size=middle" /></a>
+<p><a href="http://8129231.blog.51cto.com">sailorxt</a></p>
+
+<li><a href="http://7536616.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=7526616&size=middle" /></a>
+<p><a href="http://7536616.blog.51cto.com">a5310..</a></p>
+
+<li><a href="http://arkilis.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=1437902&size=middle" /></a>
+<p><a href="http://arkilis.blog.51cto.com">arkilis</a></p>
+
+<li><a href="http://gewdeng.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=150546&size=middle" /></a>
+<p><a href="http://gewdeng.blog.51cto.com">dengmis</a></p>
+
+<li><a href="http://2905162.blog.51cto.com"><img src="http://ucenter.51cto.com/avatar.php?uid=2895162&size=middle" /></a>
+<p><a href="http://2905162.blog.51cto.com">mengl..</a></p>
+
+</ul>
+<span class="clear"></span>
+</div>
+<span class="modBot"></span>
+</div>
+
+
+<div class="newComments box">
+<div class="title">
+<h2>最新评论 
+
+</h2>
+
+
+
+</div>
+<div class="modCon">
+<ul>
+
+<li><a href='http://8129231.blog.51cto.com/' class='operlink' target=_blank><b>sailorxt</b></a>：<a href="/819034/582792" target=_blank>学习了，谢谢。</a></li>
+
+<li>[匿名]brucewu0329：<a href="/819034/582792" target=_blank>我找到的檔案有很多.manifest文件�..</a></li>
+
+<li><a href='http://4080677.blog.51cto.com/' class='operlink' target=_blank><b>KEITH11</b></a>：<a href="/819034/469277" target=_blank>实用 &nbsp; 经典</a></li>
+
+<li>[匿名]leep88：<a href="/819034/410548" target=_blank>不知道，怎么了。就正确编译了一次 ..</a></li>
+
+<li>[匿名]leep88：<a href="/819034/410548" target=_blank>回复 leep88: 问题解决了，是连接..</a></li>
+
+
+</ul>
+</div>
+<span class="modBot"></span>
+</div>
+
+
+<div class="hotBlogArt box">
+<div class="title">
+  <h2 class="fl">51CTO推荐博文</h2>
+  <a href="http://blog.51cto.com/artcommend" class="fr">更多&gt;&gt;</a></div>
+<div class="modCon">
+<ul>
+<li><a href="http://blackanger.blog.51cto.com/140924/1338843" title="如何学习Ruby" target="_blank">如何学习Ruby</a></li>
+<li><a href="http://liangqiu.blog.51cto.com/4461709/1338637" title="Windows 字符串详解及转换" target="_blank">Windows 字符串详解及转换</a></li>
+<li><a href="http://lixiaosong.blog.51cto.com/705126/1338148" title="AD 重置密码完整脚本" target="_blank">AD 重置密码完整脚本</a></li>
+<li><a href="http://hereandthere.blog.51cto.com/7561107/1337669" title="mips语言实现 f(n) = f(n-1) + 2*f(n-2) + 3*f(n-3) 第二篇" target="_blank">mips语言实现 f(n) = f(n-1) + 2*..</a></li>
+<li><a href="http://bearbear.blog.51cto.com/4450702/1338135" title="SCN与数据恢复关联" target="_blank">SCN与数据恢复关联</a></li>
+<li><a href="http://wangyuelucky.blog.51cto.com/1011508/1337875" title="extjs gridpanel中某列为可编辑的combobox的取值问题" target="_blank">extjs gridpanel中某列为可编辑的..</a></li>
+<li><a href="http://teny32.blog.51cto.com/8027509/1337846" title="精心总结的面向对象。不收藏后悔" target="_blank">精心总结的面向对象。不收藏后悔</a></li>
+<li><a href="http://5073392.blog.51cto.com/5063392/1337780" title="配置高级复制报ORA-23375解决办法" target="_blank">配置高级复制报ORA-23375解决办法</a></li>
+<li><a href="http://fly1116.blog.51cto.com/8301004/1337681" title="恢复被误删除的oracle数据文件(一)" target="_blank">恢复被误删除的oracle数据文件(一)</a></li>
+<li><a href="http://jimshu.blog.51cto.com/3171847/1337589" title="数据仓库入门（实验7）部署分析服务数据库" target="_blank">数据仓库入门（实验7）部署分析服..</a></li>
+<li><a href="http://3950566.blog.51cto.com/3940566/1338200" title="Java读带有BOM的UTF-8文件乱码" target="_blank">Java读带有BOM的UTF-8文件乱码</a></li>
+
+</ul>
+</div><!--modCon end-->
+<span class="modBot"></span>
+</div>
+
+
+<div class="friendLink box">
+<div class="title">
+  <h2>友情链接</h2>
+</div>
+<div class="modCon">
+<ul>
+
+<li><a href="http://blog.tt0205.com" title="" target="_blank">stuck_TT Blog</a></li>
+
+<li><a href="http://beniao.blog.51cto.com" title="beniao" target="_blank">beniao</a> <img src='http://img1.51cto.com/images/tubiao1.gif' alt='本日内更新'></li>
+
+<li><a href="http://conflee.blog.51cto.com" title="七月吹风" target="_blank">七月吹风</a></li>
+
+<li><a href="http://51ctoblog.blog.51cto.com" title="51CTO博客开发" target="_blank">51CTO博客开发</a> <img src='http://img1.51cto.com/images/tubiao3.gif' alt='本周内更新'></li>
+
+</ul>
+</div><!--modCon end-->
+<span class="modBot"></span>
+</div>
+
+
+
+</div>
+<!--left end-->
+
+<script type="text/javascript">
+    var favor_url = "http://noyear.blog.51cto.com/819034/469266";
+    var favor_title = "自定义发IP包例子(TCP/IP包发送)";
+    var favor_fuid = "819034";
+</script>
+<script type="text/javascript" src="http://home.51cto.com/apps/favorite/Tpl/default/Public/js/favorbox.js"></script>
+<div class="blogRight">
+
+	
+	<div class="relatedArt box">
+	<a href="http://blog.51cto.com/contest2013/index.php?mod=userlist_third" target="_blank" target="_blank"><img src="http://blog.51cto.com/attachment/201312/181307538.jpg" /></a>
+<!-- <a href="http://blog.51cto.com/contest2013/819034" target="_blank" target="_blank"><img src="http://blog.51cto.com/attachment/201312/181307538.jpg" /></a> -->
+</div>
+
+
+	<div class="artShow box">
+   	  <div class="share" id="share">
+
+    <div class="shareItem">
+		<div class="m_sharelinks"><a target="_blank" href="http://leonarding.blog.51cto.com/6045525/1335805" style="color:blue;">·【征文】聊IT运维标准化与安全，奖50元京东购物卡</a><a target="_blank" href="http://edu.51cto.com/lesson/id-58.html" style="color:red;">·iOS企业级开发初级课程-UIView与控件(共20集 )</a><a target="_blank" href="" style="color:blue;"></a></div>
+		<p class="shareMored"><a href="/all/819034">博主的更多文章>></a></p>
+	</div>
+      </div>
+       <div class="modCon">
+   	  <div class="showBox" style="margin:0 0 10px;">
+      <div class="line_hd_r"></div>
+      <div class="art_tj">
+
+      </div>
+
+ 
+    		<div class="showHead">
+    		  <div class="showTitleBOx" style="text-align:center">
+              <div class="showTitle">
+
+	 		<img src="http://blog.51cto.com/image/skin/artType02.jpg">
+
+
+    		    自定义发IP包例子(TCP/IP包发送)
+                </div>
+  		    </div>
+   		    <span class="artTime">2010-12-30 22:34:42</span></div><!--showHead end-->
+    <div class="showTags">标签：<a href="http://blog.51cto.com/tag-ip.html" target="_blank" class="operlink">ip</a> <a href="http://blog.51cto.com/tag-报文.html" target="_blank" class="operlink">报文</a> <a href="http://blog.51cto.com/tag-休闲.html" target="_blank" class="operlink">休闲</a> <a href="http://blog.51cto.com/tag-职场.html" target="_blank" class="operlink">职场</a>
+
+	</div>
+
+
+            <!--正文 begin-->
+    		<div class="showContent">
+    		  <p>/*<br />
+2000.11.13<br />
+自定义发IP包例子(TCP/IP包发送)<br />
+给目标主机的端口发送一个 syn请求,注意目标主机的信息会发给发送IP地址的主机<br />
+这说明TCP/IP协议本身有IP期骗的漏洞<br />
+这种方运可以自己写成特殊的基于IP协议上层的自定义协议<br />
+ddxxkk@21cn.com<br />
+ddxxkk.myrice.com/ddxxkk.hongnet.com<br />
+*/<br />
+//&nbsp;&nbsp; 目标IP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 端口&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 发送IP<br />
+char srcip[]=&quot;100.100.100.100&quot;,dstip[]=&quot;192.168.11.220&quot;;<br />
+//&nbsp; 目标IP端口&nbsp; 发送端IP端口<br />
+int srcport=25,dstport=99;<br />
+&nbsp;#include &lt;stdio.h&gt;<br />
+&nbsp;#include &lt;sys/socket.h&gt;<br />
+&nbsp;#include &lt;netinet/in.h&gt;<br />
+&nbsp;#include &lt;arpa/inet.h&gt;<br />
+&nbsp;&nbsp;&nbsp; #include &lt;unistd.h&gt;<br />
+&nbsp;&nbsp;&nbsp; #include &lt;netinet/ip.h&gt;&nbsp;&nbsp; //ip<br />
+&nbsp;&nbsp;&nbsp; #include &lt;netinet/tcp.h&gt; //tcp<br />
+&nbsp;#include &lt;stdlib.h&gt;<br />
+//以下是从ip.h和tcp.h取的,但BSD和LINUX用的名称有些不一样主要是TCP不一样<br />
+/*<br />
+struct ip<br />
+&nbsp; {<br />
+#if __BYTE_ORDER == __LITTLE_ENDIAN<br />
+&nbsp;&nbsp;&nbsp; unsigned int ip_hl:4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //little-endian IP头长度(单位为32位)4位<br />
+&nbsp;&nbsp;&nbsp; unsigned int ip_v:4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //版本号4 IP4用4 <br />
+#endif<br />
+#if __BYTE_ORDER == __BIG_ENDIAN<br />
+&nbsp;&nbsp;&nbsp; unsigned int ip_v:4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // version <br />
+&nbsp;&nbsp;&nbsp; unsigned int ip_hl:4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // header length <br />
+#endif<br />
+&nbsp;&nbsp;&nbsp; u_int8_t ip_tos;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //服务类型&nbsp; 一般为0<br />
+&nbsp;&nbsp;&nbsp; u_short ip_len;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //数据总长度 (单位为32位)<br />
+&nbsp;&nbsp;&nbsp; u_short ip_id;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //标识16 <br />
+&nbsp;&nbsp;&nbsp; u_short ip_off;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //分段偏移 <br />
+#define IP_RF 0x8000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // reserved fragment flag&nbsp; //标志<br />
+#define IP_DF 0x4000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // dont fragment flag <br />
+#define IP_MF 0x2000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // more fragments flag <br />
+#define IP_OFFMASK 0x1fff&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // mask for fragmenting bits <br />
+&nbsp;&nbsp;&nbsp; u_int8_t ip_ttl;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //生存时间 <br />
+&nbsp;&nbsp;&nbsp; u_int8_t ip_p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //传输协议 tcp是6 <br />
+&nbsp;&nbsp;&nbsp; u_short ip_sum;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //头校验和<br />
+&nbsp;&nbsp;&nbsp; struct in_addr ip_src, ip_dst;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 源地址 目标地址 <br />
+&nbsp; };</p>
+<p>struct tcphdr<br />
+&nbsp; {<br />
+&nbsp;&nbsp;&nbsp; u_int16_t source;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 源端口 <br />
+&nbsp;&nbsp;&nbsp; u_int16_t dest;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 目的端口 <br />
+&nbsp;&nbsp;&nbsp; tcp_seq seq;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 序号 <br />
+&nbsp;&nbsp;&nbsp; tcp_seq ack_seq;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // 确认号 收到的TCP信息的序号+1 <br />
+#if __BYTE_ORDER == __LITTLE_ENDIAN<br />
+&nbsp;&nbsp;&nbsp; u_int16_t res1:4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //保留<br />
+&nbsp;&nbsp;&nbsp; u_int16_t doff:4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //保留<br />
+&nbsp;&nbsp;&nbsp; u_int16_t fin:1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //标志 结束<br />
+&nbsp;&nbsp;&nbsp; u_int16_t syn:1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //标志 同步<br />
+&nbsp;&nbsp;&nbsp; u_int16_t rst:1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //标志 重置<br />
+&nbsp;&nbsp;&nbsp; u_int16_t psh:1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //标志 入栈<br />
+&nbsp;&nbsp;&nbsp; u_int16_t ack:1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //标志 确认<br />
+&nbsp;&nbsp;&nbsp; u_int16_t urg:1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //标志 紧急 <br />
+&nbsp;&nbsp;&nbsp; u_int16_t res2:2;<br />
+#elif __BYTE_ORDER == __BIG_ENDIAN<br />
+&nbsp;&nbsp;&nbsp; u_int16_t doff:4;<br />
+&nbsp;&nbsp;&nbsp; u_int16_t res1:4;<br />
+&nbsp;&nbsp;&nbsp; u_int16_t res2:2;<br />
+&nbsp;&nbsp;&nbsp; u_int16_t urg:1;<br />
+&nbsp;&nbsp;&nbsp; u_int16_t ack:1;<br />
+&nbsp;&nbsp;&nbsp; u_int16_t psh:1;<br />
+&nbsp;&nbsp;&nbsp; u_int16_t rst:1;<br />
+&nbsp;&nbsp;&nbsp; u_int16_t syn:1;<br />
+&nbsp;&nbsp;&nbsp; u_int16_t fin:1;<br />
+#else<br />
+#error&nbsp; &quot;Adjust your &lt;bits/endian.h&gt; defines&quot;<br />
+#endif<br />
+&nbsp;&nbsp;&nbsp; u_int16_t window;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //窗口<br />
+&nbsp;&nbsp;&nbsp; u_int16_t check;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //校验和<br />
+&nbsp;&nbsp;&nbsp; u_int16_t urg_ptr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //紧急指针<br />
+};<br />
+*/</p>
+<p>//校验和涵数 ip头<br />
+unsigned short csum (unsigned short *packet, int packlen) {<br />
+&nbsp;register unsigned long sum = 0;<br />
+&nbsp;while (packlen &gt; 1) {<br />
+&nbsp;&nbsp;sum+= *(packet++);<br />
+&nbsp;&nbsp;packlen-=2;<br />
+&nbsp;}<br />
+&nbsp;if (packlen &gt; 0)<br />
+&nbsp;&nbsp;sum += *(unsigned char *)packet;<br />
+&nbsp;while (sum &gt;&gt; 16)<br />
+&nbsp;&nbsp;sum = (sum &amp; 0xffff) + (sum &gt;&gt; 16);</p>
+<p>&nbsp;return (unsigned short) ~sum;<br />
+}<br />
+//校验和涵数 tcp头<br />
+unsigned short tcpcsum (unsigned char *iphdr, unsigned short *packet,int packlen) {<br />
+&nbsp;unsigned short *buf;<br />
+&nbsp;unsigned short res;<br />
+&nbsp;buf = malloc(packlen+12);<br />
+&nbsp;if(buf == NULL) return 0;<br />
+&nbsp;memcpy(buf,iphdr+12,8); //源IP地址和目标IP地址<br />
+&nbsp;*(buf+4)=htons((unsigned short)(*(iphdr+9)));<br />
+&nbsp;*(buf+5)=htons((unsigned short)packlen);<br />
+&nbsp;memcpy(buf+6,packet,packlen);<br />
+&nbsp;res = csum(buf,packlen+12);<br />
+&nbsp;free(buf);<br />
+&nbsp;return res;<br />
+}</p>
+<p>int main()<br />
+&nbsp;{</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; int sock, bytes_send, fromlen,n,id,s;<br />
+&nbsp;&nbsp;&nbsp;&nbsp; unsigned char buffer[65535];<br />
+&nbsp;&nbsp;&nbsp;&nbsp; struct sockaddr_in toaddr;<br />
+&nbsp;&nbsp;&nbsp;&nbsp; struct ip&nbsp; *ip;<br />
+&nbsp;&nbsp;&nbsp;&nbsp; struct tcphdr *tcp;<br />
+&nbsp;&nbsp;for (n=0;n&lt;60000;n++ )<br />
+&nbsp;&nbsp;{<br />
+&nbsp;&nbsp;buffer[n]=0;<br />
+&nbsp;&nbsp;}<br />
+//发送地址<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; toaddr.sin_family =AF_INET;<br />
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inet_aton(&quot;192.168.11.38&quot;,&amp;toaddr.sin_addr);&nbsp;&nbsp; //字符串转入地址<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inet_aton(dstip,&amp;toaddr.sin_addr);&nbsp;&nbsp; //字符串转入地址<br />
+&nbsp;&nbsp;//建立原始TCP包方式IP+TCP信息包<br />
+sock = socket(AF_INET, SOCK_RAW,IPPROTO_RAW);&nbsp;&nbsp; //IP方式<br />
+//&nbsp;&nbsp;&nbsp;&nbsp; sock = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (sock&gt;0) {printf(&quot;socket ok\n&quot;);}<br />
+&nbsp;&nbsp;&nbsp;&nbsp; else {printf (&quot;socket error \n&quot;);}<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; n=1;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &amp;n, sizeof(n)) &lt; 0) { <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; printf(&quot;2&quot;);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; perror(&quot;IP_HDRINCL&quot;); <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit(1); <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;ip=(struct ip *)buffer;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ip-&gt;ip_id=0x9911;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;ip-&gt;ip_v=4;<br />
+&nbsp;&nbsp;ip-&gt;ip_hl=5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;ip-&gt;ip_ttl=36;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;ip-&gt;ip_p=6;&nbsp;&nbsp;&nbsp;&nbsp; //tcp 为6<br />
+&nbsp;&nbsp;ip-&gt;ip_len=htons(60);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inet_aton(dstip,&amp;ip-&gt;ip_dst);<br />
+//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; inet_aton(&quot;192.168.11.38&quot;,&amp;ip-&gt;ip_dst);<br />
+&nbsp;&nbsp;tcp = (struct tcphdr *)(buffer + (4*ip-&gt;ip_hl));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tcp-&gt;source=htons(srcport);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //源端口<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tcp-&gt;dest=htons(dstport);&nbsp;&nbsp; <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tcp-&gt;seq=htons(0x9990);<br />
+&nbsp;&nbsp;tcp-&gt;doff=0x15;<br />
+tcp-&gt;ack_seq=0;<br />
+&nbsp;&nbsp;tcp-&gt;syn=1;<br />
+&nbsp;&nbsp;tcp-&gt;window=htons(0x20);<br />
+&nbsp;&nbsp;inet_aton(srcip,&amp;ip-&gt;ip_src);</p>
+<p>&nbsp;</p>
+<p>//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;ip-&gt;ip_src.s_addr=htonl(0x09010101+n);<br />
+&nbsp;&nbsp;tcp-&gt;check=0x0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tcp-&gt;check=tcpcsum((unsigned char *)buffer, (unsigned short *)tcp,40);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ip-&gt;ip_sum=0;<br />
+&nbsp;&nbsp;ip-&gt;ip_sum=csum((unsigned short *)buffer,20);<br />
+&nbsp;&nbsp;bytes_send=sendto(sock,buffer,60,0,(struct sockaddr *)&amp;toaddr,sizeof(toaddr));&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>&nbsp;&nbsp;if (bytes_send&gt;0)<br />
+&nbsp;&nbsp;{<br />
+&nbsp;&nbsp;printf(&quot;OK bytes_send %d \n&quot;,bytes_send);<br />
+&nbsp;&nbsp;&nbsp; &nbsp;printf(&quot;IP_source address ::: %s \n&quot;,inet_ntoa(ip-&gt;ip_src));<br />
+&nbsp;&nbsp;&nbsp;&nbsp; printf(&quot;IP_dest address ::: %s \n&quot;,inet_ntoa(ip-&gt;ip_dst));<br />
+&nbsp;&nbsp;}<br />
+&nbsp;}</p>
+    		</div><!--正文 end-->
+<script type="text/javascript">
+	var kevent = 'onabort|onblur|onchange|onclick|ondblclick|onerror|onfocus|onkeydown|onkeypress|onkeyup|onload|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|onreset|onresize|onselect|onsubmit|onunload';
+	var aevent = kevent.split('|');
+
+	jQuery('.showContent img').each(function(){
+		var nimg = this;
+		jQuery.each(aevent, function(i, n){
+			if (n!='onload') {
+				jQuery(nimg).attr(n, '');
+			} else {
+				if (jQuery(nimg).attr(n) != 'if(this.width>650) this.width=650;') {
+					jQuery(nimg).attr(n, '');
+				}
+			}
+		});
+	});
+</script>
+<script type="text/javascript" charset="utf-8">
+var encodetitle = encodeURI('一篇很棒的博文分享给大家：《自定义发IP包例子(TCP/IP包发送)》');
+
+function show51share(){
+
+	window.open('http://t.51cto.com/index.php?m=share&url=http://noyear.blog.51cto.com/819034/469266&type=l&count=&relateUid=&appkey=3843950324&title=' + encodetitle);
+}
+</script>		
+<div class="m_sharebtn clear">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+		<td width="11%" height="43" align="center" valign="middle"><img src="http://img1.51cto.com/images/share/ssk.png" alt="分享至"/></td>
+		<td width="77%" align="left" valign="top">
+			<div id="bdshare" class="bdshare_t bds_tools_32 get-codes-bdshare" data="{'wbuid':1706976420}">
+				<a class="bds_tsina"></a>
+				<a class="bds_qzone"></a>
+				<a class="bds_tqq"></a>
+				<a class="bds_baidu"></a>
+				<a class="bds_renren"></a>
+				<a class="bds_qq"></a>
+				<a class="bds_douban"></a>
+				<a class="bds_hi"></a>
+				<a class="bds_msn"></a>
+				<em title="分享到51CTO微博" class="weibo_51cto" onMouseOut="this.style.backgroundImage='url(http://img1.51cto.com/images/share/ico_mweibo.gif)'" onMouseOver="this.style.backgroundImage='url(http://img1.51cto.com/images/share/ico_mweibob.gif)'" onClick="show51share();"></em>
+				<span class="bds_more">更多</span>
+				
+				<a class="shareCount"></a>
+			</div>
+	<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=559183" ></script>
+	<script type="text/javascript" id="bdshell_js"></script>
+	<script type="text/javascript">
+		var bds_config = {'wbUid':1706976420, 'bdPic':'http://blog.51cto.com/attachment/201305/173413310.jpg'};
+		document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?t=" + new Date().getHours();
+	</script>
+	<!-- Baidu Button END --></td>
+		<td width="12%" align="right" valign="middle"><a href="javascript:favorBox('open');" title="一键收藏，随时查看，分享好友！"><img src="http://home.51cto.com/public/themes/blue/images/favorite_add_small.gif" border="0" alt="一键收藏，随时查看，分享好友！" /></a></td>
+	  </tr>
+	</table>
+
+</div>			
+    		<div class="showBottom">
+            <!--<div class="reviews"><span class="fl" style="cursor:pointer;"><a onclick="openFavoulist();" id="favourer"></a>
+
+            </span><div id="favourdiv" class="support01">0人</div>
+              <span class="fl">了这篇文章</span></div>-->
+              <table width="720" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td  align="right"><img src="http://phpanddb.blog.51cto.com/image/skin/25/icon01.png" width="15" height="16" /> <span style="cursor:pointer;"><a onclick="openFavoulist();" id="favourer"></a></span></td>
+    <td width="70" align="left"><div style="line-height:28px;" id="favourdiv" class="support01">0人</div></td>
+    <td width="60" align="left">了这篇文章</td>
+  </tr>
+</table>
+
+
+
+
+            <div class="showType">类别：<a href="/819034/d-4" class="operlink">编程</a>┆<a class="operlink" onclick="javascript:joingroups(469266,'noyear');return false;">技术圈</a>(<script src="http://blog.51cto.com/js/joingroup.php?tid=469266"></script>)┆阅读(<span id="readNum">0</span>)┆评论(<span id='cmtNum' >0</span>)
+
+
+┆
+
+	<a  href="#"  onclick="javascript:dfanologin('http://home.51cto.com/index.php?reback=http%253A%252F%252Fnoyear.blog.51cto.com%252F819034%252F469266');return false;" class="operlink">
+
+推送到技术圈</a>┆<a href="/">返回首页</a></div>
+            <div class="prevNext">
+
+			上一篇 <a href="/819034/469262" class="operlink" title="Windows CE内存管理">Windows CE内存管理</a>
+
+
+			下一篇 <a href="/819034/469267" class="operlink" title="导致不成功的十五种性格">导致不成功的十五种性格</a>
+
+
+            </div>
+
+            </div>
+
+	  </div><!--showBottom end-->
+      </div><!--modCon-->
+    <span class="modBot"></span>
+    </div><!--artShow end-->
+    <span class="blank"></span>
+	
+	<div class="relatedArt box">
+<a href="http://blog.51cto.com/contest2013/index.php?mod=userlist_top50" target="_blank"><img src="http://blog.51cto.com/attachment/201312/181404996.jpg" /></a>
+</div>
+	
+
+
+    <div class="relatedArt box">
+    <div class="title" name="zhuanti" id="zhuanti"><h2>相关文章</h2></div>
+    <div class="modCon">
+<ul>
+
+<li><a href="http://beichen.blog.51cto.com/1083690/247396" title="IP欺骗的实质与防护" target="_blank">IP欺骗的实质与防护</a></li>
+
+
+<li><a href="http://bingle.blog.51cto.com/122083/258636" title="转载：一台服务器建立多个网站" target="_blank">转载：一台服务器建立多个网站</a></li>
+
+
+<li><a href="http://beyondzyc.blog.51cto.com/20011/76394" title="IP组播技术原理及其应用" target="_blank">IP组播技术原理及其应用</a></li>
+
+
+<li><a href="http://netocool.blog.51cto.com/61250/73114" title="端到端IP Sec VPN的工作原理" target="_blank">端到端IP Sec VPN的工作原理</a></li>
+
+
+<li><a href="http://hongguang.blog.51cto.com/363382/242554" title="ip default-network 在RIP协议中注意事项" target="_blank">ip default-network 在RIP协议中注意事项</a></li>
+
+
+<li><a href="http://yuanchi.blog.51cto.com/310344/85101" title="快速批量绑定MAC与IP地址" target="_blank">快速批量绑定MAC与IP地址</a></li>
+
+
+<li><a href="http://xiong.blog.51cto.com/811/17330" title="ip default-network和ip route 0.0.0.0 0.0.0.0默认路由的区别" target="_blank">ip default-network和ip route 0.0.0.0 0.0...</a></li>
+
+
+<li><a href="http://124130.blog.51cto.com/114130/271060" title="根据IP和MAC查端口" target="_blank">根据IP和MAC查端口</a></li>
+
+
+
+</ul>
+
+
+
+<span class="blank6"></span>
+</div><!--modCon end-->
+<span class="modBot"></span>
+</div><!--相关文章 end-->
+
+
+<div class="artComm box">
+    <div class="title"><a name="replay"></a><h2>文章评论</h2></div>
+    <div class="modCon"  id="artcomment">
+		<div>  &nbsp;</div><div>  &nbsp;</div>
+    </div><!--modCon-->
+        <span class="modBot"></span>
+</div><!--commBox end-->
+<a href="" id="com_top_top"></a>
+<form action='/comment.php?' method='post' name='form1' id='form1' onSubmit='return commentSubmit(this,"");'>
+<span class="blank1"></span>
+<div class="box writeComm" style="min-height:30px;">
+<a name='comment'></a>
+<input type='hidden' name='action' value='comment'>
+<input  id='commenttid' type='hidden' name='tid' value='469266'>
+<input type="hidden" name="com_count_ajax" id="com_count_ajax" value="1" />
+
+ <div class="title">
+	<h2 class="fl">发表评论&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h2>
+	<span class="fl"><a class="mred" target="_blank" href="http://blog.51cto.com/newsletter/230/">周刊：IT行业盲目涨工资比房产泡沫更危险？</a></span>
+	<style type="text/css">
+		a.mred:link{ color:#ff0000; text-decoration:underline;}
+		a.mred:visited{color:#ff0000;}
+		a.mred:hover{color:#ff0000;}
+		a.mred:active{color:#ff0000;}
+	</style>
+</div>
+ <div class="modCon">
+
+ <div class="commForm">
+<dl>
+<dt>昵&nbsp;&nbsp;称：</dt>
+<dd>
+
+<input type="text" id='commentusername' name='username' value='' class="commInput fl" /><span><a href='http://home.51cto.com/index.php?reback=http%253A%252F%252Fnoyear.blog.51cto.com%252F819034%252F469266' style='text-decoration:underline' >登录</a>&nbsp;&nbsp;<a href='http://ucenter.51cto.com/reg_01.php?reback=http://blog.51cto.com' target='_blank' style='text-decoration: underline;'>快速注册</a></span>
+
+
+
+</dd>
+</dl>
+
+
+
+<dl id="commentyanzheng">
+
+
+<dt>验证码：</dt>
+<dd><input class="code" type="text" value=""  id="commentauthnum" name="authnum" onclick="displaysecunum();"/>
+
+  <img width="78" class="fl" height="29"  id="secunum" onclick="refimg()" style="display:none;"/><p class="fl"><span style="display:none;" id="spanfont">点击图片可刷新验证码</span><span style="display:inline;" id="clickfont">请点击后输入验证码</span><span class="pl5"><a href="http://51ctoblog.blog.51cto.com/26414/5591" target="_blank" style="text-decoration: underline;">博客过2级，无需填写验证码</a></span></p></dd>
+</dl>
+<dl>
+<dt>内&nbsp;&nbsp;容：</dt>
+<dd>
+<textarea class="writeCommCon f12"  id="commentcontent" name='content'></textarea>
+</dd>
+</dl>
+</div>
+<div class="writeCommBot">
+  <input type="hidden" name="parentid" value="" id="parentid"/>
+  <input class="commBtn fl"   name='submit' type='button' id="commentsubmit" value='' onclick="commentSubmitend2()"/>
+
+ <p class="fl" style="display:none;"><input class="fl" type="checkbox" name="favour" id="favour" checked="" value="1" /><span class="fl">同时赞一个</span></p>
+
+</div>
+<span class="blank"></span>
+
+</div><!--modCon-->
+<span class="modBot"></span>
+</div>
+</form>
+
+<iframe id=iframe1 name=iframe1 width=0 height=0></iframe>
+<!--发表评论 end-->
+</div>
+</div>
+<script language="javascript">
+	function refimg(){
+		var randval = Math.random();
+		document.getElementById("secunum").src="/seccode.php?rnum="+randval;
+	}
+	function displaysecunum()
+	{
+		var displaystr = document.getElementById("secunum").style.display;
+		if(displaystr == 'none')
+		{
+			refimg();
+			document.getElementById("clickfont").style.display = 'none';
+			document.getElementById("secunum").style.display = 'inline';
+			document.getElementById("spanfont").style.display = 'inline';
+		}
+	}
+
+	function showMsn(){
+		document.getElementById("c02").style.display = "none";
+		document.getElementById("c01").style.display = "block";
+		document.getElementById("share").style.height = "83px";
+		document.getElementById("share").style.background = "none";
+	}
+	function showBBS(){
+		document.getElementById("c01").style.display = "none";
+		document.getElementById("c02").style.display = "block";
+		document.getElementById("share").style.height = "83px";
+		document.getElementById("share").style.background = "none";
+	}
+
+	//资源页面，分享按钮
+	function copyShareUrl(title){
+
+		if (window.clipboardData){
+
+			if(document.getElementById("c01").style.display == 'block')
+			{
+				copy = "推荐：" + title + "http://noyear.blog.51cto.com/819034/469266";
+				var alertText = "复制成功，你可以粘贴到MSN或QQ中发给好友。";
+			}
+			else
+			{
+				copy = "[url=" + "http://noyear.blog.51cto.com/819034/469266" + "][u]" + title + "[/u][/url]";
+				var alertText = "复制成功，你可以粘贴到论坛分享给坛友。";
+			}
+			window.clipboardData.clearData();
+			window.clipboardData.setData("Text", copy);
+			alert(alertText);
+		}
+		else if (window.netscape){
+			alert("您使用的浏览器不支持此复制功能，请使用Ctrl+C或鼠标右键。");
+			if(document.getElementById("c01").style.display == 'block')
+			{
+				document.getElementById("shareTextQM").value = "推荐：" + title + "http://noyear.blog.51cto.com/819034/469266";
+				document.getElementById("shareTextQM").select();
+			}
+			else
+			{
+				document.getElementById("shareTextBBS").value = "[url=" + "http://noyear.blog.51cto.com/819034/469266" + "][u]" + title + "[/u][/url]";
+                document.getElementById("shareTextBBS").select();
+			}
+		}
+		return false;
+	}
+	function select_login(){
+		document.getElementById('fixed').style.display='';
+	}
+	function commentcheck()
+	{
+		if(document.form1.content.value == "")
+		{
+			alert("评论内容为空!");
+			document.form1.content.focus();
+			return false;
+		}
+	}
+	function changename(){
+
+	var memberid=0;
+	memberid="";
+
+	if(document.getElementById('commentniming').checked){
+		document.getElementById('commentusername').disabled=false;
+		document.getElementById('commentusername').value='';
+		document.getElementById("indexhidden").style.display="none";
+		document.getElementById("commentindex").value='';
+		document.getElementById("commentyanzheng").style.display="";
+	}else{
+		document.getElementById('commentusername').disabled=true;
+		document.getElementById('commentusername').value="";
+		document.getElementById("indexhidden").style.display="";
+		document.getElementById("commentindex").value="http://.blog.51cto.com";
+		if(memberid>8)
+		{
+			document.getElementById("commentyanzheng").style.display="none";
+		}
+	}
+	}
+	function openFavoulist()
+	{
+		window.open ('http://blog.51cto.com/mod/favourlist.php?tid=469266','newwindow','height=300,width=500,top=400,left=400,toolbar=no,menubar=no,scrollbars=no, resizable=no,location=no, status=no,z-look=yes');
+	}
+
+	var e_zti = document.getElementById('zti');//有专题锚点
+	var maodian = window.location.href;//锚点
+	if (e_zti) {
+		e_zti.href= (/[#]+/.test(maodian)) ? maodian : maodian + "#zhuanti";
+	}
+</script>
+<script src="http://blog.51cto.com/js/jquery-1.7.1.min.js"></script>
+<script src="http://blog.51cto.com/js/jquery.cookie.js"></script>
+<script src="http://blog.51cto.com/js/jquery.messager.js"></script>
+<link href="http://blog.51cto.com/css/blog_top/blog_top.css" rel="stylesheet" type="text/css" />
+<script src="http://blog.51cto.com/js/blog_top_list.php" type="text/javascript" language="javascript"></script>
+<style>
+.backToTop {
+    display: none;
+	WIDTH: 45px;
+	height:45px;
+	BOTTOM: 20px;
+     position: fixed;
+    _position: absolute;
+    right: 140px;
+    bottom: 10px;
+    _bottom: "auto";
+    cursor: pointer;
+    opacity: .6;
+    filter: Alpha(opacity=60);
+	text-indent:-9999px;
+}
+.tops { background:url(/images/topq.jpg) no-repeat center center; }
+</style>
+<script type="text/javascript">
+(function() {
+    var backToTopTxt = "返回顶部", backToTopEle = $('<div class="backToTop tops"></div>').appendTo($("body"))
+        .text(backToTopTxt).attr("title", backToTopTxt).click(function() {
+            $("html, body").animate({ scrollTop: 0 }, 520);
+    }), backToTopFun = function() {
+        var st = $(document).scrollTop(), winh = $(window).height();
+        (st > 0)? backToTopEle.show(): backToTopEle.hide();    
+        //IE6下的定位
+        if (!window.XMLHttpRequest) {
+            backToTopEle.css("top", st + winh - 60);    
+        }
+    };
+    $(window).bind("scroll", backToTopFun);
+    $(function() { backToTopFun(); });
+})();
+</script>
+
+
+
+
+</div>
+</div>
+<div class="clear"></div>
+<!-- <script>
+jQuery(function(){
+	var html= "<div id=\"sogou_se_tgbar\" style=\"text-align:center;margin:0px auto 2px auto;clear:both;background:url(http://home.51cto.com/public/images/notice/sogou_se_tgbar_bg_final1.gif) repeat-x;width:950px;color:#000;font-size:13px;height:36px;z-index:21474836471\"><div style=\"float:left;cursor:pointer;width:910px;text-align:center;border-left:solid #efbf00 1px;height:32px; line-height:32px;txt-align:center;\"><span style=\"\">	<a href=\"http://51ctoblog.blog.51cto.com/26414/1093282\">【新年祝福征集】51CTO社区年底嘉年华活动正在征集博主祝福语，祝福以红包的形式随机的赠送给访问51CTO的网友 点此送祝福>></a></span></div><div onclick=\"document.getElementById('sogou_se_tgbar').style.display = 'none';\" style=\"float:right;width:20px;cursor:pointer;height:28px;padding:4px 8px 0px 8px;border-right:solid #efbf00 1px\"><img style=\"border:none;margin:4px 0px 0px 0px;\" src=\"http://home.51cto.com/public/images/notice/sogou_se_tgbar_close_final1.gif\"></div></div>"
+	jQuery('body').prepend(html);
+})
+</script> -->
+</div>
+<div id="footer">
+  <div id="innerFooter">
+	<center>
+		<small>
+			Copyright By 51CTO.COM 版权所有<br><br>
+			<a href="http://blog.51cto.com" target="_blank"><img src="http://img1.51cto.com/image/skin/33/copyright.jpg"></a>
+	  </small>
+	</center>
+  </div>
+</div>
+<script src="http://home.51cto.com/index.php?s=/Index/getLoginStatus/reback/http%253A%252F%252Fnoyear.blog.51cto.com%252F819034%252F469266" charset='utf-8'></script>
+<div style="display:none">
+<script src="http://logs.51cto.com/rizhi/count/count.js"></script>
+
+<iframe frameborder="0" scrolling="no" width="0" height="0" src="http://log.51cto.com/pageview.php?frompos=blog_art"></iframe>
+</div>
+<div style="display:none;"><script src="http://s24.cnzz.com/stat.php?id=4274540&web_id=4274540&show=pic" language="JavaScript"></script><div>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-38670657-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</body>
+</html>

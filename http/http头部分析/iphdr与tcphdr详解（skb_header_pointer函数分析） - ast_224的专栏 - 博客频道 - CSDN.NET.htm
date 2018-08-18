@@ -1,0 +1,599 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+ 
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>iphdr与tcphdr详解（skb_header_pointer函数分析） - ast_224的专栏
+        - 博客频道 - CSDN.NET</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="linux 2.6.26 下获取tcp信息：&#160; tcph=skb_header_pointer(skb, protoff, sizeof(tcph), &amp;tcph);&#160;&#160;&#160; //skb_header_pointer是个库函数skb_header_pointer函数该函数本身很简单，定义如下：/* #include */static inline void *skb_header_pointer(c" />
+    <script src="http://static.blog.csdn.net/scripts/jquery.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://static.blog.csdn.net/scripts/ad.js?v=1.1"></script>
+    <link rel="Stylesheet" type="text/css" href="http://static.blog.csdn.net/skin/default/css/style.css?v=1.1" />
+    <link id="RSSLink" title="RSS" type="application/rss+xml" rel="alternate" href="/ast_224/rss/list" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link type="text/css" rel="stylesheet" href="http://static.blog.csdn.net/scripts/SyntaxHighlighter/styles/default.css" />
+
+</head>
+<body>
+    <script src="http://csdnimg.cn/pubnav/js/pub_topnav_2011.js" type="text/javascript"></script>
+    <div id="container">
+        <div id="header">
+    <div class="header">
+        <div id="blog_title">
+            <h1>
+                <a href="http://blog.csdn.net/ast_224">ast_224的专栏</a></h1>
+            <h2></h2>
+            <div class="clear">
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+    </div>
+</div>
+<div id="navigator">
+    <div class="navigator_bg">
+    </div>
+    <div class="navigator">
+        <ul>
+                <li id="btnContents"><a href="http://blog.csdn.net/ast_224?viewmode=contents"><span>
+                    <img src="http://static.blog.csdn.net/images/ico_list.gif">目录视图</span></a></li>
+                <li id="btnView"><a href="http://blog.csdn.net/ast_224?viewmode=list"><span>
+                    <img src="http://static.blog.csdn.net/images/ico_summary.gif">摘要视图</span></a></li>
+                <li id="btnRss"><a href="http://blog.csdn.net/ast_224/rss/list"><span>
+                    <img src="http://static.blog.csdn.net/images/ico_rss.gif">订阅</span></a></li>
+</ul>
+    </div>
+</div>
+<script type="text/javascript">
+    var username = "ast_224";
+    var _blogger = username;
+    var blog_address = "http://blog.csdn.net/ast_224";
+    var static_host = "http://static.blog.csdn.net";
+    var currentUserName = "";
+</script>
+
+        <div id="body">
+            <div id="main">
+                <div class="main">
+<div class="notice tracking-ad" data-mod='popu_3' > 
+
+<a href="http://hero.pongo.cn/Question/Details?ID=168&ExamID=163" target="_blank"><font color=red>文思海辉第一届在线编程大赛
+</font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a href="http://blog.csdn.net/csdn_ask/article/details/16943685"target="_blank">
+<font color=blue>消灭0回答，赢下载分
+ </font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+<a href="http://newsletter.csdn.net/show_book/show_book_list?type=5"target="_blank">
+<font color=red>订阅CSDN社区周刊，及时了解社区精华内容
+ </font></a>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+<a href="http://blog.csdn.net/blogdevteam/article/details/16943989"target="_blank">
+<font color=blue>办公大师系列经典丛书 诚聘译者
+ </font></a>
+
+</div>                    <link href="http://static.blog.csdn.net/css/comment1.css" type="text/css" rel="stylesheet" />
+<link href="http://static.blog.csdn.net/css/style1.css" type="text/css" rel="stylesheet" />
+<div id="article_details" class="details">
+    <div class="article_title">
+    <span class="ico ico_type_Original"></span>
+    <h3>
+        <span class="link_title"><a href="/ast_224/article/details/3943306">
+        iphdr与tcphdr详解（skb_header_pointer函数分析）
+        </a></span>
+    </h3>
+</div>
+
+    <div class="article_manage">
+        <span class="link_categories">
+        分类：
+            <a href="/ast_224/article/category/484776">linux学习</a> 
+        </span>
+    <span class="link_postdate">2009-02-27 17:21</span>
+    <span class="link_view" title="阅读次数">5192人阅读</span>
+    <span class="link_comments" title="评论次数"><a href="#comments">评论</a>(1)</span>
+    <span class="link_collect"><a href="javascript:void(0);" onclick="javascript:collectArticle('iphdr与tcphdr详解（skb_header_pointer函数分析）','3943306');return false;" title="收藏">收藏</a></span>
+    <span class="link_report"><a href="#report"  onclick="javascript:report(3943306,2);return false;" title="举报">举报</a></span>
+    
+</div>
+<div class="tag2box"><a href='http://www.csdn.net/tag/header' target=_blank>header</a><a href='http://www.csdn.net/tag/tcp' target=_blank>tcp</a><a href='http://www.csdn.net/tag/struct' target=_blank>struct</a><a href='http://www.csdn.net/tag/%e8%b7%af%e7%94%b1%e5%99%a8' target=_blank>路由器</a><a href='http://www.csdn.net/tag/buffer' target=_blank>buffer</a><a href='http://www.csdn.net/tag/list' target=_blank>list</a></div>
+
+    
+<div id="article_content" class="article_content">
+<p>linux 2.6.26 下获取tcp信息：&nbsp; <br />tcph=skb_header_pointer(skb, protoff, sizeof(tcph), &amp;tcph);&nbsp;&nbsp;&nbsp; //skb_header_pointer是个库函数<br />skb_header_pointer函数<br />该函数本身很简单，定义如下：<br />/* #include &lt;linux/skbuff.h&gt;*/<br />static inline void *skb_header_pointer(const struct sk_buff *skb, int offset, int len, void *buffer)<br />{<br />&nbsp;int hlen = skb_headlen(skb);<br />&nbsp;if (hlen - offset &gt;= len)<br />&nbsp; return skb-&gt;data + offset;<br />&nbsp;if (skb_copy_bits(skb, offset, buffer, len) &lt; 0)<br />&nbsp; return NULL;<br />&nbsp;return buffer;<br />}<br />其中参数为：<br />skb：数据包struct sk_buff的指针<br />offset：相对数据起始头(如IP头)的偏移量<br />len：数据长度<br />buffer：缓冲区，大小不小于len<br /><br />其中skb_headlen()定义为：<br />/* #include &lt;linux/skbuff.h&gt; */<br />static inline unsigned int skb_headlen(const struct sk_buff *skb)<br />{<br />&nbsp;return skb-&gt;len - skb-&gt;data_len;<br />}<br />其中skb-&gt;len是数据包长度，在IPv4中就是单个完整IP包的总长，但这些数据并不一定都在当前内存页；skb-&gt;data_len表示在其他页的数据长度，因此skb-&gt;len - skb-&gt;data_len表示在当前页的数据大小。<br /><br />/* net/core/skbuff.c */<br />/* Copy some data bits from skb to kernel buffer. */<br />int skb_copy_bits(const struct sk_buff *skb, int offset, void *to, int len)<br />{<br />&nbsp;int i, copy;<br />&nbsp;int start = skb_headlen(skb);<br />&nbsp;if (offset &gt; (int)skb-&gt;len - len)<br />&nbsp; goto fault;<br />&nbsp;/* Copy header. */<br />&nbsp;if ((copy = start - offset) &gt; 0) {<br />// 拷贝在当前页面中的部分<br />&nbsp; if (copy &gt; len)<br />&nbsp;&nbsp; copy = len;<br />&nbsp; memcpy(to, skb-&gt;data + offset, copy);<br />&nbsp; if ((len -= copy) == 0)<br />&nbsp;&nbsp; return 0;<br />&nbsp; offset += copy;<br />&nbsp; to&nbsp;&nbsp;&nbsp;&nbsp; += copy;<br />&nbsp;}<br />// 拷贝本skb中其他碎片中的部分<br />&nbsp;for (i = 0; i &lt; skb_shinfo(skb)-&gt;nr_frags; i++) {<br />&nbsp; int end;<br />&nbsp; BUG_TRAP(start &lt;= offset + len);<br />&nbsp; end = start + skb_shinfo(skb)-&gt;frags[i].size;<br />&nbsp; if ((copy = end - offset) &gt; 0) {<br />&nbsp;&nbsp; u8 *vaddr;<br />&nbsp;&nbsp; if (copy &gt; len)<br />&nbsp;&nbsp;&nbsp; copy = len;<br />&nbsp;&nbsp; vaddr = kmap_skb_frag(&amp;skb_shinfo(skb)-&gt;frags[i]);<br />&nbsp;&nbsp; memcpy(to,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vaddr + skb_shinfo(skb)-&gt;frags[i].page_offset+<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; offset - start, copy);<br />&nbsp;&nbsp; kunmap_skb_frag(vaddr);<br />&nbsp;&nbsp; if ((len -= copy) == 0)<br />&nbsp;&nbsp;&nbsp; return 0;<br />&nbsp;&nbsp; offset += copy;<br />&nbsp;&nbsp; to&nbsp;&nbsp;&nbsp;&nbsp; += copy;<br />&nbsp; }<br />&nbsp; start = end;<br />&nbsp;}<br />// 拷贝其他碎片skb中的数据部分<br />&nbsp;if (skb_shinfo(skb)-&gt;frag_list) {<br />&nbsp; struct sk_buff *list = skb_shinfo(skb)-&gt;frag_list;<br />&nbsp; for (; list; list = list-&gt;next) {<br />&nbsp;&nbsp; int end;<br />&nbsp;&nbsp; BUG_TRAP(start &lt;= offset + len);<br />&nbsp;&nbsp; end = start + list-&gt;len;<br />&nbsp;&nbsp; if ((copy = end - offset) &gt; 0) {<br />&nbsp;&nbsp;&nbsp; if (copy &gt; len)<br />&nbsp;&nbsp;&nbsp;&nbsp; copy = len;<br />&nbsp;&nbsp;&nbsp; if (skb_copy_bits(list, offset - start,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to, copy))<br />&nbsp;&nbsp;&nbsp;&nbsp; goto fault;<br />&nbsp;&nbsp;&nbsp; if ((len -= copy) == 0)<br />&nbsp;&nbsp;&nbsp;&nbsp; return 0;<br />&nbsp;&nbsp;&nbsp; offset += copy;<br />&nbsp;&nbsp;&nbsp; to&nbsp;&nbsp;&nbsp;&nbsp; += copy;<br />&nbsp;&nbsp; }<br />&nbsp;&nbsp; start = end;<br />&nbsp; }<br />&nbsp;}<br />&nbsp;if (!len)<br />&nbsp; return 0;<br />fault:<br />&nbsp;return -EFAULT;<br />}<br /><br /><strong>iphdr结构详解：</strong><br />include &lt;linux/ip.h&gt;<br />struct iphdr {<br />#if defined(__LITTLE_ENDIAN_BITFIELD)<br />__u8&nbsp;&nbsp;&nbsp; ihl:4,<br />version:4;<br />#elif defined (__BIG_ENDIAN_BITFIELD)<br />__u8&nbsp;&nbsp;&nbsp; version:4,<br />ihl:4;<br />#else<br />#error &ldquo;Please fix &rdquo;<br />#endif<br />__u8&nbsp;&nbsp;&nbsp; tos;<br />__be16 -tot_len;<br />__be16 -id;<br />__be16 -frag_off;<br />__u8&nbsp;&nbsp;&nbsp; ttl;<br />__u8&nbsp;&nbsp;&nbsp; protocol;<br />__be16 -check;<br />__be32 -saddr;<br />__be32 -daddr;<br />};<br /><br /><strong>iphdr-&gt;version</strong><br />&nbsp;&nbsp; &nbsp; 版本(4位)，目前的协议版本号是4,因此IP有时也称作IPv4。<br /><strong>iphdr-&gt;ihl</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 首部长度(4位):首部长度指的是IP层头部占32 bit字的数目(也就是IP层头部包含多少个4字节 &mdash; 32位),包括任何选项。由于它是一个4比特字段,单位为4个字节，因此，一个IP包头的长度最长为&ldquo;1111&rdquo;，即15＊4＝60个字节,因此首部最长为60个字节。普通IP数据报(没有任何选择项)字段的值是5&nbsp; 5 * 32 / 8 = 5 * 4 = 20 Bytes<br /><strong>iphdr-&gt;tos</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 服务类型字段(8位): 服务类型(TOS)字段包括一个3 bit的优先权子字段(现在已被忽略)，4 bit的TOS子字段和1 bit未用位但必须置0。4 bit的TOS子字段分别代表:最小时延、最大吞吐量、最高可靠性和最小费用。4 bit中只能设置其中1 bit。如果所有4 bit均为0,那么就意味着是一般服务。<br />例：<br />8个BIT的含义是：<br />000 前三位不用<br />0 表示最小时延，如Telnet服务使用该位<br />0 表示吞吐量，如FTP服务使用该位<br />0 表示可靠性，如SNMP服务使用该位<br />0 表示最小代价<br />0 不用<br /><strong>iphdr-&gt;tot_len</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 总长度字段(16位)是指整个IP数据报的长度,以字节为单位。利用首部长度字段和总长度字段,就可以知道 IP数据报中数据内容的起始位置和长度。由于该字段长16比特（一个IP数据包的最大长度为2的16次方减1，即：65535个字节），所以在以太网中能够传输的最大IP数据包为65535个字节。总长度字段是IP首部中必要的内容,因为一些数据链路(如以太网)需要填充一些数据以达到最小长度。尽管以太网的最小帧长为46字节,但是IP数据可能会更短。如果没有总长度字段,那么IP层就不知道46字节中有多少是IP数据报的内容。<br />iphdr-&gt;id<br />&nbsp;&nbsp;&nbsp;&nbsp; 标识字段(16位)唯一地标识主机发送的每一份数据报。通常每发送一份报文它的值就会加1。（例如：Identification=363，表示IP包识别号为363。该部分占16个BIT，以十进制数表示。）iphdr-&gt;frag_off (16位)frag_off域的低13位 &mdash; 分段偏移(Fragment offset)域指明了该分段在当前数据报中的什么位置上。除了一个数据报的最后一个分段以外，其他所有的分段(分片)必须是8字节的倍数。这是8字节是基本分段单位。由于该域有13个位，所以，每个数据报最多有8192个分段。因此，最大的数据报长度为65,536字节，比 iphdr-&gt;tot_len域还要大1。iphdr-&gt;frag_off的高3位：<br />(1) 比特0是保留的，必须为0；<br />(2) 比特1是&ldquo;更多分片&rdquo;(MF &mdash; More Fragment)标志。除了最后一片外，其他每个组成数据报的片都要把该比特置1。<br />(3) 比特2是&ldquo;不分片&rdquo;(DF &mdash; Don&rsquo;t Fragment)标志,如果将这一比特置1，IP将不对数据报进行分片,这时如果有需要进行分片的数据报到来，会丢弃此数据报并发送一个ICMP差错报文给起始端。<br /><strong>iphdr-&gt;ttl</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; TTL(time-to-live) &mdash; 8位，生存时间字段设置了数据报可以经过的最多路由器数。它指定了数据报的生存时间。TTL的初始值由源主机设置(通常为32或64),一旦经过一个处理它的路由器,它的值就减去1。当该字段的值为0时,数据报就被丢弃,并发送ICMP报文通知源主机。TTL(Time to live)域是一个用于限制分组生存期的计数器。这里的计数时间单位为秒，因此最大的生存期为255秒。在每一跳上该计数器必须被递减，而且，当数据报在一台路由器上排队时间较长时，该计数器必须被多倍递减。在实践中，它只是跳计数器，当它递减到0的时候，分组被丢弃，路由器给源主机发送一个警告分组。此项特性可以避免数据报长时间地逗留在网络中，有时候当路由表被破坏之后，这种事情是有可能发生的。<br /><strong>iphdr-&gt;protocol</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 协议字段(8位): 根据它可以识别是哪个协议向IP传送数据。当网络层组装完成一个完整的数据报之后，它需要知道该如何对它进行处理。协议(Protocol)域指明了该将它交给哪个传输进程。TCP是一种可能，但是UDP或者其他的协议也是可能的。Proctol＝6（TCP），表示协议类型为TCP，协议代码是6。如果是UDP协议，则此处的协议代码应为17。如果是ICMP协议，则此处的协议代码应为1。该部分占8个BIT。(IPPROTO_TCP ,IPPROTO_UDP,IPPROTO_ICMP etc.)<br /><strong>iphdr-&gt;check</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 首部检验和字段(16位)是根据IP首部计算的检验和码。它不对首部后面的数据进行计算。 ICMP、IGMP、UDP和TCP在它们各自的首部中均含有同时覆盖首部和数据检验和码。为了计算一份数据报的IP检验和,首先把检验和字段置为0。然后,对首部中每个16 bit进行二进制反码求和(整个首部看成是由一串16 bit的字组成),结果存在检验和字段中。当收到一份IP数据报后,同样对首部中每个16 bit进行二进制反码的求和。由于接收方在计算过程中包含了发送方存在首部中的检验和,因此,如果首部在传输过程中没有发生任何差错,那么接收方计算的结果应该为全1。如果结果不是全1(即检验和错误),那么IP就丢弃收到的数据报。但是不生成差错报文,由上层去发现丢失的数据报并进行重传。<br /><strong>iphdr-&gt;saddr</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 32位源IP地址<br /><strong>iphdr-&gt;daddr</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 32位目的IP地址<br />网络字节序<br />&nbsp;&nbsp;&nbsp;&nbsp; 4个字节的32 bit值以下面的次序传输:首先是0~7bit,其次8~15bit,然后16~23bit,最后是24~31 bit。这种传输次序称作big endian字节序。由于TCP/IP首部中所有的二进制整数在网络中传输时都要求以这种次序,因此它又称作网络字节序。<br /><br /><strong>tcphdr结构详解：</strong><br />sk_buff-&gt;tcphdr<br />/usr/src/linux-2.6.19/include/linux/tcp.h<br />struct tcphdr {<br />&nbsp;&nbsp;&nbsp; __be16 source;<br />&nbsp;&nbsp;&nbsp; __be16 dest;<br />&nbsp;&nbsp;&nbsp; __be32 seq;<br />&nbsp;&nbsp;&nbsp; __be32 ack_seq;<br />#if defined(__LITTLE_ENDIAN_BITFIELD)<br />&nbsp;&nbsp;&nbsp; __u16&nbsp;&nbsp; res1:4,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; doff:4,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fin:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; syn:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rst:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; psh:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ack:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; urg:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ece:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cwr:1;<br />#elif defined(__BIG_ENDIAN_BITFIELD)<br />&nbsp;&nbsp;&nbsp; __u16&nbsp;&nbsp; doff:4,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; res1:4,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cwr:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ece:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; urg:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ack:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; psh:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rst:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; syn:1,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fin:1;<br />#else<br />#error "Adjust your &lt;asm/byteorder.h&gt; defines"<br />#endif<br />&nbsp;&nbsp;&nbsp; __be16 window;<br />&nbsp;&nbsp;&nbsp; __be16 check;<br />&nbsp;&nbsp;&nbsp; __be16 urg_ptr;<br />};<br />&nbsp;&nbsp;&nbsp;&nbsp; |----------------|----------------|-------------<br />&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp; source&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp; dest&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br />&nbsp;&nbsp;&nbsp;&nbsp; |----------------|----------------|<br />&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; seq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |<br />&nbsp;&nbsp;&nbsp;&nbsp; |---------------------------------|<br />&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ack_seq&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 20 Bytes<br />&nbsp;&nbsp;&nbsp;&nbsp; |----|----|------|----------------|<br />&nbsp;&nbsp;&nbsp;&nbsp; |doff|res1|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp; window&nbsp;&nbsp;&nbsp;&nbsp; |<br />&nbsp;&nbsp;&nbsp;&nbsp; |----|----|------|----------------|<br />&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp; check&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp; urg_ptr&nbsp;&nbsp;&nbsp; |<br />&nbsp;&nbsp;&nbsp;&nbsp; |----------------|----------------|-------------<br />&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; options&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 4 Bytes<br />&nbsp;&nbsp;&nbsp;&nbsp; |---------------------------------|&nbsp; <br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TCP头<br /><strong>tcphdr-&gt;source</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 16位源端口号<br /><strong>tcphdr-&gt;dest</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 16位目的端口号<br /><strong>tcphdr-&gt;seq</strong><br />&nbsp;&nbsp; &nbsp; 表示此次发送的数据在整个报文段中的起始字节数。序号是32 bit的无符号数。为了安全起见，它的初始值是一个随机生成的数，它到达32位最大值后，又从零开始。<br /><strong>tcphdr-&gt;ack_seq</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 指定的是下一个期望接收的字节，而不是已经正确接收到的最后一个字节。<br /><strong>tcphdr-&gt;doff</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; TCP头长度，指明了在TCP头部包含多少个32位的字。此信息是必须的，因为options域的长度是可变的，所以整个TCP头部的长度也是变化的。从技术上讲，这个域实际上指明了数据部分在段内部的其起始地址(以32位字作为单位进行计量)，因为这个数值正好是按字为单位的TCP头部的长度，所以，二者的效果是等同的<br />tcphdr-&gt;res1为保留位<br /><strong>tcphdr-&gt;window</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 是16位滑动窗口的大小，单位为字节，起始于确认序列号字段指明的值，这个值是接收端正期望接收的字节数，其最大值是63353字节。<br />&nbsp;&nbsp;&nbsp;&nbsp; TCP中的流量控制是通过一个可变大小的滑动窗口来完成的。window域指定了从被确认的字节算起可以接收的多少个字节。window = 0也是合法的，这相当于说，到现在为止多达ack_seq-1个字节已经接收到了，但是接收方现在状态不佳，需要休息一下，等一会儿再继续接收更多的数据。以后，接收方可以通过发送一个同样ack_seq但是window不为0的数据段，告诉发送方继续发送数据段。<br /><strong>tcphdr-&gt;check</strong><br />&nbsp;&nbsp;&nbsp;&nbsp; 是检验和，覆盖了整个的TCP报文段，这是一个强制性的字段，一定是由发送端计算和存储，并由接收端进行验证。<br /><strong>tcphdr-&gt;urg_ptr</strong><br />&nbsp;&nbsp; &nbsp; 这个域被用来指示紧急数据在当前数据段中的位置，它是一个相对于当前序列号的字节偏移值。这个设施可以代替中断信息。<br />&nbsp; <br />fin, syn, rst, psh, ack, urg为6个标志位<br />&nbsp;&nbsp;&nbsp;&nbsp; 这6个位域已经保留了超过四分之一个世纪的时间而仍然原封未动，这样的事实正好也说明了TCP的设计者们考虑的是多么的周到。它们的含义如下：<br />&nbsp; <strong>&nbsp; tcphdr-&gt;fin</strong> fin位被用于释放一个连接。它表示发送方已经没有数据要传输了。<br />&nbsp;&nbsp;&nbsp; <strong>tcphdr-&gt;syn</strong> 同步序号，用来发起一个连接。syn位被用于建立连接的过程。在连接请求中，syn=1; ack=0表示该数据段没有使用捎带的确认域。连接应答捎带了一个确认，所以有syn=1; ack=1。本质上，syn位被用来表示connection request和connection accepted，然而进一步用ack位来区分这两种情况。<br />&nbsp;&nbsp;&nbsp; <strong>tcphdr-&gt;rst</strong> 该为用于重置一个已经混乱的连接，之所以会混乱，可能是由于主机崩溃，或者其他的原因。该位也可以被用来拒绝一个无效的数据段，或者拒绝一个连接请求。一般而言，如果你得到的数据段设置了rst位，那说明你这一端有了问题。<br />&nbsp;&nbsp;&nbsp;<strong> tcphdr-&gt;psh </strong>接收方在收到数据后应立即请求将数据递交给应用程序，而不是将它缓冲起来直到整个缓冲区接收满为止(这样做的目的可能是为了效率的原因)<br />&nbsp;&nbsp;&nbsp;<strong> tcphdr-&gt;ack</strong> ack位被设置为1表示tcphdr-&gt;ack_seq是有效的。如果ack为0，则该数据段不包含确认息，所以，tcphdr-&gt;ack_seq域应该被忽略。<br />&nbsp;&nbsp;&nbsp; <strong>tcphdr-&gt;urg</strong> 紧急指针有效<br />&nbsp;&nbsp;&nbsp; <strong>tcphdr-&gt;ece</strong> 用途暂时不明<br />&nbsp;&nbsp;&nbsp;<strong> tcphdr-&gt;cwr</strong> 用途暂时不明<br />&nbsp;&nbsp;&nbsp; 内核源代码在函数tcp_transmit_skb()中建立tcp首部。</p>
+</div>
+
+
+
+<!-- Baidu Button BEGIN -->
+<div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" style="float: right;">
+<a class="bds_qzone"></a>
+<a class="bds_tsina"></a>
+<a class="bds_tqq"></a>
+<a class="bds_renren"></a>
+<a class="bds_t163"></a>
+<span class="bds_more">更多</span>
+<a class="shareCount"></a>
+</div>
+<!-- Baidu Button END -->
+
+
+<!--192.168.100.34-->
+<div class="article_next_prev">
+            <li class="prev_article"><span>上一篇：</span><a href="/ast_224/article/details/3935498">linux awk 命令应用</a></li>
+            <li class="next_article"><span>下一篇：</span><a href="/ast_224/article/details/3962221">socket实现进程间通信</a></li>
+</div>
+
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=1536434" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+    document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+</script>
+<!-- Baidu Button END -->
+
+</div>
+    <div id="ad_cen">
+        <script type="text/javascript">            BAIDU_CLB_SLOT_ID = "117306";</script>
+        <script type="text/javascript" src="http://cbjs.baidu.com/js/o.js"></script>
+    </div>
+    <script type="text/javascript">
+        //new Ad(4, 'ad_cen');
+    </script>
+<div id="comment_title" class="panel_head">
+    查看评论<a name="comments"></a></div>
+<div id="comment_list">
+</div>
+<div id="comment_bar">
+</div>
+<div id="comment_form">
+</div>
+<div class="announce">
+    * 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场<a name="reply"></a><a name="quote"></a></div>
+<script type="text/javascript">
+    var fileName = '3943306';
+    var commentscount = 1;
+    var islock = false
+</script>
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/comment.js"></script>
+    <div id="ad_bot">
+    </div>
+    <script type="text/javascript">
+    new Ad(5, 'ad_bot');
+    </script>
+<div id="report_dialog">
+</div>
+<div id="d-top" style="display: none;">
+    <a id="d-top-a" href="#" title="回到顶部">
+        <img src="http://static.blog.csdn.net/images/top.png" alt="TOP" /></a>
+</div>
+<script type="text/javascript">
+    $(function ()
+    {
+        var d_top = $('#d-top');
+        document.onscroll = function ()
+        {
+            var scrTop = (document.body.scrollTop || document.documentElement.scrollTop);
+            if (scrTop > 500)
+            {
+                d_top.show();
+            } else
+            {
+                d_top.hide();
+            }
+        }
+        $('#d-top-a').click(function ()
+        {
+            scrollTo(0, 0);
+            this.blur();
+            return false;
+        });
+    });
+  
+</script>
+<style type="text/css">
+    .tag_list
+    {
+        background: none repeat scroll 0 0 #FFFFFF;
+        border: 1px solid #D7CBC1;
+        color: #000000;
+        font-size: 12px;
+        line-height: 20px;
+        list-style: none outside none;
+        margin: 10px 2% 0 1%;
+        padding: 1px;
+    }
+    .tag_list h5
+    {
+        background: none repeat scroll 0 0 #E0DBD3;
+        color: #47381C;
+        font-size: 12px;
+        height: 24px;
+        line-height: 24px;
+        padding: 0 5px;
+        margin: 0;
+    }
+    .tag_list h5 a
+    {
+        color: #47381C;
+    }
+    .classify
+    {
+        margin: 10px 0;
+        padding: 4px 12px 8px;
+    }
+    .classify a
+    {
+        margin-right: 20px;
+        white-space: nowrap;
+    }
+</style>
+<div class="tag_list">
+    <h5>
+        <a href="http://www.csdn.net/tag/" target="_blank">核心技术类目</a></h5>
+    <div class="classify">
+        <a title="全部主题" href="http://www.csdn.net/tag" target="_blank" onclick="LogClickCount(this,336);">全部主题</a>
+<a title="Java" href="http://www.csdn.net/tag/Java" target="_blank" onclick="LogClickCount(this,336);">Java</a>
+<a title="VPN" href="http://www.csdn.net/tag/vpn" target="_blank" onclick="LogClickCount(this,336);">VPN</a>
+<a title="Android" href="http://www.csdn.net/tag/android" target="_blank" onclick="LogClickCount(this,336);">Android</a>
+<a title="iOS" href="http://www.csdn.net/tag/ios" target="_blank" onclick="LogClickCount(this,336);">iOS</a>
+<a title="ERP" href="http://www.csdn.net/tag/erp" target="_blank" onclick="LogClickCount(this,336);">ERP</a>
+<a title="IE10" href="http://www.csdn.net/tag/ie10" target="_blank" onclick="LogClickCount(this,336);">IE10</a>
+<a title="Eclipse" href="http://www.csdn.net/tag/eclipse" target="_blank" onclick="LogClickCount(this,336);">Eclipse</a>
+<a title="CRM" href="http://www.csdn.net/tag/crm" target="_blank" onclick="LogClickCount(this,336);">CRM</a>
+<a title="JavaScript" href="http://www.csdn.net/tag/javascript" target="_blank" onclick="LogClickCount(this,336);">JavaScript</a>
+<a title="Ubuntu" href="http://www.csdn.net/tag/ubuntu" target="_blank" onclick="LogClickCount(this,336);">Ubuntu</a>
+<a title="NFC" href="http://www.csdn.net/tag/nfc" target="_blank" onclick="LogClickCount(this,336);">NFC</a>
+<a title="WAP" href="http://www.csdn.net/tag/wap" target="_blank" onclick="LogClickCount(this,336);">WAP</a>
+<a title="jQuery" href="http://www.csdn.net/tag/jquery" target="_blank" onclick="LogClickCount(this,336);">jQuery</a>
+<a title="数据库" href="http://www.csdn.net/tag/数据库" target="_blank" onclick="LogClickCount(this,336);">数据库</a>
+<a title="BI" href="http://www.csdn.net/tag/bi" target="_blank" onclick="LogClickCount(this,336);">BI</a>
+<a title="HTML5" href="http://www.csdn.net/tag/html5" target="_blank" onclick="LogClickCount(this,336);">HTML5</a>
+<a title="Spring" href="http://www.csdn.net/tag/spring" target="_blank" onclick="LogClickCount(this,336);">Spring</a>
+<a title="Apache" href="http://www.csdn.net/tag/apache" target="_blank" onclick="LogClickCount(this,336);">Apache</a>
+<a title="Hadoop" href="http://www.csdn.net/tag/hadoop" target="_blank" onclick="LogClickCount(this,336);">Hadoop</a>
+<a title=".NET" href="http://www.csdn.net/tag/.net" target="_blank" onclick="LogClickCount(this,336);">.NET</a>
+<a title="API" href="http://www.csdn.net/tag/api" target="_blank" onclick="LogClickCount(this,336);">API</a>
+<a title="HTML" href="http://www.csdn.net/tag/html" target="_blank" onclick="LogClickCount(this,336);">HTML</a>
+<a title="SDK" href="http://www.csdn.net/tag/sdk" target="_blank" onclick="LogClickCount(this,336);">SDK</a>
+<a title="IIS" href="http://www.csdn.net/tag/iis" target="_blank" onclick="LogClickCount(this,336);">IIS</a>
+<a title="Fedora" href="http://www.csdn.net/tag/fedora" target="_blank" onclick="LogClickCount(this,336);">Fedora</a>
+<a title="XML" href="http://www.csdn.net/tag/xml" target="_blank" onclick="LogClickCount(this,336);">XML</a>
+<a title="LBS" href="http://www.csdn.net/tag/lbs" target="_blank" onclick="LogClickCount(this,336);">LBS</a>
+<a title="Unity" href="http://www.csdn.net/tag/unity" target="_blank" onclick="LogClickCount(this,336);">Unity</a>
+<a title="Splashtop" href="http://www.csdn.net/tag/splashtop" target="_blank" onclick="LogClickCount(this,336);">Splashtop</a>
+<a title="UML" href="http://www.csdn.net/tag/uml" target="_blank" onclick="LogClickCount(this,336);">UML</a>
+<a title="components" href="http://www.csdn.net/tag/components" target="_blank" onclick="LogClickCount(this,336);">components</a>
+<a title="Windows Mobile" href="http://www.csdn.net/tag/windowsmobile" target="_blank" onclick="LogClickCount(this,336);">Windows Mobile</a>
+<a title="Rails" href="http://www.csdn.net/tag/rails" target="_blank" onclick="LogClickCount(this,336);">Rails</a>
+<a title="QEMU" href="http://www.csdn.net/tag/qemu" target="_blank" onclick="LogClickCount(this,336);">QEMU</a>
+<a title="KDE" href="http://www.csdn.net/tag/kde" target="_blank" onclick="LogClickCount(this,336);">KDE</a>
+<a title="Cassandra" href="http://www.csdn.net/tag/cassandra" target="_blank" onclick="LogClickCount(this,336);">Cassandra</a>
+<a title="CloudStack" href="http://www.csdn.net/tag/cloudstack" target="_blank" onclick="LogClickCount(this,336);">CloudStack</a>
+<a title="FTC" href="http://www.csdn.net/tag/ftc" target="_blank" onclick="LogClickCount(this,336);">FTC</a>
+<a title="coremail" href="http://www.csdn.net/tag/coremail" target="_blank" onclick="LogClickCount(this,336);">coremail</a>
+<a title="OPhone " href="http://www.csdn.net/tag/ophone " target="_blank" onclick="LogClickCount(this,336);">OPhone </a>
+<a title="CouchBase" href="http://www.csdn.net/tag/couchbase" target="_blank" onclick="LogClickCount(this,336);">CouchBase</a>
+<a title="云计算" href="http://www.csdn.net/tag/云计算" target="_blank" onclick="LogClickCount(this,336);">云计算</a>
+<a title="iOS6" href="http://www.csdn.net/tag/iOS6" target="_blank" onclick="LogClickCount(this,336);">iOS6</a>
+<a title="Rackspace " href="http://www.csdn.net/tag/rackspace " target="_blank" onclick="LogClickCount(this,336);">Rackspace </a>
+<a title="Web App" href="http://www.csdn.net/tag/webapp" target="_blank" onclick="LogClickCount(this,336);">Web App</a>
+<a title="SpringSide" href="http://www.csdn.net/tag/springside" target="_blank" onclick="LogClickCount(this,336);">SpringSide</a>
+<a title="Maemo" href="http://www.csdn.net/tag/maemo" target="_blank" onclick="LogClickCount(this,336);">Maemo</a>
+<a title="Compuware" href="http://www.csdn.net/tag/compuware" target="_blank" onclick="LogClickCount(this,336);">Compuware</a>
+<a title="大数据" href="http://www.csdn.net/tag/大数据" target="_blank" onclick="LogClickCount(this,336);">大数据</a>
+<a title="aptech" href="http://www.csdn.net/tag/aptech" target="_blank" onclick="LogClickCount(this,336);">aptech</a>
+<a title="Perl" href="http://www.csdn.net/tag/perl" target="_blank" onclick="LogClickCount(this,336);">Perl</a>
+<a title="Tornado" href="http://www.csdn.net/tag/tornado" target="_blank" onclick="LogClickCount(this,336);">Tornado</a>
+<a title="Ruby" href="http://www.csdn.net/tag/ruby" target="_blank" onclick="LogClickCount(this,336);">Ruby</a>
+<a title="Hibernate" href="http://www.csdn.net/hibernate" target="_blank" onclick="LogClickCount(this,336);">Hibernate</a>
+<a title="ThinkPHP" href="http://www.csdn.net/tag/thinkphp" target="_blank" onclick="LogClickCount(this,336);">ThinkPHP</a>
+<a title="Spark" href="http://www.csdn.net/tag/spark" target="_blank" onclick="LogClickCount(this,336);">Spark</a>
+<a title="HBase" href="http://www.csdn.net/tag/hbase" target="_blank" onclick="LogClickCount(this,336);">HBase</a>
+<a title="Pure" href="http://www.csdn.net/tag/pure" target="_blank" onclick="LogClickCount(this,336);">Pure</a>
+<a title="Solr" href="http://www.csdn.net/tag/solr" target="_blank" onclick="LogClickCount(this,336);">Solr</a>
+<a title="Angular" href="http://www.csdn.net/tag/angular" target="_blank" onclick="LogClickCount(this,336);">Angular</a>
+<a title="Cloud Foundry" href="http://www.csdn.net/tag/cloudfoundry" target="_blank" onclick="LogClickCount(this,336);">Cloud Foundry</a>
+<a title="Redis" href="http://www.csdn.net/tag/redis" target="_blank" onclick="LogClickCount(this,336);">Redis</a>
+<a title="Scala" href="http://www.csdn.net/tag/scala" target="_blank" onclick="LogClickCount(this,336);">Scala</a>
+<a title="Django" href="http://www.csdn.net/tag/django" target="_blank" onclick="LogClickCount(this,336);">Django</a>
+<a title="Bootstrap" href="http://www.csdn.net/tag/bootstrap" target="_blank" onclick="LogClickCount(this,336);">Bootstrap</a>
+
+        
+    </div>
+</div>
+
+                    <div class="clear">
+                    </div>
+                </div>
+            </div>
+            <div id="side">
+    <div class="side">
+<div id="panel_Profile" class="panel">
+<ul class="panel_head"><span>个人资料</span></ul>
+<ul class="panel_body profile">
+<div id="blog_userface">
+    <a href="http://my.csdn.net/ast_224" target="_blank">
+    <img src="http://avatar.csdn.net/7/8/0/1_ast_224.jpg" title="访问我的空间" style="max-width:90%"/>
+    </a>
+    <br />
+    <span><a href="http://my.csdn.net/ast_224" class="user_name" target="_blank">ast_224</a></span>
+</div>
+<div class="interact">
+<a href="javascript:void(0);" class="attent" id="span_add_follow" title="[加关注]"></a>
+<a href="javascript:void(0);" class="letter" onclick="loginto(1)" title="[发私信]"></a>
+</div>
+<div id="blog_medal">
+</div>
+<ul id="blog_rank">
+    <li>访问：<span>198080次</span></li>
+    <li>积分：<span>2888分</span></li>
+    <li>排名：<span>第2713名</span></li>
+</ul>
+<ul id="blog_statistics">
+    <li>原创：<span>87篇</span></li>
+    <li>转载：<span>57篇</span></li>
+    <li>译文：<span>0篇</span></li>
+    <li>评论：<span>54条</span></li>
+</ul>
+</ul>
+</div>
+
+
+<div class="panel" id="panel_Search">
+    <ul class="panel_head"><span>文章搜索</span></ul>
+    <ul class="panel_body">
+        <form id="frmSearch" action="http://so.csdn.net/search" class="form_search" target="_blank">
+        <span><input id="inputSearch" type="text" class="blogsearch" title="请输入关键字" /></span>
+        <input id="btnSubmit" type="submit" value="搜索" title="search in blog" />
+        <input type="hidden" name="q" id="inputQ" />
+        <input type="hidden" name="t" value="blog" />
+        <a id="btnSearchBlog" target="_blank"></a>
+        </form>
+    </ul>
+</div><div id="panel_Category" class="panel">
+<ul class="panel_head"><span>文章分类</span></ul>
+<ul class="panel_body">
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/476274">C相关函数</a><span>(11)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/484773">ipp2p（iptables+tc）学习</a><span>(9)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/451136">Linux内核</a><span>(10)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/484776">linux学习</a><span>(24)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/484780">socket编程</a><span>(8)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/506131">数据库</a><span>(4)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/513688">漫漫人生路</a><span>(7)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/454706">网络相关</a><span>(23)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/514603">问题解决</a><span>(4)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/1400459">java</a><span>(24)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/1403906">环境配置</a><span>(3)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/1403910">软件测试</a><span>(8)</span>
+</li>
+<li>
+<a href="http://blog.csdn.net/ast_224/article/category/1404173">性能测试</a><span>(11)</span>
+</li>
+</ul>
+</div><div id="panel_Archive" class="panel">
+<ul class="panel_head"><span>文章存档</span></ul>
+<ul class="panel_body">
+<div id="archive_list">
+<!--归档统计-->
+<li><a href="http://blog.csdn.net/ast_224/article/month/2013/08">2013年08月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2013/05">2013年05月</a><span>(2)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2013/04">2013年04月</a><span>(49)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2009/12">2009年12月</a><span>(4)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2009/09">2009年09月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2009/07">2009年07月</a><span>(1)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2009/05">2009年05月</a><span>(2)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2009/04">2009年04月</a><span>(4)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2009/03">2009年03月</a><span>(8)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2009/02">2009年02月</a><span>(18)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2009/01">2009年01月</a><span>(5)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2008/12">2008年12月</a><span>(7)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2008/11">2008年11月</a><span>(19)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2008/10">2008年10月</a><span>(13)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2008/09">2008年09月</a><span>(7)</span></li><li><a href="http://blog.csdn.net/ast_224/article/month/2008/08">2008年08月</a><span>(3)</span></li>
+</div>
+</ul>
+</div>
+<div id="hotarticls" class="panel">
+<ul class="panel_head"><span>阅读排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/ast_224/article/details/3861625" title="linux 中解析命令行参数 （getopt_long用法）">linux 中解析命令行参数 （getopt_long用法）</a><span>(16951)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/2957294" title="Linux 下socket超时（connect超时/recv超时）">Linux 下socket超时（connect超时/recv超时）</a><span>(14057)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3962221" title="socket实现进程间通信">socket实现进程间通信</a><span>(12038)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3860680" title="linux 守护进程 daemon">linux 守护进程 daemon</a><span>(9146)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3988244" title="gcc生成静态库和动态库">gcc生成静态库和动态库</a><span>(8424)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3111347" title="浅析setsockopt()">浅析setsockopt()</a><span>(8400)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3906167" title="va_start()va_end()函数应用">va_start()va_end()函数应用</a><span>(8267)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/2842418" title="htons和htonl函数具体应用">htons和htonl函数具体应用</a><span>(6971)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3176377" title="简析STUN协议">简析STUN协议</a><span>(5510)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3943306" title="iphdr与tcphdr详解（skb_header_pointer函数分析）">iphdr与tcphdr详解（skb_header_pointer函数分析）</a><span>(5192)</span>
+</li>
+</ul>
+</div>
+<div id="hotarticls2" class="panel">
+<ul class="panel_head"><span>评论排行</span></ul>
+<ul class="panel_body itemlist">
+<li>
+<a href="/ast_224/article/details/3861625" title="linux 中解析命令行参数 （getopt_long用法）">linux 中解析命令行参数 （getopt_long用法）</a><span>(12)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3111347" title="浅析setsockopt()">浅析setsockopt()</a><span>(5)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3906167" title="va_start()va_end()函数应用">va_start()va_end()函数应用</a><span>(5)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3962221" title="socket实现进程间通信">socket实现进程间通信</a><span>(4)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/4070103" title="编译内核模块">编译内核模块</a><span>(4)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3977311" title="strtok函数实现与应用">strtok函数实现与应用</a><span>(3)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3635088" title="ACL基本原理与配置">ACL基本原理与配置</a><span>(2)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/5091792" title="Linux学习步骤">Linux学习步骤</a><span>(2)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3863563" title="linux c编程操作数据库（sqlite3应用）">linux c编程操作数据库（sqlite3应用）</a><span>(2)</span>
+</li>
+<li>
+<a href="/ast_224/article/details/3392792" title="预处理命令之条件编译（#ifdef,#else,#endif,#if）">预处理命令之条件编译（#ifdef,#else,#endif,#if）</a><span>(2)</span>
+</li>
+</ul>
+</div>
+<div id="homepageArticles" class="panel tracking-ad" data-mod="popu_4">
+<ul class="panel_head"><span>推荐文章</span></ul>
+<ul class="panel_body" id="ad_commend"></ul>
+</div>
+<script type="text/javascript">
+ new Ad(12, 'ad_commend');
+</script><div id="newcomments" class="panel">
+<ul class="panel_head"><span>最新评论</span></ul>
+<ul class="panel_body itemlist">
+    <li>
+    <a href="/ast_224/article/details/3943306#comments">iphdr与tcphdr详解（skb_header_pointer函数分析）</a>
+    <p style="margin:0px;"><a href="/cccAllen" class="user_name">cccAllen</a>:
+赞
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/3962221#comments">socket实现进程间通信</a>
+    <p style="margin:0px;"><a href="/whr890430" class="user_name">whr890430</a>:
+请问下 如果本地在多网卡的情况下要主意什么吗？
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/3962221#comments">socket实现进程间通信</a>
+    <p style="margin:0px;"><a href="/hust06lingling" class="user_name">hust06lingling</a>:
+学习了，谢谢分享！
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/8771781#comments">时光的流逝，如今的感悟</a>
+    <p style="margin:0px;"><a href="/wangpeifeng669" class="user_name">wangpeifeng669</a>:
+加油。。
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/3863563#comments">linux c编程操作数据库（sqlite3应用）</a>
+    <p style="margin:0px;"><a href="/zhuifenghebei" class="user_name">zhuifenghebei</a>:
+@yyq1w2e3:哥们，我也碰巧看到这段代码，32行char* sql1 = &quot;INSERT IN...
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/3861625#comments">linux 中解析命令行参数 （getopt_long用法）</a>
+    <p style="margin:0px;"><a href="/huyacong1" class="user_name">huyacong1</a>:
+不错
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/3404208#comments">理解Windows中的路由表和默认网关 </a>
+    <p style="margin:0px;"><a href="/OICLF" class="user_name">OICLF</a>:
+nice，挺详细的
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/4070103#comments">编译内核模块</a>
+    <p style="margin:0px;"><a href="/tengzhenyi" class="user_name">tengzhenyi</a>:
+很好
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/4070103#comments">编译内核模块</a>
+    <p style="margin:0px;"><a href="/xuanzilie" class="user_name">xuanzilie</a>:
+多谢了，看完你的文章，把困扰我的一个问题解决了。
+    </p>
+    </li>
+    <li>
+    <a href="/ast_224/article/details/3861625#comments">linux 中解析命令行参数 （getopt_long用法）</a>
+    <p style="margin:0px;"><a href="/manfonly" class="user_name">manfonly</a>:
+蛮实用的！
+    </p>
+    </li>
+</ul>
+</div>
+    </div>
+    <div class="clear">
+    </div>
+</div>
+
+            <div class="clear">
+            </div>
+        </div>
+        
+
+<script type="text/javascript" src="http://static.blog.csdn.net/scripts/newblog.min.js"></script>
+<script type="text/javascript" src="http://medal.blog.csdn.net/showblogmedal.ashx?blogid=400639"></script>
+<script type="text/javascript">
+    document.write('<script type="text/javascript" src="http://csdnimg.cn/pubfooter/js/publib_footer.js?' + Math.floor(new Date() / 120000).toString(36) + '="></' + 'script>');
+</script>
+    <script type="text/javascript" src="http://pass.csdn.net/content/loginbox/login.js"></script>
+<script type="text/javascript">document.write("<img src=http://counter.csdn.net/pv.aspx?id=24 border=0 width=0 height=0>");</script>
+<script type="text/javascript" src="http://www.csdn.net/ui/scripts/Csdn/counter.js"></script>
+<script type="text/javascript" src="http://ad.csdn.net/scripts/ad-blog.js"></script>
+<script type="text/javascript" src="http://zz.csdn.net/js/count.js"></script>
+<script type="text/javascript">
+    $(function () {
+        function __get_code_toolbar(snippet_id) {
+            return $("<a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "' target='_blank' title='在CODE上查看代码片' style='text-indent:0;'><img src='https://code.csdn.net/assets/CODE_ico.png' width=12 height=12 alt='在CODE上查看代码片' style='position:relative;top:1px;left:2px;'/></a>"
+                    + "<a href='https://code.csdn.net/snippets/"
+                    + snippet_id
+                    + "/fork' target='_blank' title='派生到我的代码片'  style='text-indent:0;'><img src='https://code.csdn.net/assets/ico_fork.svg' width=12 height=12 alt='派生到我的代码片' style='position:relative;top:2px;left:2px;'/></a>");
+        }
+        
+        $("[code_snippet_id]").each(function () {
+            __s_id = $(this).attr("code_snippet_id");
+            if (__s_id != null && __s_id != "" && __s_id != 0 && parseInt(__s_id) > 70020) {
+                __code_tool = __get_code_toolbar(__s_id);
+                $(this).prev().find(".tools").append(__code_tool);
+            }
+        });
+    });
+</script>
+
+    </div>
+</body>
+</html>

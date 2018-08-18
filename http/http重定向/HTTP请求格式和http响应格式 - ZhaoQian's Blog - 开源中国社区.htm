@@ -1,0 +1,1165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang='zh-CN' xml:lang='zh-CN' xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta http-equiv="Content-Language" content="zh-CN"/>
+  <meta name="robots" content="index, follow" />
+  <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico" />
+  <title>HTTP请求格式和http响应格式 -  ZhaoQian&apos;s Blog - 开源中国社区</title>
+      <meta name="Description" content="HTTP请求格式和http响应格式：当浏览器向Web服务器发出请求时，它向服务器传递了一个数据块，也就是请求信息，HTTP请求信息由3部分组成..."/>
+    <link rel="stylesheet/less" href="http://my.oschina.net/zhaoqian/styles.less?ver=20131211&date=20130206162308" type="text/css" media="screen" />
+  <link rel="stylesheet" href="/js/2012/poshytip/tip-yellowsimple/tip-yellowsimple.css" type="text/css" />
+  <link rel="stylesheet" type="text/css" href="/js/2011/fancybox/jquery.fancybox-1.3.4.css" media="screen" />
+  <script type="text/javascript" src="/js/2012/jquery-1.7.1.min.js"></script>
+  <script type="text/javascript" src="/js/2012/jquery.form.js"></script>
+  <script type="text/javascript" src="/js/2011/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+  <script type="text/javascript" src="/js/2012/poshytip/jquery.poshytip.min.js"></script>
+  <script type="text/javascript" src="/js/2011/oschina.js?ver=20121007"></script>
+  <script type="text/javascript" src="/js/2012/less-1.3.0.min.js"></script>
+  <script type="text/javascript" src="/js/scrolltopcontrol.js"></script>
+  <script type='text/javascript' src='/js/jquery/jquery.atwho.js?ver=2013112501'></script>
+  <link rel="stylesheet" type="text/css" href="/js/jquery/jquery.atwho.css" />
+  <link rel="alternate" type="application/rss+xml" title="LionCredo最新博客" href="http://my.oschina.net/zhaoqian/rss" />
+  <link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://my.oschina.net/action/xmlrpc/rsd?space=214542" />
+  <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://my.oschina.net/action/xmlrpc/wlwmanifest?space=214542" /> 
+  <style type="text/css">
+    body,table,input,textarea,select {font-family:微软雅黑,Verdana,sans-serif,宋体;}	
+  </style>
+  <script type="text/javascript">
+  	scrolltotop.offset(100,165);
+	scrolltotop.init();
+  </script>
+</head>
+<body>
+<div id="OSC_Screen">
+	<div id='OSC_Banner'>
+		<div id="OSC_Logo">
+        	<a href="http://www.oschina.net/" title="开源中国社区首页">开源中国社区</a>
+        </div>
+        <div id='OSC_Slogon'>开源项目发现、使用和交流平台</div>
+		        <div id="OSC_Channels">
+        	<ul>
+        	<li><a href="http://www.oschina.net/project" class='software'>项目</a></li>
+        	<li><a href="http://www.oschina.net/question" class='question'>讨论</a></li>
+        	<li><a href="http://www.oschina.net/code/list" class='code'>代码</a></li>
+        	<li><a href="http://www.oschina.net/news" class='news'>资讯</a></li>
+        	<li><a href="http://www.oschina.net/translate" class='translate'>翻译</a></li>
+        	<li><a href="http://www.oschina.net/blog" class='blog'>博客</a></li>
+        	<li><a href="http://www.oschina.net/android" class='android'>Android</a></li>
+        	<li><a href="http://www.oschina.net/job" class='job'>招聘</a></li>
+        	</ul>
+        </div>
+        <div class='clear'></div>
+	</div>
+	<div id="OSC_Topbar">
+		<div id="VisitorInfo">
+		当前访客身份：
+				游客 [ <a href="http://www.oschina.net/home/login?goto_page=http%3A%2F%2Fmy.oschina.net%2Fzhaoqian">登录</a> | <a href="http://www.oschina.net/home/reg">加入开源中国</a> ]
+				<span id="OSC_Notification">			
+																		<a href="http://www.oschina.net/home/login?goto_page=http%3A%2F%2Fmy.oschina.net%2Fzhaoqian" class="msgbox" title="进入我的留言箱">你有<em>0</em>新留言</a>			
+											</span>
+		</div>
+		<div id="SearchBar">
+    		<form action="http://www.oschina.net/search">
+				<input type='hidden' name='user' value='214542'/>
+																<span class="ipt f_l">
+    			<input type='text' id='txt_q' name='q' class='SERACH' value='在 27990 款开源软件中搜索' onblur="(this.value=='')?this.value='在 27990 款开源软件中搜索':this.value" onfocus="if(this.value=='在 27990 款开源软件中搜索'){this.value='';};this.select();"/>
+				</span>
+				                <div class="search-by selectbox">
+    				<span class="hide">
+    				<select name='scope'>					
+                        <option value='project' selected>软件</option>
+                        <option value='code'>代码</option>
+                        <option value='bbs'>讨论区</option>
+                        <option value='news'>新闻</option>
+                        <option value='blog'>博客</option>
+    				</select>
+    				</span>
+                  <div class="search_on" id="search-item"><span class="text">软件</span></div>
+                  <ul class="search_list">
+                     <li class="search-item"><a href="#1">软件</a></li>
+                     <li><a href="#2">代码</a></li>
+                     <li><a href="#3">讨论区</a></li>
+                     <li><a href="#4">新闻</a></li>
+                     <li><a href="#5">博客</a></li>
+                  </ul>
+                </div>
+				<input type='submit' value='搜索' class='bnt f_r'/>			
+    		</form>
+		</div>
+		<div class='clear'></div>
+	</div>
+	<div id="OSC_Content">	
+<style>
+	.icon{width:20px;height:20px;vertical-align: middle;display:inline-block;font-size:14px;text-align:center;color:#FFF;font-weight: bold;}
+	.catalogs{padding:0px;margin:0px;position:relative;display:inline-block;}
+    .catalogs ul{padding:0px;margin:0px;position:absolute;left:-8px;top: -21px;clear:left;width:120px;height:14px;overflow:hidden;background:#FFF;z-index:1000;padding:5px;border:1px solid #FFF;}
+    .catalogs ul:hover{height:auto;background:#fff;border:1px solid #4466bb;}
+    .catalogs ul li a:hover{color:#A00;font-weight: bold;}
+	.BlogStat a:hover{background:#FFF;}
+	.BlogStat{font-size:12px;line-height:20px;}
+	.BlogStat .g{color:#40AA53}
+	.BlogTags{margin-top:8px;}
+		.BlogAbstracts{}
+</style>
+<div id='SpaceLeft'>
+<div class='Owner'>
+	    <a href="http://my.oschina.net/zhaoqian" class='Img'><img src="http://static.oschina.net/uploads/user/107/214542_100.jpg?t=1370366956000" align="absmiddle" alt="Credo" title="Credo" class="LargePortrait"/></a>
+    <span class='U'>
+        <a href="http://my.oschina.net/zhaoqian" class='Name' title='男'>Credo</a>
+		<span class='opts'>
+			<img src="/img/2012/men.png" align='absmiddle' title='男'/>
+        			<script type='text/javascript'>
+var nologin = "<a href='javascript:_follow_nologin()' title='成为TA的粉丝'>关注此人</a>"
+var follow0 = "<a href='javascript:_follow_user(214542,true)' title='成为TA的粉丝'>关注此人</a>";
+var follow1 = "已关注 | <a href='javascript:_follow_user(214542,false)' title='取消关注后，此人的更新信息将不会出现在你的首页'>取消</a>";
+var follow2 = "互相关注 | <a href='javascript:_follow_user(214542,false)' title='取消关注后，此人的更新信息将不会出现在你的首页'>取消</a>";
+var follow4 = "<a href='javascript:_follow_user(214542,true)' title='成为TA的粉丝'>+关注此人</a>";
+
+document.write("<span id='_follow_214542_action_'>");
+	document.write(nologin);
+document.write("</span>");
+
+function _follow_nologin(){
+	if(confirm('必须登录后才能关注，是否现在登录？')){
+		location.href="http://www.oschina.net/home/login?goto_page="+location.href;
+	}
+}
+
+function _follow_user(uid, follow){
+	var action = follow?"/action/user/follow":"/action/user/unfollow";
+	ajax_post(action,"id="+uid+"&user=${g_user.id}",function(result){
+		var act = $('#_follow_214542_action_');
+		if(result == '0')
+			_follow_nologin();
+		else if(result == '1')
+			act.html(follow0);
+		else if(result == '2')
+			act.html(follow1);
+		else if(result == '3')
+			act.html(follow2);
+		else if(result == '4')
+			act.html(follow4);
+	});
+}
+</script>				</span>
+    </span>
+    <div class='clear'></div>
+    <div class='stat'>
+    	<a href="http://my.oschina.net/zhaoqian/fellow">关注(10)</a>
+    	<a href="http://my.oschina.net/zhaoqian/fans">粉丝(122)</a>
+    	<a href="http://www.oschina.net/question/3307_20931" title="查看OSCHINA积分规则">积分(49)</a>
+    </div>
+</div><style>
+#MyResume textarea {width:170px;height:60px;font-size:9pt;}
+</style>
+<div class='Resume' id='MyResume'>
+Never,Never,Never Give Up.</div>
+
+<div class='Opts clearfix'>
+	<a href="javascript:sendmsg(214542, 0)" class='a1 sendmsg'><i>.</i><span>发送留言</span></a>
+	<a href="http://www.oschina.net/question/ask?user=214542" class='a2 ask'><i>.</i><span>请教问题</span></a>
+</div><div class="Mod" id="BlogCatalogs">
+  <strong> 博客分类</strong>
+  <ul>
+	    	<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=263516">JavaBase</a><span>(7)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=319428">JPA/Jaxb</a><span>(6)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=305669">cdi</a><span>(2)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=301571">JVM</a><span>(2)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=214235">设计模式</a><span>(3)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=262499">spring</a><span>(1)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=262500">Java多线程</a><span>(8)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=288280">Java IO</a><span>(4)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=264306">JMS</a><span>(4)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=265753">JavaMail</a><span>(2)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=212868">JSF</a><span>(3)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=418274">rest/Jax-rs</a><span>(5)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=284558">XML</a><span>(2)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=422732">struts</a><span>(6)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=215479">经典题目</a><span>(1)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=200357">IDE/Server</a><span>(6)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=200356">框架搭建</a><span>(3)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=215521">DB</a><span>(10)</span></li>
+		<li><a href="http://my.oschina.net/zhaoqian/blog?catalog=208172">JS/CSS/JQuery</a><span>(2)</span></li>
+	  </ul>
+</div><div class="Mod" id="HotBlogs">
+  <strong>阅读排行</strong>
+  <ol>
+			<li><a href="http://my.oschina.net/zhaoqian/blog/94670">1. &lt;1&gt;精研Servlet,HttpServlet的实现追究</a></li>
+				<li><a href="http://my.oschina.net/zhaoqian/blog/66545">2. eclipse设置和优化</a></li>
+				<li><a href="http://my.oschina.net/zhaoqian/blog/66543">3. Eclipse环境搭建全集(个人使用的环境,Eclipse+SVN+Maven+JbossTo...</a></li>
+				<li><a href="http://my.oschina.net/zhaoqian/blog/90315">4. HTTP请求格式和http响应格式</a></li>
+				<li><a href="http://my.oschina.net/zhaoqian/blog/90796">5. JBOSS7.1下开发JMS(HoernetQ)的示例DEMO.</a></li>
+				<li><a href="http://my.oschina.net/zhaoqian/blog/90321">6. REST 风格的 Web 服务入门指南和 (重要)REST关键原则</a></li>
+				<li><a href="http://my.oschina.net/zhaoqian/blog/66541">7. 第一步搭建:JSF(Primefaces)+SPRING+JPA(Hibernate)</a></li>
+				<li><a href="http://my.oschina.net/zhaoqian/blog/118458">8. Java EE6核心特征:Bean Validation</a></li>
+		  </ol>
+</div>
+<div class="Mod" id="BlogReplies">
+  <strong> 最新评论</strong>  
+      <ul>
+		<li>
+		<a href="http://my.oschina.net/54programmer">@子弹兄</a>：我以前也写过，不过也没有做模块收集！
+		<a href="/action/tweet/go?obj=277172954&type=18&user=559323">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/54programmer">@子弹兄</a>：很不错！
+		<a href="/action/tweet/go?obj=277172949&type=18&user=559323">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/hycx227">@李红元</a>：感觉还可以
+		<a href="/action/tweet/go?obj=277121040&type=18&user=566102">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/zhaoqian">@Credo</a>：引用来自“王龙祥”的评论 箭头行的图案跟哪几行...
+		<a href="/action/tweet/go?obj=277106139&type=18&user=214542">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/u/574908">@王龙祥</a>：箭头行的图案跟哪几行代码有关，看了半天没看出来...
+		<a href="/action/tweet/go?obj=277106124&type=18&user=574908">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/zhaoqian">@Credo</a>：引用来自“Mr6”的评论 这个真的不错。 作为后端...
+		<a href="/action/tweet/go?obj=277104552&type=18&user=214542">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/u/866681">@第五郎</a>：要人命啊。
+		<a href="/action/tweet/go?obj=277102963&type=18&user=866681">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/Sebastian">@Mr6</a>：这个真的不错。 作为后端，css的position定位始终...
+		<a href="/action/tweet/go?obj=277101965&type=18&user=260739">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/beiluo">@北落</a>：引用来自“Credo”的评论 引用来自“北落”的评论...
+		<a href="/action/tweet/go?obj=277095552&type=18&user=96374">查看&raquo;</a>
+	</li>
+		<li>
+		<a href="http://my.oschina.net/zhaoqian">@Credo</a>：引用来自“北落”的评论 看到这一坨一坨的css，想...
+		<a href="/action/tweet/go?obj=277094736&type=18&user=214542">查看&raquo;</a>
+	</li>
+	  </ul>
+  </div>
+<div class='Mod' id='Stat'>
+<strong>访客统计</strong>
+<ul>
+	<li><label>今日访问：</label>84</li>
+    <li><label>昨日访问：</label>129</li>
+    <li><label>本周访问：</label>367</li>
+    <li><label>本月访问：</label>1429</li>
+    <li><label>所有访问：</label>26675</li>
+</ul>
+</div></div>
+
+<div class='SpaceList'>
+	<div class='TopBar'>
+    	<div class='NavPath'>		
+    		<a href='http://my.oschina.net/zhaoqian/home'>空间</a> &raquo; <a href='http://my.oschina.net/zhaoqian/blog'>博客</a>			
+			&raquo; 
+						<span class="catalogs">
+    			<ul>
+    										<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=418274">rest/Jax-rs</a></li>
+					        			        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=263516">JavaBase</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=319428">JPA/Jaxb</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=305669">cdi</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=301571">JVM</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=214235">设计模式</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=262499">spring</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=262500">Java多线程</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=288280">Java IO</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=264306">JMS</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=265753">JavaMail</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=212868">JSF</a></li>    				        				    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=284558">XML</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=422732">struts</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=215479">经典题目</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=200357">IDE/Server</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=200356">框架搭建</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=215521">DB</a></li>    				        				<li ><a href="http://my.oschina.net/zhaoqian/blog?catalog=208172">JS/CSS/JQuery</a></li>    				    				        				<li><a href="http://my.oschina.net/zhaoqian/blog">所有分类</a></li>
+    				    			</ul>
+			</span>
+    	</div>
+	</div>
+	
+    	<div class='BlogEntity'>		
+      <div class='BlogTitle'>
+        <h1>									<span class="icon" style="background:#799acc;"  title="转帖博客">转</span>						HTTP请求格式和http响应格式</h1>
+        <div class='BlogStat'>
+    		    		发表于1年前(2012-11-19 16:53)&nbsp;&nbsp;
+    		阅读（<span class="g">1709</span>）&nbsp;|&nbsp;评论（<a href="#comments"><span class="g">0</span></a>）
+    					    	    <span class='admin'>
+				<style>
+#TagsSwitcher{color:#A00;}
+#RecTags,#MyTags{margin:5px 0;}
+#RecTags a.tag{line-height:24px;}
+#favor_form p:first-child{margin:5px 0;}
+#favor_form{width:200px;}
+#favor_form p {color:#666;}
+#favor_form form{min-height: 85px;width:200px;}
+#favor_form form ._favor_input{display:block;margin:2px 0;width:199px;}
+#favor_form form ._favor_button{float:left;padding:2px 5px;}
+.favor_ok {text-align:center;font-size:10.5pt;width:199px;height:60px;margin-top:10px;}
+#TagsSwitcher{cursor:pointer;float:right;margin-top:10px;}
+#MyTags{display:none;width:199px;}
+#MyTags a.tag {float:left; background-color: #E0EAF1;border-bottom: 1px solid #3E6D8E;border-right: 1px solid #7F9FB6;color: #3E6D8E;font-size: 8pt;line-height: 16px;margin: 2px 2px 2px 0;padding: 2px 4px;text-decoration: none;white-space: nowrap;}
+#MyTags a.tag:hover{background-color: #3E6D8E;color: #FFF;}
+</style>
+<script type='text/javascript'>
+var favor_add = "<a href='javascript:add_to_favor(90315,3)' id='favor_trigger' title='添加到收藏夹'>我要收藏</a>";
+var favor_del = "<a href='javascript:delete_favor(90315,3)' id='favor_trigger' style='color:#a00;'>取消收藏</a>";
+var favor_ok = "<p class='favor_ok'>已成功添加到收藏夹<br/><br/> <a href='null/favorites?type=3'>我的收藏夹</a> | <a href='javascript:close_favor()'>关闭</a></p>";
+function delete_favor(obi_id, obj_type){
+	$('#attention_it').html(favor_add);
+	$("#p_attention_count").load("/action/favorite/cancel?type="+obj_type+"&id="+obi_id, {user: ''});
+}
+function add_to_favor(obj_id, obj_type){
+	if(confirm('必须登录后才能收藏，是否现在登录？')){
+		location.href="http://www.oschina.net/home/login?goto_page="+encodeURIComponent(location.href);
+	}
+}
+function close_favor(elem_id){
+    $('#favor_trigger').poshytip('destroy');
+}
+function setTag(tv){
+	var t = $("._favor_input");
+	var value = t.val();
+	var tags = value.replace(/，/ig,',').split(',');
+	var exist = false;
+	value = $.map(tags,function(v,i){
+		if($.trim(tv) == $.trim(v)){
+			exist = true;
+			return undefined;
+		}
+		return v;
+	}).join(',');
+	if(exist){
+		t.val(value);
+		return;
+	}
+	if(value!="")
+		t.val(value+","+tv);
+	else
+		t.val(tv)
+}
+function ltrim(str){
+    var whitespace = new String(" \t\n\r");
+    var s = new String(str);
+    if (whitespace.indexOf(s.charAt(0)) != -1){
+        var j=0, i = s.length;
+        while (j < i && whitespace.indexOf(s.charAt(j)) != -1){
+            j++;
+        }
+        s = s.substring(j, i);
+    }
+    return s;
+}
+
+function rtrim(str){
+    var whitespace = new String(" \t\n\r");
+    var s = new String(str);
+    if (whitespace.indexOf(s.charAt(s.length-1)) != -1){
+        var i = s.length - 1;
+        while (i >= 0 && whitespace.indexOf(s.charAt(i)) != -1){
+            i--;
+        }
+        s = s.substring(0, i+1);
+    }
+    return s;
+}
+ 
+function trim(str){
+    return rtrim(ltrim(str));
+}
+</script>
+<em id='p_attention_count'>43</em>人收藏此文章,
+<span id='attention_it'>
+	<script type='text/javascript'>document.write(favor_add);</script>
+</span>			</span>
+			    	</div>
+		<div class="tvote" onclick="vote(90315)" title="都有1个人赞过了，你也来赞一下吧！不会扣积分哦！"><em class="vote">赞</em><em class="num vote_count">1</em></div>
+      </div>
+	  
+	  <a  name="kindeditor" ></a>
+	  	  	  <div class='BlogContent'><p> <span style="font-family:宋体;">当浏览器向</span><span style="font-family:Calibri;">Web</span><span style="font-family:宋体;">服务器发出请求时，它向服务器传递了一个数据块，也就是请求信息，</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">请求信息由</span><span style="font-family:Calibri;">3</span><span style="font-family:宋体;">部分组成：</span><br /> <span style="font-family:Calibri;color:#E53333;">l&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;color:#E53333;">请求方法</span><span style="font-family:Calibri;color:#E53333;">URI</span><span style="font-family:宋体;color:#E53333;">协议</span><span style="font-family:Calibri;color:#E53333;">/</span><span style="font-family:宋体;color:#E53333;">版本</span><br /> <span style="font-family:Calibri;color:#009900;">l&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;color:#009900;">请求头</span><span style="font-family:Calibri;color:#009900;">(Request Header)</span><br /> <span style="font-family:Calibri;color:#337FE5;">l&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;color:#337FE5;">请求正文</span><br /> <span style="font-family:宋体;">下面是一个</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">请求的例子：</span><br /> <span style="font-family:Calibri;color:#E53333;">GET/sample.jspHTTP/1.1</span> </p> 
+<p> <span><br /> </span><span style="color:#009900;font-family:Calibri;">Accept:image/gif.image/jpeg,*/*</span><br /> <span style="color:#009900;font-family:Calibri;">Accept-Language:zh-cn</span><br /> <span style="color:#009900;font-family:Calibri;">Connection:Keep-Alive</span><br /> <span style="color:#009900;font-family:Calibri;">Host:localhost</span><br /> <span style="color:#009900;font-family:Calibri;">User-Agent:Mozila/4.0(compatible;MSIE5.01;Window NT5.0)</span><br /> <span style="color:#009900;font-family:Calibri;">Accept-Encoding:gzip,deflate</span> </p> 
+<p> <span><br /> </span><span style="color:#337FE5;font-family:Calibri;">username=jinqiao&amp;password=1234</span> </p> 
+<p> <span style="color:#337FE5;font-family:Calibri;"> </span> </p> 
+<h3> <span style="font-family:宋体;">（</span><span style="font-family:Calibri;">1</span><span style="font-family:宋体;">）请求方法</span><span style="font-family:Calibri;">URI</span><span style="font-family:宋体;">协议</span><span style="font-family:Calibri;">/</span><span style="font-family:宋体;">版本</span> </h3> 
+<span style="font-family:宋体;">请求的第一行是“方法</span> 
+<span style="font-family:Calibri;">URL</span> 
+<span style="font-family:宋体;">议</span> 
+<span style="font-family:Calibri;">/</span> 
+<span style="font-family:宋体;">版本”：</span> 
+<span style="font-family:Calibri;">GET/sample.jsp HTTP/1.1</span> 
+<br /> 
+<span style="font-family:宋体;color:#E53333;">以上代码中“</span> 
+<span style="font-family:Calibri;color:#E53333;">GET</span> 
+<span style="font-family:宋体;color:#E53333;">”代表请求方法，“</span> 
+<span style="font-family:Calibri;color:#E53333;">/sample.jsp</span> 
+<span style="font-family:宋体;color:#E53333;">”表示</span> 
+<span style="font-family:Calibri;color:#E53333;">URI</span> 
+<span style="font-family:宋体;color:#E53333;">，“</span> 
+<span style="font-family:Calibri;color:#E53333;">HTTP/1.1</span> 
+<span style="font-family:宋体;color:#E53333;">代表协议和协议的版本。</span> 
+<br /> 
+<span style="font-family:宋体;">根据</span> 
+<span style="font-family:Calibri;">HTTP</span> 
+<span style="font-family:宋体;">标准，</span> 
+<span style="font-family:Calibri;">HTTP</span> 
+<span style="font-family:宋体;">请求可以使用多种请求方法。例如：</span> 
+<span style="font-family:Calibri;">HTTP1.1</span> 
+<span style="font-family:宋体;">目前支持</span> 
+<span style="font-family:Calibri;">7</span> 
+<span style="font-family:宋体;">种请求方法：</span> 
+<span style="font-family:Calibri;">GET</span> 
+<span style="font-family:宋体;">、</span> 
+<span style="font-family:Calibri;">POST</span> 
+<span style="font-family:宋体;">、</span> 
+<span style="font-family:Calibri;">HEAD</span> 
+<span style="font-family:宋体;">、</span> 
+<span style="font-family:Calibri;">OPTIONS</span> 
+<span style="font-family:宋体;">、</span> 
+<span style="font-family:Calibri;">PUT</span> 
+<span style="font-family:宋体;">、</span> 
+<span style="font-family:Calibri;">DELETE</span> 
+<span style="font-family:宋体;">和</span> 
+<span style="font-family:Calibri;">TARCE</span> 
+<span style="font-family:宋体;">。</span> 
+<p> <span style="color:#009900;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;background-color:#FFFFFF;"><strong>GET&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>请求获取由</strong></span><span style="color:#009900;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;background-color:#FFFFFF;"><strong>Request-URI</strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>所标识的资源。</strong></span><span style="color:#419DB7;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;"><br /> <strong><span style="color:#009900;background-color:#FFFFFF;">POST&nbsp;</span></strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>在</strong></span><span style="color:#009900;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;background-color:#FFFFFF;"><strong>Request-URI</strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>所标识的资源后附加新的数据。</strong></span><span style="color:#419DB7;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;"><br /> <strong><span style="color:#009900;background-color:#FFFFFF;">HEAD&nbsp;</span></strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>请求获取由</strong></span><span style="color:#009900;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;background-color:#FFFFFF;"><strong>Request-URI</strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>所标识的资源的响应消息报头。</strong></span> </p> 
+<p> <span style="color:#009900;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;background-color:#FFFFFF;"><strong>OPTIONS&nbsp;</strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>请求查询服务器的性能，或查询与资源相关的选项和需求。</strong></span><span style="color:#419DB7;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;"><br /> <strong><span style="color:#009900;background-color:#FFFFFF;">PUT&nbsp;</span></strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>请求服务器存储一个资源，并用</strong></span><span style="color:#009900;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;background-color:#FFFFFF;"><strong>Request-URI</strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>作为其标识。</strong></span><span style="color:#419DB7;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;"><br /> <strong><span style="color:#009900;background-color:#FFFFFF;">DELETE&nbsp;</span></strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>请求服务器删除由</strong></span><span style="color:#009900;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;background-color:#FFFFFF;"><strong>Request-URI</strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>所标识的资源。</strong></span><span style="color:#419DB7;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;"><br /> <strong><span style="color:#009900;background-color:#FFFFFF;">TRACE&nbsp;</span></strong></span><span style="color:#009900;line-height:19px;font-family:宋体;font-size:9pt;background-color:#FFFFFF;"><strong>请求服务器回送收到的请求信息，主要用语测试或诊断。</strong></span><span style="color:#419DB7;line-height:19px;font-family:Arial, sans-serif;font-size:9pt;"><br /> </span><span style="font-family:宋体;">在</span><span><span style="font-family:Calibri;">Internet</span></span><span style="font-family:宋体;">应用中，最常用的方法是</span><span><span style="font-family:Calibri;">GET</span></span><span style="font-family:宋体;">和</span><span><span style="font-family:Calibri;">POST</span></span><span style="font-family:宋体;">。</span> </p> 
+<p> <span><span style="font-family:Calibri;">URI</span></span><span style="font-family:宋体;">完整地指定了要访问的网络资源，通常只要给出相对于服务器的根目录的相对目录即可，因此总是以“</span><span><span style="font-family:Calibri;">/</span></span><span style="font-family:宋体;">”开头，最后，协议版本声明了通信过程中使用</span><span><span style="font-family:Calibri;">HTTP</span></span><span style="font-family:宋体;">的版本。</span> </p> 
+<h3> <span style="font-family:宋体;">（</span><span style="font-family:Calibri;">2</span><span style="font-family:宋体;">）请求头</span><span style="font-family:Calibri;">(Request Header)</span> </h3> 
+<span style="font-family:宋体;">请求头包含许多有关的客户端环境和请求正文的有用信息。例如，请求头可以声明浏览器所用的语言，请求正文的长度等。</span> 
+<br /> 
+<span style="font-family:Calibri;">Accept:image/gif.image/jpeg.*/*</span> 
+<br /> 
+<span style="font-family:Calibri;">Accept-Language:zh-cn</span> 
+<br /> 
+<span style="font-family:Calibri;">Connection:Keep-Alive</span> 
+<br /> 
+<span style="font-family:Calibri;">Host:localhost</span> 
+<br /> 
+<span style="font-family:Calibri;">User-Agent:Mozila/4.0(compatible:MSIE5.01:Windows NT5.0)</span> 
+<br /> 
+<span style="font-family:Calibri;">Accept-Encoding:gzip,deflate.</span> 
+<h3> <span style="font-family:宋体;">（</span><span><span style="font-family:Calibri;">3</span></span><span style="font-family:宋体;">）请求正文</span> </h3> 
+<p> <span style="font-family:宋体;">请求头和请求正文之间是一个空行，这个行非常重要，它表示请求头已经结束，接下来的是请求正文。请求正文中可以包含客户提交的查询字符串信息：</span><br /> <span style="font-family:Calibri;">username=jinqiao&amp;password=1234</span><br /> <span style="font-family:宋体;">在以上的例子的</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">请求中，请求的正文只有一行内容。当然，在实际应用中，</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">请求正文可以包含更多的内容。</span> </p> 
+<p> <span style="color:#337FE5;font-family:Calibri;"> </span> </p> 
+<p> <span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">请求方法我这里只讨论</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法与</span><span style="font-family:Calibri;">POST</span><span style="font-family:宋体;">方法</span><br /> <span style="font-family:Calibri;color:#E53333;">l&nbsp;&nbsp;&nbsp;GET</span><span style="font-family:宋体;color:#E53333;">方法</span><br /> <span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法是默认的</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">请求方法，我们日常用</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法来提交表单数据，然而用</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法提交的表单数据只经过了简单的编码，同时它将作为</span><span style="font-family:Calibri;">URL</span><span style="font-family:宋体;">的一部分向</span><span style="font-family:Calibri;">Web</span><span style="font-family:宋体;">服务器发送，因此，如果使用</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法来提交表单数据就存在着安全隐患上。例如</span><br /> <span style="font-family:Calibri;">Http://127.0.0.1/login.jsp?Name=zhangshi&amp;Age=30&amp;Submit=%cc%E+%BD%BB</span><br /> <span style="font-family:宋体;">从上面的</span><span style="font-family:Calibri;">URL</span><span style="font-family:宋体;">请求中，很容易就可以辩认出表单提交的内容。（？之后的内容）另外由于</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法提交的数据是作为</span><span style="font-family:Calibri;">URL</span><span style="font-family:宋体;">请求的一部分所以提交的数据量不能太大</span><br /> &nbsp;<br /> <span style="font-family:Calibri;color:#E53333;">l&nbsp;&nbsp;POST</span><span style="font-family:宋体;color:#E53333;">方法</span><br /> <span style="font-family:Calibri;">POST</span><span style="font-family:宋体;">方法是</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法的一个替代方法，它主要是向</span><span style="font-family:Calibri;">Web</span><span style="font-family:宋体;">服务器提交表单数据，尤其是大批量的数据。</span><span style="font-family:Calibri;">POST</span><span style="font-family:宋体;">方法克服了</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法的一些缺点。通过</span><span style="font-family:Calibri;">POST</span><span style="font-family:宋体;">方法提交表单数据时，数据不是作为</span><span style="font-family:Calibri;">URL</span><span style="font-family:宋体;">请求的一部分而是作为标准数据传送给</span><span style="font-family:Calibri;">Web</span><span style="font-family:宋体;">服务器，这就克服了</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法中的信息无法保密和数据量太小的缺点。因此，出于安全的考虑以及对用户隐私的尊重，通常表单提交时采用</span><span style="font-family:Calibri;">POST</span><span style="font-family:宋体;">方法。</span><br /> <span style="font-family:宋体;">　　从编程的角度来讲，如果用户通过</span><span style="font-family:Calibri;">GET</span><span style="font-family:宋体;">方法提交数据，则数据存放在</span><span style="font-family:Calibri;">QUERY</span><span style="font-family:宋体;">＿</span><span style="font-family:Calibri;">STRING</span><span style="font-family:宋体;">环境变量中，而</span><span style="font-family:Calibri;">POST</span><span style="font-family:宋体;">方法提交的数据则可以从标准输入流中获取。</span> </p> 
+<h1> <span><span style="line-height:32px;font-family:Calibri;font-size:12px;"><strong>http响应格式</strong></span></span> </h1> 
+<p> <span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">应答与</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">请求相似，</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">响应也由</span><span style="font-family:Calibri;">3</span><span style="font-family:宋体;">个部分构成，分别是：</span><br /> <span style="font-family:Calibri;">l&nbsp;</span><span style="font-family:宋体;">　状态行</span><br /> <span style="font-family:Calibri;">l&nbsp;</span><span style="font-family:宋体;">　响应头</span><span style="font-family:Calibri;">(Response Header)</span><br /> <span style="font-family:Calibri;">l&nbsp;</span><span style="font-family:宋体;">　响应正文</span><br /> <span style="font-family:宋体;">在接收和解释请求消息后，服务器会返回一个</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">响应消息。</span><br /> <span style="font-family:宋体;">状态行由协议版本、数字形式的状态代码、及相应的状态描述，各元素之间以空格分隔。</span><br /> <span style="font-family:宋体;">格式</span><span style="font-family:Calibri;">:&nbsp;&nbsp;&nbsp;&nbsp;HTTP-Version Status-Code Reason-Phrase CRLF</span><br /> <span style="font-family:宋体;">例如</span><span style="font-family:Calibri;">:&nbsp;&nbsp;&nbsp;&nbsp;HTTP/1.1 200 OK \r\n</span><br /> &nbsp;<br /> <span style="font-family:宋体;">状态代码：</span><span style="font-family:宋体;">状态代码由</span><span style="font-family:Calibri;">3</span><span style="font-family:宋体;">位数字组成，表示请求是否被理解或被满足。</span><br /> <span style="font-family:宋体;">状态描述：</span><span style="font-family:宋体;">状态描述给出了关于状态代码的简短的文字描述。</span> </p> 
+<p> <span style="font-family:宋体;">状态代码的第一个数字定义了响应的类别，后面两位没有具体的分类。</span><br /> <span style="font-family:宋体;">第一个数字有五种可能的取值：</span><br /> <span style="font-family:Calibri;">- 1xx:&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">指示信息—表示请求已接收，继续处理。</span><br /> <span style="font-family:Calibri;">- 2xx:&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">成功—表示请求已经被成功接收、理解、接受。</span><br /> <span style="font-family:Calibri;">- 3xx:&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">重定向—要完成请求必须进行更进一步的操作。</span><br /> <span style="font-family:Calibri;">- 4xx:&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">客户端错误—请求有语法错误或请求无法实现。</span><br /> <span style="font-family:Calibri;">- 5xx:&nbsp;</span><span style="font-family:宋体;">服务器端错误—服务器未能实现合法的请求。</span> </p> 
+<p> <span><br /> </span> <span style="font-family:宋体;">状态代码</span><span style="font-family:宋体;">状态描述</span><span style="font-family:Calibri;">&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">说明</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp;200&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OK&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">客户端请求成功</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp;400&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bad Request&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">由于客户端请求有语法错误，不能被服务器所理解。</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp;401&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unauthonzed&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">请求未经授权。这个状态代码必须和</span><span style="font-family:Calibri;">WWW-Authenticate</span><span style="font-family:宋体;">报头域一起使用</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp;403&nbsp;&nbsp;&nbsp;Forbidden&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">服务器收到请求，但是拒绝提供服务。服务器通常会在响应正文中给出不提供服务的原因</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp;404&nbsp;&nbsp;&nbsp;Not Found&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">请求的资源不存在，例如，输入了错误的</span><span style="font-family:Calibri;">URL</span><span style="font-family:宋体;">。</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp;500&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Internal Server Error&nbsp;</span><span style="font-family:宋体;">服务器发生不可预期的错误，导致无法完成客户端的请求。</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp;503&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Service Unavailable&nbsp;&nbsp;&nbsp;</span><span style="font-family:宋体;">服务器当前不能够处理客户端的请求，在一段时间之后，服务器可能会恢复正常。</span><br /> &nbsp;<br /> <span style="font-family:宋体;">响应头</span><br /> <span style="font-family:宋体;">响应头可能包括：</span><br /> <span style="font-family:Calibri;color:#E53333;">Location</span><span style="font-family:宋体;color:#E53333;">：</span><span style="font-family:Calibri;">Location</span><span style="font-family:宋体;">响应报头域用于重定向接受者到一个新的位置。例如：客户端所请求的页面已不存在原先的位置，为了让客户端重定向到这个页面新的位置，服务</span><span style="font-family:宋体;">器端可以发回</span><span style="font-family:Calibri;">Location</span><span style="font-family:宋体;">响应报头后使用重定向语句，让客户端去访问新的域名所对应的服务器上的资源。当我们在</span><span style="font-family:Calibri;">JSP</span><span style="font-family:宋体;">中使用重定向语句的时候，服务器</span><span style="font-family:宋体;">端向客户端发回的响应报头中，就会有</span><span style="font-family:Calibri;">Location</span><span style="font-family:宋体;">响应报头域。</span> </p> 
+<p> <span style="font-family:Calibri;color:#E53333;">Server</span><span style="font-family:宋体;color:#E53333;">：</span><span style="font-family:Calibri;">Server</span><span style="font-family:宋体;">响应报头域包含了服务器用来处理请求的软件信息。它和</span><span style="font-family:Calibri;">User-Agent</span><span style="font-family:宋体;">请求报头域是相对应的，前者发送服务器端软件的信息，后者发送客户</span><span style="font-family:宋体;">端软件</span><span style="font-family:Calibri;">(</span><span style="font-family:宋体;">浏览器</span><span style="font-family:Calibri;">)</span><span style="font-family:宋体;">和操作系统的信息。下面是</span><span style="font-family:Calibri;">Server</span><span style="font-family:宋体;">响应报头域的一个例子：</span><span style="font-family:Calibri;">Server: Apache-Coyote/1.1</span><br /> <span style="font-family:Calibri;color:#E53333;">WWW-Authenticate</span><span style="font-family:宋体;color:#E53333;">：</span><span style="font-family:Calibri;">WWW-Authenticate</span><span style="font-family:宋体;">响应报头域必须被包含在</span><span style="font-family:Calibri;">401(</span><span style="font-family:宋体;">未授权的</span><span style="font-family:Calibri;">)</span><span style="font-family:宋体;">响应消息中，这个报头域和前面讲到的</span><span style="font-family:Calibri;">Authorization</span><span style="font-family:宋体;">请求报头域是</span><span style="font-family:宋体;">相关的，当客户端收到</span><span style="font-family:Calibri;">401</span><span style="font-family:宋体;">响应消息，就要决定是否请求服务器对其进行验证。如果要求服务器对其进行验证，就可以发送一个包含了</span><span style="font-family:Calibri;">&nbsp;Authorization</span><span style="font-family:宋体;">报头域的请求，下面是</span><span style="font-family:Calibri;">WWW-Authenticate</span><span style="font-family:宋体;">响应报头域的一个例子：</span><span style="font-family:Calibri;">WWW-Authenticate: Basic realm=&quot;Basic Auth Test!&quot;</span><br /> <span style="font-family:宋体;">从这个响应报头域，可以知道服务器端对我们所请求的资源采用的是基本验证机制。</span><br /> <span style="font-family:Calibri;color:#E53333;">Content-Encoding</span><span style="font-family:宋体;color:#E53333;">：</span><span style="font-family:Calibri;">Content-Encoding</span><span style="font-family:宋体;">实体报头域被使用作媒体类型的修饰符，它的值指示了已经被应用到实体正文的附加内容编码，因而要获得</span><span style="font-family:Calibri;">Content- Type</span><span style="font-family:宋体;">报头域中所引用的媒体类型，必须采用相应的解码机制。</span><span style="font-family:Calibri;">Content-Encoding</span><span style="font-family:宋体;">主要用语记录文档的压缩方法，下面是它的一个例子：</span><span style="font-family:Calibri;">&nbsp;Content-Encoding: gzip</span><span style="font-family:宋体;">。如果一个实体正文采用了编码方式存储，在使用之前就必须进行解码。</span><br /> <span style="font-family:Calibri;color:#E53333;">Content-Language</span><span style="font-family:宋体;color:#E53333;">：</span><span style="font-family:Calibri;">Content-Language</span><span style="font-family:宋体;">实体报头域描述了资源所用的自然语言。</span><span style="font-family:Calibri;">Content-Language</span><span style="font-family:宋体;">允许用户遵照自身的首选语言来识别和区分实体。</span><span style="font-family:宋体;">如果这个实体内容仅仅打算提供给丹麦的阅读者，那么可以按照如下的方式设置这个实体报头域：</span><span style="font-family:Calibri;">Content-Language: da</span><span style="font-family:宋体;">。</span><br /> <span style="font-family:宋体;">如果没有指定</span><span style="font-family:Calibri;">Content-Language</span><span style="font-family:宋体;">报头域，那么实体内容将提供给所以语言的阅读者。</span><br /> <span style="font-family:Calibri;color:#E53333;">Content-Length</span><span style="font-family:宋体;color:#E53333;">：</span><span style="font-family:Calibri;">&nbsp; Content-Length</span><span style="font-family:宋体;">实体报头域用于指明正文的长度，以字节方式存储的十进制数字来表示，也就是一个数字字符占一个字节，用其对应的</span><span style="font-family:Calibri;">ASCII</span><span style="font-family:宋体;">码存储传输。</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp; &nbsp; &nbsp;</span><span style="font-family:宋体;">要注意的是：这个长度仅仅是表示实体正文的长度，没有包括实体报头的长度。</span><br /> <span style="font-family:Calibri;">Content-Type</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp; &nbsp;Content-Type</span><span style="font-family:宋体;">实体报头域用语指明发送给接收者的实体正文的媒体类型。例如：</span><br /> <span style="font-family:Calibri;">Content-Type: text/html;charset=ISO-8859-1</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp;Content-Type: text/html;charset=GB2312</span><br /> <span style="font-family:Calibri;">Last-Modified</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp; &nbsp;Last-Modified</span><span style="font-family:宋体;">实体报头域用于指示资源最后的修改日期及时间。</span><br /> <span style="font-family:Calibri;">Expires</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp; &nbsp;Expires</span><span style="font-family:宋体;">实体报头域给出响应过期的日期和时间。通常，代理服务器或浏览器会缓存一些页面。当用户再次访问这些页面时，直接从缓存中加载并显示给用</span><span style="font-family:宋体;">户，这样缩短了响应的时间，减少服务器的负载。为了让代理服务器或浏览器在一段时间后更新页面，我们可以使用</span><span style="font-family:Calibri;">Expires</span><span style="font-family:宋体;">实体报头域指定页面过期的时</span><span style="font-family:宋体;">间。当用户又一次访问页面时，如果</span><span style="font-family:Calibri;">Expires</span><span style="font-family:宋体;">报头域给出的日期和时间比</span><span style="font-family:Calibri;">Date</span><span style="font-family:宋体;">普通报头域给出的日期和时间要早</span><span style="font-family:Calibri;">(</span><span style="font-family:宋体;">或相同</span><span style="font-family:Calibri;">)</span><span style="font-family:宋体;">，那么代理服务器或浏览器就</span><span style="font-family:宋体;">不会再使用缓存的页面而是从服务器上请求更新的页面。不过要注意，即使页面过期了，也并不意味着服务器上的原始资源在此时间之前或之后发生了改变。</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp; &nbsp; Expires</span><span style="font-family:宋体;">实体报头域使用的日期和时间必须是</span><span style="font-family:Calibri;">RFC 1123</span><span style="font-family:宋体;">中的日期格式，例如：</span><br /> <span style="font-family:Calibri;">Expires: Thu, 15 Sep 2005 16:00:00 GMT</span><br /> <span style="font-family:Calibri;">&nbsp; &nbsp; &nbsp; &nbsp;HTTP1.1</span><span style="font-family:宋体;">的客户端和缓存必须将其他非法的日期格式</span><span style="font-family:Calibri;">(</span><span style="font-family:宋体;">也包括</span><span style="font-family:Calibri;">0)</span><span style="font-family:宋体;">看作已过期。例如，为了让浏览器不要缓存页面，我们也可以利用</span><span style="font-family:Calibri;">Expires</span><span style="font-family:宋体;">实体报头</span><span style="font-family:宋体;">域，设置它的值为</span><span style="font-family:Calibri;">0</span><span style="font-family:宋体;">，如下</span><span style="font-family:Calibri;">(JSP)</span><span style="font-family:宋体;">：</span><span style="font-family:Calibri;">response.setDateHeader(&quot;Expires&quot;,0);</span><br /> &nbsp;<br /> <span style="font-family:宋体;">下面是一个</span><span style="font-family:Calibri;">HTTP</span><span style="font-family:宋体;">响应的例子：</span><br /> <span style="font-family:Calibri;">HTTP/1.1 200 OK</span><br /> &nbsp;<br /> <span style="font-family:Calibri;">Server:Apache Tomcat/5.0.12</span><br /> <span style="font-family:Calibri;">Date:Mon,6Oct2003 13:23:42 GMT</span><br /> <span style="font-family:Calibri;">Content-Length:112</span><br /> <span style="color:#337FE5;font-family:Calibri;"></span> </p></div>
+      	      	<div class='BlogShare'>
+    	
+		<strong>分享到：</strong>
+		<a class="share_sina" title="分享到新浪微博" href="javascript:void((function(s,d,e,r,l,p,t,z,c){var%20f='http://v.t.sina.com.cn/share/share.php?appkey=858381728',u=z||d.location,p=['&url=',e(u),'&title=',e(t||d.title),'&source=',e(r),'&sourceUrl=',e(l),'&content=',c||'gb2312','&pic=',e(p||'')].join('');function%20a(){if(!window.open([f,p].join(''),'mb',['toolbar=0,status=0,resizable=1,width=440,height=430,left=',(s.width-440)/2,',top=',(s.height-430)/2].join('')))u.href=[f,p].join('');};if(/Firefox/.test(navigator.userAgent))setTimeout(a,0);else%20a();})(screen,document,encodeURIComponent,'','','','HTTP请求格式和http响应格式: 当浏览器向Web服务器发出请求时，它向服务器传递了一个数据块，也就是请求信息，HTTP请求信息由3部分组成： l   请求方法URI协议/版本 l   请求头(Request Header...','','utf-8'));">
+			<img src="/img/sinaweibo_fb1.png" height="29">
+		</a>
+		<a class="share_qq" title="分享到腾讯微博" href="javascript:(function(){window.open('http://v.t.qq.com/share/share.php?url='+encodeURIComponent(document.location)+'&amp;appkey=96f54f97c4de46e393c4835a266207f4&amp;site=&amp;title='+encodeURIComponent(document.title)+encodeURIComponent(': 当浏览器向Web服务器发出请求时，它向服务器传递了一个数据块，也就是请求信息，HTTP请求信息由3部分组成： l   请求方法URI协议/版本 l   请求头(Request Header...'),'', 'width=450, height=400, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, location=yes, resizable=no, status=no');}())">
+			<img src="/img/tencent_weibo_fb.jpg" height="30">
+		</a>
+    	<span class='BlogVote' onclick="vote(90315)" title="都有1个人赞过了，你也来赞一下吧！不会扣积分哦！">
+			<span class="num vote_count" >1</span><span class="vote" >赞</span>
+		</span>
+	</div>
+      
+      <div class='BlogCopyright'>		
+	  		原文地址：<a href="http://www.cnblogs.com/Josh-or-Tom/archive/2012/07/17/2595657.html" target="_blank">http://www.cnblogs.com/Josh-or-Tom/archive/2012/07/17/2595657.html</a>
+	  	  </div>
+	  
+	  	  
+      <div class='BlogLinks'>
+    	<ul>
+                <li class='prev'><a href="http://my.oschina.net/zhaoqian/blog/90141" title="上一篇：JMS开发(三):JMS消息的确认方式">&laquo; 上一篇</a></li>        <li class='next'><a href="http://my.oschina.net/zhaoqian/blog/90321" title="下一篇：REST 风格的 Web 服务入门指南和 (重要)REST关键原则">下一篇 &raquo;</a></li>    	</ul>
+				<p style='margin:10px 0 0 0;font-weight:bold;color:#A00;text-decoration:none;'>开源中国-程序员在线工具：<a href="http://www.ostools.net/apidocs" style="text-decoration:none;">API文档大全(120+)</a> <a href="http://runjs.cn" style="text-decoration:none;" target='_blank'>JS在线编辑演示</a> <a href="http://www.ostools.net/qr" style="text-decoration:none;" target='_blank'>二维码</a>  <a href="http://www.ostools.net" style="text-decoration:none;" target='_blank'>更多>></a>
+		      </div>
+	</div>
+	
+	
+		       <div style='margin:10px 0;'>
+    	<script type="text/javascript" src="/js/ad/blog.js"></script>
+      </div>
+      </div>
+<div class='SpaceList' style='margin-top:20px;'>
+<div class='BlogComments'>
+    <h2><a name="comments"></a>评论<em>0</em></h2>
+			<p class='NoData'>尚无网友评论</p>
+		<ul id="BlogComments">
+		</ul>
+</div>
+	</div>
+
+<div id='inline_reply_editor' style='display:none;'>
+<div class="BlogCommentForm">
+	<form id="form_inline_comment" action="/action/blog/add_comment?blog=90315" method="POST">
+	  <input type='hidden' id='inline_reply_id' name='reply_id' value=''/>          
+      <textarea name="content" id="ccom_content" style="width:650px;height:60px;" onkeydown="if((event.metaKey || event.ctrlKey)&&event.keyCode==13){$('#form_inline_comment').submit();}"></textarea><br/>
+	  <p>
+		  <span style="float:right;">
+    	  <input type="submit" value="回复" id="btn_comment" class="blg_submit_btn"/> 
+    	  <input type="button" value="关闭" class="blg_submit_btn" id='btn_close_inline_reply'/>
+		  </span>
+		  插入：
+				<a href="javascript:;" onclick="javascript:insert_emotions('ccom_content',this);" class="blog_emotion">表情</a>
+				<a href="javascript:insert_projects_c();" class="blog_soft">开源软件</a>
+		 <span class="NoData" id="ficmp_msg" style="color:#F00"></span>
+	  </p>
+    </form>
+</div>
+</div>
+
+<div class='SpaceList' style='margin-top:20px;'>
+  <a name="comments" id="postform"></a>
+      <div class="BlogCommentForm">
+        <form id="form_comment" action="/action/blog/add_comment?blog=90315" method="POST">
+        	<div class="comment_portrait">
+        		<img src="/img/portrait.gif" align="absmiddle" alt="Credo" title="Credo" class="LargePortrait"/>        	</div>
+        	<div class="comment_form">
+        		<textarea name="content" id="wmd-input" style="width:650px;height:80px;" placeholder=""></textarea>
+				<p>
+					<button type="submit" class="blg_submit_btn" style="float:right;">发表评论</button>
+					插入：
+					<a href="javascript:insert_emotions();" class="blog_emotion">表情</a>
+					<a href="javascript:insert_projects();" class="blog_soft">开源软件</a>
+					<span class="NoData" id="cmt_tip"></span>
+				</p>
+				<div id="TweetFormPopupWraper">
+					<div id="TweetFormPopupArrow">
+        				<div id="TweetFormPopup">
+                        	<div id='TweetEmotions'>
+                            	<div class='TweetPopupTitle'><a href="javascript:;" onclick="$('#TweetFormPopupWraper').hide();return false;">关闭</a>插入表情</div>
+                            	                            	<a href='javascript:;' onclick='return ins_e(0);' class='emotion' style='background-position: -0px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(1);' class='emotion' style='background-position: -24px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(2);' class='emotion' style='background-position: -48px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(3);' class='emotion' style='background-position: -72px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(4);' class='emotion' style='background-position: -96px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(5);' class='emotion' style='background-position: -120px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(6);' class='emotion' style='background-position: -144px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(7);' class='emotion' style='background-position: -168px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(8);' class='emotion' style='background-position: -192px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(9);' class='emotion' style='background-position: -216px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(10);' class='emotion' style='background-position: -240px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(11);' class='emotion' style='background-position: -264px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(12);' class='emotion' style='background-position: -288px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(13);' class='emotion' style='background-position: -312px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(14);' class='emotion' style='background-position: -336px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(15);' class='emotion' style='background-position: -360px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(16);' class='emotion' style='background-position: -384px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(17);' class='emotion' style='background-position: -408px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(18);' class='emotion' style='background-position: -432px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(19);' class='emotion' style='background-position: -456px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(20);' class='emotion' style='background-position: -480px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(21);' class='emotion' style='background-position: -504px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(22);' class='emotion' style='background-position: -528px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(23);' class='emotion' style='background-position: -552px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(24);' class='emotion' style='background-position: -576px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(25);' class='emotion' style='background-position: -600px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(26);' class='emotion' style='background-position: -624px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(27);' class='emotion' style='background-position: -648px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(28);' class='emotion' style='background-position: -672px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(29);' class='emotion' style='background-position: -696px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(30);' class='emotion' style='background-position: -720px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(31);' class='emotion' style='background-position: -744px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(32);' class='emotion' style='background-position: -768px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(33);' class='emotion' style='background-position: -792px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(34);' class='emotion' style='background-position: -816px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(35);' class='emotion' style='background-position: -840px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(36);' class='emotion' style='background-position: -864px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(37);' class='emotion' style='background-position: -888px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(38);' class='emotion' style='background-position: -912px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(39);' class='emotion' style='background-position: -936px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(40);' class='emotion' style='background-position: -960px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(41);' class='emotion' style='background-position: -984px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(42);' class='emotion' style='background-position: -1008px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(43);' class='emotion' style='background-position: -1032px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(44);' class='emotion' style='background-position: -1056px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(45);' class='emotion' style='background-position: -1080px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(46);' class='emotion' style='background-position: -1104px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(47);' class='emotion' style='background-position: -1128px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(48);' class='emotion' style='background-position: -1152px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(49);' class='emotion' style='background-position: -1176px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(50);' class='emotion' style='background-position: -1200px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(51);' class='emotion' style='background-position: -1224px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(52);' class='emotion' style='background-position: -1248px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(53);' class='emotion' style='background-position: -1272px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(54);' class='emotion' style='background-position: -1296px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(55);' class='emotion' style='background-position: -1320px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(56);' class='emotion' style='background-position: -1344px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(57);' class='emotion' style='background-position: -1368px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(58);' class='emotion' style='background-position: -1392px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(59);' class='emotion' style='background-position: -1416px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(60);' class='emotion' style='background-position: -1440px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(61);' class='emotion' style='background-position: -1464px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(62);' class='emotion' style='background-position: -1488px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(63);' class='emotion' style='background-position: -1512px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(64);' class='emotion' style='background-position: -1536px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(65);' class='emotion' style='background-position: -1560px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(66);' class='emotion' style='background-position: -1584px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(67);' class='emotion' style='background-position: -1608px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(68);' class='emotion' style='background-position: -1632px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(69);' class='emotion' style='background-position: -1656px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(70);' class='emotion' style='background-position: -1680px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(71);' class='emotion' style='background-position: -1704px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(72);' class='emotion' style='background-position: -1728px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(73);' class='emotion' style='background-position: -1752px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(74);' class='emotion' style='background-position: -1776px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(75);' class='emotion' style='background-position: -1800px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(76);' class='emotion' style='background-position: -1824px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(77);' class='emotion' style='background-position: -1848px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(78);' class='emotion' style='background-position: -1872px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(79);' class='emotion' style='background-position: -1896px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(80);' class='emotion' style='background-position: -1920px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(81);' class='emotion' style='background-position: -1944px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(82);' class='emotion' style='background-position: -1968px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(83);' class='emotion' style='background-position: -1992px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(84);' class='emotion' style='background-position: -2016px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(85);' class='emotion' style='background-position: -2040px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(86);' class='emotion' style='background-position: -2064px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(87);' class='emotion' style='background-position: -2088px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(88);' class='emotion' style='background-position: -2112px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(89);' class='emotion' style='background-position: -2136px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(90);' class='emotion' style='background-position: -2160px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(91);' class='emotion' style='background-position: -2184px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(92);' class='emotion' style='background-position: -2208px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(93);' class='emotion' style='background-position: -2232px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(94);' class='emotion' style='background-position: -2256px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(95);' class='emotion' style='background-position: -2280px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(96);' class='emotion' style='background-position: -2304px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(97);' class='emotion' style='background-position: -2328px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(98);' class='emotion' style='background-position: -2352px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(99);' class='emotion' style='background-position: -2376px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(100);' class='emotion' style='background-position: -2400px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(101);' class='emotion' style='background-position: -2424px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(102);' class='emotion' style='background-position: -2448px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(103);' class='emotion' style='background-position: -2472px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(104);' class='emotion' style='background-position: -2496px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(105);' class='emotion' style='background-position: -2520px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(106);' class='emotion' style='background-position: -2544px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(107);' class='emotion' style='background-position: -2568px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(108);' class='emotion' style='background-position: -2592px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(109);' class='emotion' style='background-position: -2616px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(110);' class='emotion' style='background-position: -2640px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(111);' class='emotion' style='background-position: -2664px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(112);' class='emotion' style='background-position: -2688px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(113);' class='emotion' style='background-position: -2712px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(114);' class='emotion' style='background-position: -2736px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(115);' class='emotion' style='background-position: -2760px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(116);' class='emotion' style='background-position: -2784px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(117);' class='emotion' style='background-position: -2808px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(118);' class='emotion' style='background-position: -2832px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(119);' class='emotion' style='background-position: -2856px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(120);' class='emotion' style='background-position: -2880px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(121);' class='emotion' style='background-position: -2904px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(122);' class='emotion' style='background-position: -2928px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(123);' class='emotion' style='background-position: -2952px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(124);' class='emotion' style='background-position: -2976px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(125);' class='emotion' style='background-position: -3000px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(126);' class='emotion' style='background-position: -3024px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(127);' class='emotion' style='background-position: -3048px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(128);' class='emotion' style='background-position: -3072px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(129);' class='emotion' style='background-position: -3096px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(130);' class='emotion' style='background-position: -3120px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(131);' class='emotion' style='background-position: -3144px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(132);' class='emotion' style='background-position: -3168px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(133);' class='emotion' style='background-position: -3192px 0px;'></a>
+                            	                            	<a href='javascript:;' onclick='return ins_e(134);' class='emotion' style='background-position: -3216px 0px;'></a>
+                            	                            	<div class='clear'></div>
+                        	</div>
+        				</div>
+					</div>
+				</div>
+            </div>
+        </form>
+    </div>
+  </div>
+	
+<div id="RelativeBlogs">
+	<strong><a id='btn_close'>关闭</a>相关文章阅读</strong>
+	<ul>
+			<li>
+		<span class='date'>2012/07/28</span>
+		<a href="http://my.oschina.net/u/218583/blog/69578" title="HTTP请求响应格式">HTTP请求响应格式</a>
+	</li>
+				<li>
+		<span class='date'>2013/04/07</span>
+		<a href="http://my.oschina.net/billowworld/blog/120478" title="HTTP协议详解，非常经典的HTTP网络请求讲解">HTTP协议详解，非常经典的HTTP网络请...</a>
+	</li>
+				<li>
+		<span class='date'>2012/07/15</span>
+		<a href="http://my.oschina.net/u/232879/blog/67229" title="HTTP基础学习之请求行与状态行">HTTP基础学习之请求行与状态行</a>
+	</li>
+				<li>
+		<span class='date'>2012/07/28</span>
+		<a href="http://my.oschina.net/u/218583/blog/69579" title=" HTTP请求头与响应头 实例 "> HTTP请求头与响应头 实例 </a>
+	</li>
+				<li>
+		<span class='date'>2013/05/05</span>
+		<a href="http://my.oschina.net/u/578360/blog/127772" title="http协议之get请求原理(socket请求web内容)">http协议之get请求原理(socket请求w...</a>
+	</li>
+			</ul>
+</div>
+<script type="text/javascript" src="/action/visit/blog?id=90315" defer="defer"></script>
+<script type="text/javascript" src="/js/syntax-highlighter-2.1.382/scripts/brush.js"></script>
+<link type="text/css" rel="stylesheet" href="/js/syntax-highlighter-2.1.382/styles/shCore.css"/>
+<link type="text/css" rel="stylesheet" href="/js/syntax-highlighter-2.1.382/styles/shThemeDefault.css"/>
+<script type='text/javascript'><!--
+$(document).ready(function(){
+	SyntaxHighlighter.config.clipboardSwf = '/js/syntax-highlighter-2.1.382/scripts/clipboard.swf';
+	SyntaxHighlighter.all();
+});
+//-->
+</script>
+<!--[if lt IE 7]>
+<script type="text/javascript" src="/js/minmax.js"></script>
+<![endif]-->
+<script type='text/javascript'>
+<!--
+var posting = false;
+var upprev_closed = false;
+var upprev_hidden = true;
+
+$(document).ready(function(){
+    $('.BlogContent img').css('cursor','pointer');
+    jQuery.each($('.BlogContent img'),function(idx,v){
+    	$(v).wrap("<a href='"+$(this).attr('src')+"' target='_blank'></a>");
+    });
+	$('#form_comment').ajaxForm({
+		dataType: 'json',
+		bforeSubmit: function(){
+			posting = true;
+		},
+		success: function(json) {
+        	if(json.msg){
+				///alert(json.msg);
+				$('#cmt_tip').html("<span style='color:#C00;'>"+json.msg+"</span>");
+				$('#wmd-input').focus();				
+			}else{
+				var url = "http://my.oschina.net/zhaoqian/blog_post?_cmt_blog="+json.blog+"&_cmt_user="+json.user+"&_cmt_id="+json.id;				
+        		jQuery.get(url, function(data){
+    				$('#form_comment .NoData').hide();
+        			$('ul#BlogComments').append(data);
+        			$('#form_comment').resetForm();
+        		}); 
+			}
+		}
+	});
+	
+    var at_datas = [];
+    $('img.SmallPortrait').each(function(){
+        var name = $(this).attr('alt');
+        if(jQuery.inArray(name, at_datas) < 0 && name != '${g_user.name}')
+            at_datas.push(name);
+    });
+    $("#form_comment textarea").atWho("@", {data: at_datas});
+	$("#form_comment textarea").on("keydown",function(event){
+		if((event.metaKey || event.ctrlKey) && event.keyCode==13){
+			$("#form_comment").submit();
+		}
+	});
+	$("#submiting").ajaxStart(function(){
+	   if(posting){
+    	   $('#btn_submit').attr("disabled","disabled");
+           $(this).show();
+	   }
+    });
+	$("#submiting").ajaxComplete(function(event,request, settings){
+	   if(posting){
+           $(this).hide();
+    	   $('#btn_submit').attr("disabled","");
+	   }
+	   posting = false;
+    }); 
+	
+    $(window).scroll(function() {
+        var lastScreen;
+        if ($("#postform").length > 0)
+            lastScreen = getScrollY() + $(window).height() < $("#postform").offset().top * 1 ? false : true;
+        else
+            lastScreen = getScrollY() + $(window).height() < $(document).height() * 1 ? false : true;
+        if (lastScreen && !upprev_closed) {
+            $("#RelativeBlogs").stop().animate({right:"0px"});
+            upprev_hidden = false;
+        }
+        else if (upprev_closed && getScrollY() == 0) {
+            upprev_closed = false;
+        }
+        else if (!upprev_hidden) {
+            upprev_hidden = true;
+            $("#RelativeBlogs").stop().animate({right:"-400px"});
+        }
+    });
+    $("#RelativeBlogs #btn_close").click(function() {
+        $("#RelativeBlogs").stop().animate({right:"-400px"});
+        upprev_closed = true;
+        upprev_hidden = true;
+    });
+});
+function delete_c(nid,uid,cid){
+  if(confirm("您确认要删除此篇评论？")){
+    var args = "cmt="+cid+"#"+uid+"#"+nid;
+    ajax_post("/action/blog/delete_blog_comments?space=214542",args,function(){$("#cmt_"+nid+"_"+uid+"_"+cid).fadeOut();});
+  }
+}
+var replyinline_dup = false;
+function ReplyInline(blog,user,reply){
+	$('.inline_reply').empty();
+	var div_id = '#inline_reply_of_'+blog+'_'+user+'_'+reply;
+	$('#inline_reply_id').val(user+'_'+reply);
+	$(div_id).html($('#inline_reply_editor').html());
+	$('#ccom_content').focus();
+	$('#btn_close_inline_reply').click(function(){
+		$(div_id).empty();
+	});
+	var li_id = '#cmt_'+blog+'_'+user+'_'+reply;
+	var p_li = $(li_id);
+	var tip = $("#ficmp_msg");
+	$('#form_inline_comment').ajaxForm({
+		dataType: 'json',
+		beforeSubmit:function(){
+			if(replyinline_dup){
+			    tip.html("正在发表评论，请勿重复提交");
+				return false;
+			}
+			replyinline_dup = true;
+			return true;
+		},
+    	success: function(json) {
+			tip.html("");
+        	if(json.msg){                                                                                                       
+				tip.html(json.msg);
+				replyinline_dup = false;
+        	}
+        	else if(json.id){
+    			ajax_post("http://my.oschina.net/blog/show_post","_cmt_user="+"&_cmt_id="+json.id,function(html){
+					if(html.length > 0){
+						$(html).insertAfter(p_li);
+						$(div_id).empty();
+					}else{
+						tip.html("获取评论失败");
+					}
+					setTimeout(function(){
+    					replyinline_dup = false;
+					},5000)
+				});
+        	}
+    	}
+	});
+}
+function edit_catalogs(qid){
+	popup("/set-catalogs?parent=1&type=3&id="+qid);
+}
+function vote(blogid){
+		alert("必须登录后才能操作 :)");
+	}
+function toggle_recomm(blogid){
+	ajax_post("/action/blog/toggle_recomm","id="+blogid,function(html){
+		if(html == '-1')
+			alert("文章不存在");
+		else if(html == 0){
+			$('#lnk_recomm_'+blogid).removeClass('recommend');
+			$('#lnk_recomm_'+blogid).text("未推荐");
+		}
+		else if(html == 1){
+			$('#lnk_recomm_'+blogid).addClass('recommend');
+			$('#lnk_recomm_'+blogid).text("已推荐");
+		}
+	});
+}
+	var textbox = $("#wmd-input").textbox({
+		maxLength: 1000,
+    	onInput: function(event, status) {
+			var txt = jQuery.trim($("#wmd-input").val());
+    	}
+	});	
+	function insert_projects() {
+		textbox.insertText('#此处输入软件名#');
+		$('#TweetEmotions').removeAttr('txt_id');
+	}
+	function insert_projects_c() {
+    	var combox = $("#ccom_content").textbox({
+    		maxLength: 1000,
+        	onInput: function(event, status) {
+    			var txt = jQuery.trim($("#ccom_content").val());
+        	}
+    	});	
+		combox.insertText('#此处输入软件名#');
+		$('#TweetEmotions').removeAttr('txt_id');
+	}
+	function insert_emotions(id,obj) {
+		if(id) {
+			$('#TweetEmotions').attr('txt_id',id);
+			var thiz = $(obj);
+			var offset = thiz.offset();
+			var poffset = thiz.offsetParent().offset();
+        	var left = offset.left-poffset.left;
+        	var top = offset.top-poffset.top;
+			$('#TweetFormPopupWraper').css({'top':top+25 +'px','left':left+'px'});
+		}
+		else {
+			$('#TweetFormPopupWraper').css({'top':'','left':''});
+			$('#TweetEmotions').removeAttr('txt_id');
+		}
+		$('#TweetEmotions').show();
+		$('#TweetImages').hide();
+		$('#TweetFormPopupArrow').removeClass('projects');
+		$('#TweetFormPopupArrow').removeClass('images');
+		$('#TweetFormPopupArrow').addClass('emotions');
+		$('#TweetFormPopupWraper').slideDown('fast');
+	}
+	function ins_e(idx){
+		var txt_id = $('#TweetEmotions').attr('txt_id');
+		if(!txt_id)
+			textbox.insertText('['+idx+']');
+		else {
+			insertAtCursor(txt_id,'['+idx+']');
+		}
+		$('#TweetFormPopupWraper').hide();
+		return false;
+	}
+	function insertAtCursor(tbid,str) {
+		var tb = document.getElementById(tbid);
+        if (document.selection){
+			tb.focus();
+			var r = document.selection.createRange();
+            document.selection.empty();
+            r.text = str;
+            r.collapse();
+            r.select();
+        }
+        else{
+            var newstart = tb.selectionStart+str.length;
+            tb.value=tb.value.substr(0,tb.selectionStart)+str+tb.value.substring(tb.selectionEnd);
+            tb.selectionStart = newstart;
+            tb.selectionEnd = newstart;
+        }
+	}
+//-->
+</script></div>
+	<div class='clear'></div>
+	<div id="OSC_Footer"><style>
+.oscapp {text-align:left; width:220px;}
+.oscapp span {float:left;width:140px;}
+.oscapp a {float:left;text-indent:-9999em;width:16px;margin-left:8px;}
+.oscapp a.android {background:url('/img/android.gif') no-repeat left center;}
+.oscapp a.iphone {background:url('/img/iphone.gif') no-repeat left center;}
+.oscapp a.wp7 {background:url('/img/wp7.gif') no-repeat left center;}
+</style>
+<table width='100%'><tr>
+<td align='left'>&copy; 开源中国(OsChina.NET) | <a href="http://www.oschina.net/home/about">关于我们</a> | <a href="mailto:oschina.net@gmail.com">广告联系</a> | <a href="http://weibo.com/oschina2010" target="_blank">@新浪微博</a> | <a href="http://m.oschina.net/">开源中国手机版</a> | <a href='http://www.miitbeian.gov.cn/' target='_blank' style='color:#737573;text-decoration:none;'>粤ICP备12009483号-3</a></td>
+<td class='oscapp'>
+	<span>开源中国手机客户端：</span>
+	<a href="http://www.oschina.net/app" class='android' title='Android客户端'>Android</a>
+	<a href="http://www.oschina.net/app" class='iphone' title='iPhone 客户端'>iPhone</a>
+	<a href="http://www.oschina.net/app" class='wp7' title='Windows Phone 客户端'>WP7</a>
+</td>
+</tr>
+</table>
+<script type='text/javascript'>
+<!--
+if (top.location != self.location)top.location=self.location;
+//-->
+</script></div>
+</div>
+</body>
+
+<script type="text/javascript" src="/action/visit/space?id=214542"></script>
+<script type='text/javascript'>
+<!--
+$(document).ready(function() {
+
+	SelectStyle("#search-item",".search_list");
+	$('.Tweet .photo img').live("click",function(){
+		var T=$(this);
+		var t=this;
+		var bigImg = T.attr('bi');
+		var smallImg = T.attr('si');
+		var src = T.attr('src');
+		var newsrc = (bigImg == src)?smallImg:bigImg;
+		var imgId = T.attr('id');
+		if(newsrc == bigImg){
+    		var loading=$('<img alt="loading" src="/img/loading.gif"/>');
+			var top = T.position().top+T.height()/2-8;
+			var left = T.position().left+T.width()/2-8;
+			loading.css({
+				'position':'absolute',
+				'z-index':999,
+				'top':top,
+				'left':left
+			});
+    		T.before(loading);
+			var tImg=new Image();
+			tImg.src=newsrc;
+			tImg.onload=function(){afterImgLoad(T,loading,imgId,newsrc,bigImg);};
+		}
+		else{
+			T.attr("src",newsrc);
+			$('#img_menu_'+imgId).remove();
+		}
+		return false;
+	});
+	
+	$(".tweet_thumb_wrapper").mouseenter(function(){
+		$(this).find(".tweet_play_video").css("opacity",1);
+	}).mouseleave(function(){
+		$(this).find(".tweet_play_video").css("opacity",0.7);
+	});
+
+    $("#TForm textarea").atWho("@", function(query, callback){
+        jQuery.ajax({
+            type:'POST',
+            url:"/action/tweet/at_suggest",
+            data:{'q':query},
+            dataType:'json',
+            success:function(json){
+                callback(json);
+            }
+        });
+    });
+	
+	toggle_tweet_video = function(id){
+		$("#tweet_video_thumb_"+id).toggle();
+		var video = $("#tweet_video_"+id).toggle();
+		video.siblings(".tweet_video_operation,.tweet_thumb_wrapper").toggle();
+	};
+	
+	function afterImgLoad(T,loading,imgId,url,bigImg){
+		var lnks = "<div id='img_menu_"+imgId+"' class='ImgMenu'>";
+		lnks += "<a href='#' onclick='$(\"#"+imgId+"\").click();return false;'>收起</a>";
+		lnks += "<a href='"+bigImg+"' target='_blank'>查看原图</a></div>";			
+		loading.remove();
+		T.attr("src",url);
+		T.before(lnks);
+	}
+});
+
+function set_fellow_memo(fid,fname){
+	popup("/action/ajax/set_fellow_memo","friend="+fid+"&name="+fname);
+}
+
+function deleteMsgs(uid, fid, fname){
+	if(!confirm("你确认要清除与‘"+fname+"’的所有留言信息吗？"))
+		return ;
+	var args = "user="+uid+"&friend="+fid;
+	ajax_post("/action/msg/delete_user",args,function(html){
+		if(html.length > 0)
+			alert(html);
+		else{
+			$('#Msg_'+fid).fadeOut();
+		}
+	});
+}
+
+function follow_user(uid, uname){
+	just_follow(uid, uname,'${g_user.id}'); //oschina.js
+}
+
+function unfollow_user(uid, uname){
+	if(confirm("确定不再关注" + uname + "了吗？"))
+	just_unfollow(uid,'${g_user.id}',function(){
+		alert('已取消对 ' + uname + ' 的关注');
+	});
+}
+
+function tweet_reply(logid){
+	var r = $('#LogReply_'+logid);
+	if(!r.is(":hidden")){
+		close_tweet_reply(logid);
+		return ;
+	}
+	r.html("<div class='TweetRplsWrapper'><span class='loading'>正在加载评论，请稍候...</span></div>")
+	r.show();
+	r.load("http://my.oschina.net/zhaoqian/tweet-rpls?log="+logid,function(){
+		$('#edt_tweet_post_'+logid).focus();
+        var at_datas = [];
+        $(this).find("img.SmallPortrait").each(function(){
+            var name = $(this).attr('alt');
+            if(jQuery.inArray(name, at_datas) < 0 && name != '${g_user.name}')
+                at_datas.push(name);
+        });
+        $(this).find("input.TXT_TweetRpl_Text").atWho("@", {data: at_datas});
+        $('#TweetReplyForm_'+logid).ajaxForm({
+        	dataType: 'json',
+			beforeSubmit: function(arr, form, options){
+				$('#BTN_TweetReply_'+logid).attr('disabled','disabled');
+			},
+            success: function(json) {
+            	if(json.msg){
+        			alert(json.msg);
+            	}else if(json.log){
+					$('#log_reply_count_'+logid).text(json.reply_count);
+        			//插入新评论					
+					ajax_get("/action/ajax/get_tweet_reply?id=" + json.log,true,function(html){
+						$('#LogReply_'+logid+' ul').prepend(html);
+					});
+					$('#edt_tweet_post_'+logid).val('');
+            	}
+				$('#BTN_TweetReply_'+logid).removeAttr('disabled');
+            }
+        });
+	});
+}
+function close_tweet_reply(logid){
+	$('#LogReply_'+logid).empty();
+	$('#LogReply_'+logid).hide();
+	$('#Logs .userlogs li').removeClass('hover');
+}
+function reply_rtweet(logid, rid, toname){
+	var edtPost = $('#edt_tweet_post_' + logid);
+	var old_v = edtPost.val();
+	if(old_v.length > 0)
+		edtPost.val(old_v + ',@'+toname+' ');
+	else
+		edtPost.val('回复 @'+toname+' : ');
+	edtPost.focus();
+	edtPost.caretPos(edtPost.val().length); }
+function delete_tweet(logid){
+	if(confirm("确认要删除这条信息吗？"))
+	ajax_post("/action/tweet/delete?log="+logid+"&user=${g_user.id}","",function(html){
+		if(html.length==0){
+			var elem = $('#LI_'+logid);
+			if(elem.length > 0)
+				$('#LI_'+logid).fadeOut();
+			else
+				location.reload();
+		}
+	});
+}
+function delete_tweet_reply(logid){
+	if(confirm("确认要删除这条评论吗？"))
+	ajax_post("/action/tweet/delete_reply?id="+logid+"&user=${g_user.id}","",function(html){
+		if(html.length==0)
+			$('#TweetReply_'+logid).fadeOut();
+	});
+}
+
+function delete_blog(blog_id){
+    if(!confirm("文章删除后无法恢复，请确认是否删除此篇文章？")) return;
+    ajax_post("/action/blog/delete?id="+blog_id+"&user=${g_user.id}&user_code=${g_user.activate_code}","",function(html){
+    	location.href="http://my.oschina.net/zhaoqian/blog";
+    });
+}
+
+function SelectStyle(on,option){
+	var currentSort = $(on).attr('id');
+	var currentText = $(option+" li."+currentSort+" a").html();
+	$(on + " .text").html(currentText);
+	$(on + " .text").hover(function(){
+		$(this).addClass("hover")
+	},function(){
+		$(this).removeClass("hover")
+	});
+	$(option+" li a").each(function(index){
+		$(this).click(function(){
+			thishtml = $(this).html();
+			$(on + " .text").removeClass("on").html(thishtml);		
+			$(".selectbox select ").find("option").removeAttr('selected').eq(index).attr("selected","selected");	
+			$(option).hide()
+			return false;
+		});
+		
+	});		
+	
+	$(".selectbox").click(function(){		
+		$(option).toggle();
+		$(on + " .text").toggleClass("on");		
+		return false;
+	});
+	$(document).click(function(){
+		$(option).hide();	
+		$(on + " .text").removeClass("on");
+	});
+	$(document).trigger('click');
+
+}
+
+//-->
+</script>
+</html>
+
+<!-- Generated by OsChina.NET (init:0[ms],page:69[ms],ip:219.234.140.50) -->
