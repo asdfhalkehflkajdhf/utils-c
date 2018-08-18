@@ -1,0 +1,16 @@
+cd ftp
+
+make 编译生成
+	ftp 可执行程序
+	libftp.so 动态库
+	libftp.a  静态库
+
+
+cd ftp/test
+
+make 编译生成
+	test 可执行程序
+
+
+libfpt.so 头文件
+	libftp.h
